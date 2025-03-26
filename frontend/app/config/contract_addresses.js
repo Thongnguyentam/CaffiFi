@@ -21,4 +21,4 @@ export const config = {
       address: "0xC08d4863F130Bd79532c1afeEa331eae03CAc943",
     },
   },
-}
+};

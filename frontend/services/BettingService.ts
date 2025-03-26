@@ -1,7 +1,7 @@
 import { ethers } from "ethers";
 import { useWalletClient } from "wagmi";
 import BettingABI from "@/abi/Betting.json";
-let contractAddress = "0xd1b6BEa5A3b3dd4836100f5C55877c59d4666569";
+let contractAddress = "0x152283040d467292e34750d4EfD64F84D4BD2bCc";
 
 export const useBettingService = () => {
   const { data: walletClient } = useWalletClient();
@@ -14,13 +14,6 @@ export const useBettingService = () => {
 
     const chainId = await walletClient.getChainId();
     console.log("Chain ID:", chainId);
-
-    if (chainId === 57054) {
-      contractAddress = "0xd1b6BEa5A3b3dd4836100f5C55877c59d4666569";
-    } else if (chainId === 146) {
-      contractAddress = "0x7cebb1bae1e148c1f1a0f30b306e898da05f12dc";
-    }
-
     console.log("Using contract address:", contractAddress);
     return contractAddress;
   };
