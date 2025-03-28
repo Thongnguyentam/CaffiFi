@@ -26,17 +26,20 @@ export default function Home(): JSX.Element {
   // Function to handle the "Connect Wallet" button click
   const handleConnectWallet = async () => {
     try {
-      // If not connected, try to connect wallet
       if (!isConnected) {
+        console.log("Attempting to connect wallet from landing page...");
         await connect();
+        console.log("Wallet connected successfully");
         // The WalletProvider will handle redirection after successful connection
       } else {
-        // If already connected, just navigate to dashboard
+        console.log("Already connected, navigating to dashboard");
         router.push("/dashboard");
       }
     } catch (error) {
       console.error("Failed to connect wallet:", error);
-      router.push("/dashboard");
+      alert(
+        "Failed to connect wallet. Please make sure MetaMask is installed and unlocked."
+      );
     }
   };
 
