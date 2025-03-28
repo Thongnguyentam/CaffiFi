@@ -235,7 +235,7 @@ export function SiteLeftbar() {
     <div className="h-full overflow-y-auto bg-black/80 backdrop-blur-sm border-r border-blue-500/20 py-4">
       <div className="px-4 pt-5 mb-6">
         <div className="text-blue-300 text-xs uppercase tracking-wider mb-2 opacity-70">
-          HYPERSONIC TERMINAL
+          CaffiFi TERMINAL
         </div>
         <div className="h-0.5 bg-gradient-to-r from-sky-400 to-blue-400"></div>
       </div>

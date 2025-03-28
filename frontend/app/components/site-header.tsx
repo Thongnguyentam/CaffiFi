@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import {
   NavigationMenu,
@@ -138,119 +139,31 @@ const MatrixConnectButton = () => {
   );
 };
 
-// Matrix-styled RainbowKit ConnectButton
-const MatrixRainbowButton = () => {
+// Coffee-themed connect wallet button
+const CoffeeConnectButton = () => {
+  const router = useRouter();
+  const { connect, isConnected } = useWallet();
+
+  const handleConnectWallet = async () => {
+    try {
+      if (!isConnected) {
+        await connect();
+      } else {
+        router.push("/dashboard");
+      }
+    } catch (error) {
+      console.error("Failed to connect wallet:", error);
+      router.push("/dashboard");
+    }
+  };
+
   return (
-    <ConnectButton.Custom>
-      {({
-        account,
-        chain,
-        openAccountModal,
-        openChainModal,
-        openConnectModal,
-        authenticationStatus,
-        mounted,
-      }) => {
-        // Note: If your app doesn't use authentication, you
-        // can remove all 'authenticationStatus' checks
-        const ready = mounted && authenticationStatus !== "loading";
-        const connected =
-          ready &&
-          account &&
-          chain &&
-          (!authenticationStatus || authenticationStatus === "authenticated");
-
-        return (
-          <div
-            {...(!ready && {
-              "aria-hidden": true,
-              style: {
-                opacity: 0,
-                pointerEvents: "none",
-                userSelect: "none",
-              },
-            })}
-          >
-            {(() => {
-              if (!connected) {
-                return (
-                  <button
-                    onClick={openConnectModal}
-                    type="button"
-                    className="px-4 py-2 rounded-md text-sm font-bold transition-all duration-300 bg-transparent border border-sky-400 text-sky-400 hover:bg-sky-400 hover:text-black hover:shadow-[0_0_10px_rgba(56,189,248,0.7)]"
-                  >
-                    <div className="flex items-center">
-                      <Wallet className="mr-2 h-4 w-4" />
-                      <span>CONNECT</span>
-                    </div>
-                  </button>
-                );
-              }
-
-              if (chain.unsupported) {
-                return (
-                  <button
-                    onClick={openChainModal}
-                    type="button"
-                    className="px-4 py-2 rounded-md text-sm font-bold transition-all duration-300 bg-transparent border border-red-500 text-red-500 hover:bg-red-500 hover:text-black hover:shadow-[0_0_10px_rgba(255,0,0,0.7)]"
-                  >
-                    Wrong network
-                  </button>
-                );
-              }
-
-              return (
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={openChainModal}
-                    type="button"
-                    className="px-4 py-2 rounded-md text-sm font-bold transition-all duration-300 bg-transparent border border-sky-400 text-sky-400 hover:bg-sky-400 hover:text-black hover:shadow-[0_0_10px_rgba(56,189,248,0.7)]"
-                  >
-                    <div className="flex items-center">
-                      {chain.hasIcon && (
-                        <div
-                          style={{
-                            background: chain.iconBackground,
-                            width: 16,
-                            height: 16,
-                            borderRadius: 999,
-                            overflow: "hidden",
-                            marginRight: 6,
-                          }}
-                        >
-                          {chain.iconUrl && (
-                            <img
-                              alt={chain.name ?? "Chain icon"}
-                              src={chain.iconUrl}
-                              style={{ width: 16, height: 16 }}
-                            />
-                          )}
-                        </div>
-                      )}
-                      {chain.name}
-                    </div>
-                  </button>
-
-                  <button
-                    onClick={openAccountModal}
-                    type="button"
-                    className="px-4 py-2 rounded-md text-sm font-bold transition-all duration-300 bg-transparent border border-sky-400 text-sky-400 hover:bg-sky-400 hover:text-black hover:shadow-[0_0_10px_rgba(56,189,248,0.7)]"
-                  >
-                    <div className="flex items-center">
-                      <Wallet className="mr-2 h-4 w-4" />
-                      {account.displayName}
-                      {account.displayBalance
-                        ? ` (${account.displayBalance})`
-                        : ""}
-                    </div>
-                  </button>
-                </div>
-              );
-            })()}
-          </div>
-        );
-      }}
-    </ConnectButton.Custom>
+    <button
+      className="bg-[#8B4513] hover:bg-[#A0522D] px-6 py-2 rounded-lg transition-all transform hover:translate-y-[-2px] hover:shadow-[0_8px_16px_rgba(139,69,19,0.3)] active:translate-y-0 text-[#e8d5a9]"
+      onClick={handleConnectWallet}
+    >
+      Connect Wallet
+    </button>
   );
 };
 
@@ -262,12 +175,13 @@ export function SiteHeader() {
   const scramblerRef = useRef<TextScramble | null>(null);
   const [mounted, setMounted] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const router = useRouter();
 
   // Use wagmi account hook
   const { address, isConnected } = useAccount();
 
   // Use our wallet context
-  const { disconnect } = useWallet();
+  const { disconnect, connect } = useWallet();
 
   // Initialize text scramble effect for logo
   useEffect(() => {
@@ -280,7 +194,7 @@ export function SiteHeader() {
   // Apply text scramble effect on hover
   const handleLogoHover = () => {
     if (scramblerRef.current) {
-      scramblerRef.current.setText("HYPERSONIC");
+      scramblerRef.current.setText("CaffiFi");
     }
   };
 
@@ -293,6 +207,23 @@ export function SiteHeader() {
   useEffect(() => {
     setMobileMenuOpen(false);
   }, [pathname]);
+
+  // Function to handle the "Connect Wallet" button click
+  const handleConnectWallet = async () => {
+    try {
+      // If not connected, try to connect wallet
+      if (!isConnected) {
+        await connect();
+        // The WalletProvider will handle redirection to dashboard after successful connection
+      } else {
+        // If already connected, just navigate to dashboard
+        router.push("/dashboard");
+      }
+    } catch (error) {
+      console.error("Failed to connect wallet:", error);
+      router.push("/dashboard");
+    }
+  };
 
   // Load authentication state and user data from localStorage on component mount
   useEffect(() => {
@@ -323,18 +254,20 @@ export function SiteHeader() {
     }
   }, [isConnected, address]);
 
-  const publicMenuItems = useMemo(
+  const menuItems = useMemo(
     (): NavItem[] => [
-      { label: "Marketcap", href: "/marketcap" },
+      { label: "Factory", href: "#" },
       { label: "Marketplace", href: "/marketplace" },
-      { label: "Bets", href: "/bets" },
+      { label: "Security", href: "#" },
+      { label: "Portfolio", href: "#" },
     ],
     []
   );
 
-  // Additional menu items for authenticated users
   const authenticatedMenuItems = useMemo(
     (): NavItem[] => [
+      { label: "Marketcap", href: "/marketcap" },
+      { label: "Bets", href: "/bets" },
       { label: "Launch Tokens", href: "/launch" },
       { label: "Create Bets", href: "/bets/create" },
       { label: "Quick Swap", href: "/dashboard/quick-swap" },
@@ -342,16 +275,86 @@ export function SiteHeader() {
     []
   );
 
-  // Memoize the combined menu items to prevent recreation on every render
-  const menuItems = useMemo(
-    () => [
-      ...publicMenuItems,
-      ...(isAuthenticated ? authenticatedMenuItems : []),
-    ],
-    [publicMenuItems, authenticatedMenuItems, isAuthenticated]
-  );
+  // Use coffee-themed header on landing page, matrix theme elsewhere
+  const isLandingPage = pathname === "/";
 
-  return (
+  return isLandingPage ? (
+    // Coffee-themed header for landing page
+    <nav className="container mx-auto px-6 py-4 flex items-center justify-between relative z-20">
+      <div className="flex items-center gap-2 transform hover:scale-105 transition-transform">
+        <Image src="/logo-nobg.svg" alt="CaffiFi Logo" width={40} height={40} />
+        <span className="text-2xl font-bold text-[#d4b37f]">CaffiFi</span>
+      </div>
+
+      <div className="hidden md:flex items-center gap-8">
+        <a
+          href="#"
+          className="hover:text-[#d4b37f] transition-colors transform hover:translate-y-[-2px] text-[#e8d5a9]"
+        >
+          Factory
+        </a>
+        <a
+          href="/marketplace"
+          className="hover:text-[#d4b37f] transition-colors transform hover:translate-y-[-2px] text-[#e8d5a9]"
+        >
+          Marketplace
+        </a>
+        <a
+          href="#"
+          className="hover:text-[#d4b37f] transition-colors transform hover:translate-y-[-2px] text-[#e8d5a9]"
+        >
+          Security
+        </a>
+        <a
+          href="#"
+          className="hover:text-[#d4b37f] transition-colors transform hover:translate-y-[-2px] text-[#e8d5a9]"
+        >
+          Portfolio
+        </a>
+        <button
+          className="bg-[#8B4513] hover:bg-[#A0522D] px-6 py-2 rounded-lg transition-all transform hover:translate-y-[-2px] hover:shadow-[0_8px_16px_rgba(139,69,19,0.3)] active:translate-y-0 text-[#e8d5a9]"
+          onClick={handleConnectWallet}
+        >
+          Connect Wallet
+        </button>
+      </div>
+
+      {/* Mobile menu toggle */}
+      <button className="md:hidden text-[#e8d5a9]" onClick={toggleMobileMenu}>
+        {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+      </button>
+
+      {/* Mobile menu */}
+      {mobileMenuOpen && (
+        <div className="absolute top-full left-0 w-full bg-[#1a0f02] p-4 md:hidden z-50">
+          <div className="flex flex-col space-y-4">
+            <a href="#" className="text-[#e8d5a9] hover:text-[#d4b37f]">
+              Factory
+            </a>
+            <a
+              href="/marketplace"
+              className="text-[#e8d5a9] hover:text-[#d4b37f]"
+            >
+              Marketplace
+            </a>
+            <a href="#" className="text-[#e8d5a9] hover:text-[#d4b37f]">
+              Security
+            </a>
+            <a href="#" className="text-[#e8d5a9] hover:text-[#d4b37f]">
+              Portfolio
+            </a>
+            <button
+              className="bg-[#8B4513] hover:bg-[#A0522D] px-6 py-2 rounded-lg text-[#e8d5a9] text-center"
+              onClick={handleConnectWallet}
+            >
+              Connect Wallet
+            </button>
+          </div>
+        </div>
+      )}
+    </nav>
+  ) : (
+    // Original Matrix-themed header for other pages
     <header className="fixed top-0 z-50 w-full border-b border-sky-400/20 bg-black/90 backdrop-blur supports-[backdrop-filter]:bg-black/60">
       <div className="w-full px-6 md:px-8 lg:px-12">
         <nav className="flex items-center justify-between h-20">
@@ -367,19 +370,131 @@ export function SiteHeader() {
                 className="text-2xl font-bold text-sky-400 font-mono"
                 style={{ textShadow: "0 0 5px rgba(56,189,248,0.7)" }}
               >
-                HYPERSONIC
+                CaffiFi
               </span>
             </Link>
           </div>
 
           {/* Navigation Links - centered */}
           <div className="hidden md:flex items-center justify-center absolute left-1/2 transform -translate-x-1/2">
-            <NavigationMenu items={menuItems} />
+            <NavigationMenu
+              items={isAuthenticated ? authenticatedMenuItems : menuItems}
+            />
           </div>
 
           {/* Connect Button and Mobile Menu Toggle - aligned to the right edge of the screen */}
           <div className="flex-shrink-0 flex items-center space-x-4">
-            <MatrixRainbowButton />
+            <ConnectButton.Custom>
+              {({
+                account,
+                chain,
+                openAccountModal,
+                openChainModal,
+                openConnectModal,
+                authenticationStatus,
+                mounted,
+              }) => {
+                // Note: If your app doesn't use authentication, you
+                // can remove all 'authenticationStatus' checks
+                const ready = mounted && authenticationStatus !== "loading";
+                const connected =
+                  ready &&
+                  account &&
+                  chain &&
+                  (!authenticationStatus ||
+                    authenticationStatus === "authenticated");
+
+                return (
+                  <div
+                    {...(!ready && {
+                      "aria-hidden": true,
+                      style: {
+                        opacity: 0,
+                        pointerEvents: "none",
+                        userSelect: "none",
+                      },
+                    })}
+                  >
+                    {(() => {
+                      if (!connected) {
+                        return (
+                          <button
+                            onClick={openConnectModal}
+                            type="button"
+                            className="px-4 py-2 rounded-md text-sm font-bold transition-all duration-300 bg-transparent border border-sky-400 text-sky-400 hover:bg-sky-400 hover:text-black hover:shadow-[0_0_10px_rgba(56,189,248,0.7)]"
+                          >
+                            <div className="flex items-center">
+                              <Wallet className="mr-2 h-4 w-4" />
+                              <span>CONNECT</span>
+                            </div>
+                          </button>
+                        );
+                      }
+
+                      if (chain.unsupported) {
+                        return (
+                          <button
+                            onClick={openChainModal}
+                            type="button"
+                            className="px-4 py-2 rounded-md text-sm font-bold transition-all duration-300 bg-transparent border border-red-500 text-red-500 hover:bg-red-500 hover:text-black hover:shadow-[0_0_10px_rgba(255,0,0,0.7)]"
+                          >
+                            Wrong network
+                          </button>
+                        );
+                      }
+
+                      return (
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={openChainModal}
+                            type="button"
+                            className="px-4 py-2 rounded-md text-sm font-bold transition-all duration-300 bg-transparent border border-sky-400 text-sky-400 hover:bg-sky-400 hover:text-black hover:shadow-[0_0_10px_rgba(56,189,248,0.7)]"
+                          >
+                            <div className="flex items-center">
+                              {chain.hasIcon && (
+                                <div
+                                  style={{
+                                    background: chain.iconBackground,
+                                    width: 16,
+                                    height: 16,
+                                    borderRadius: 999,
+                                    overflow: "hidden",
+                                    marginRight: 6,
+                                  }}
+                                >
+                                  {chain.iconUrl && (
+                                    <img
+                                      alt={chain.name ?? "Chain icon"}
+                                      src={chain.iconUrl}
+                                      style={{ width: 16, height: 16 }}
+                                    />
+                                  )}
+                                </div>
+                              )}
+                              {chain.name}
+                            </div>
+                          </button>
+
+                          <button
+                            onClick={openAccountModal}
+                            type="button"
+                            className="px-4 py-2 rounded-md text-sm font-bold transition-all duration-300 bg-transparent border border-sky-400 text-sky-400 hover:bg-sky-400 hover:text-black hover:shadow-[0_0_10px_rgba(56,189,248,0.7)]"
+                          >
+                            <div className="flex items-center">
+                              <Wallet className="mr-2 h-4 w-4" />
+                              {account.displayName}
+                              {account.displayBalance
+                                ? ` (${account.displayBalance})`
+                                : ""}
+                            </div>
+                          </button>
+                        </div>
+                      );
+                    })()}
+                  </div>
+                );
+              }}
+            </ConnectButton.Custom>
 
             {/* Mobile Menu Toggle */}
             <button
@@ -400,19 +515,21 @@ export function SiteHeader() {
         {mobileMenuOpen && (
           <div className="md:hidden py-4 border-t border-[#00ff00]/20 bg-black/95 backdrop-blur">
             <nav className="flex flex-col space-y-4 px-2">
-              {menuItems.map((item) => (
-                <Link
-                  key={item.label}
-                  href={item.href}
-                  className={`text-sm transition-colors ${
-                    pathname === item.href
-                      ? "text-white font-medium"
-                      : "text-white/80 hover:text-white hover:glow"
-                  }`}
-                >
-                  {item.label}
-                </Link>
-              ))}
+              {(isAuthenticated ? authenticatedMenuItems : menuItems).map(
+                (item) => (
+                  <Link
+                    key={item.label}
+                    href={item.href}
+                    className={`text-sm transition-colors ${
+                      pathname === item.href
+                        ? "text-white font-medium"
+                        : "text-white/80 hover:text-white hover:glow"
+                    }`}
+                  >
+                    {item.label}
+                  </Link>
+                )
+              )}
             </nav>
           </div>
         )}

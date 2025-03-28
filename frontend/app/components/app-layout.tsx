@@ -3,14 +3,12 @@
 import { ReactNode, useEffect, useState } from "react";
 import { SiteHeader } from "./site-header";
 import { SiteLeftbar } from "./site-leftbar";
-import { Footer } from "./Footer";
 
 interface AppLayoutProps {
   children: ReactNode;
-  showFooter?: boolean;
 }
 
-export function AppLayout({ children, showFooter = false }: AppLayoutProps) {
+export function AppLayout({ children }: AppLayoutProps): JSX.Element {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   // Check authentication status
@@ -52,9 +50,6 @@ export function AppLayout({ children, showFooter = false }: AppLayoutProps) {
           className={`flex-1 ${isAuthenticated ? "ml-[280px]" : ""} w-full`}
         >
           {children}
-
-          {/* Footer */}
-          {showFooter && <Footer />}
         </main>
       </div>
     </div>

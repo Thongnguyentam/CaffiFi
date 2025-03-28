@@ -19,7 +19,7 @@ export default function Hero() {
             </span>
           </h1>
           <p className="text-xl md:text-2xl text-gray-300 mb-8">
-            HyperSonic empowers you to create powerful Discord bots easily and
+            CaffiFi empowers you to create powerful Discord bots easily and
             quickly, without writing a single line of code.
           </p>
           <a

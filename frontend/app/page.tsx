@@ -3,9 +3,8 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useWallet } from "./providers/WalletProvider";
+import Image from "next/image";
 import { AppLayout } from "./components/app-layout";
-import StarfieldBackground from "./components/GridBackground";
-import { Button } from "@/components/ui/button";
 
 export default function Home(): JSX.Element {
   const router = useRouter();
@@ -30,7 +29,7 @@ export default function Home(): JSX.Element {
       // If not connected, try to connect wallet
       if (!isConnected) {
         await connect();
-        // The WalletProvider will handle redirection to dashboard after successful connection
+        // The WalletProvider will handle redirection after successful connection
       } else {
         // If already connected, just navigate to dashboard
         router.push("/dashboard");
@@ -42,83 +41,77 @@ export default function Home(): JSX.Element {
   };
 
   return (
-    <AppLayout showFooter={false}>
-      {/* Starfield Background */}
-      <StarfieldBackground />
+    <AppLayout>
+      {/* Glowing background */}
+      <div className="fixed inset-0 bg-[#1a0f02] z-0">
+        <div className="absolute inset-0 bg-gradient-radial from-[#3a1e0a] via-[#1a0f02] to-[#1a0f02] opacity-60"></div>
+        <div className="absolute top-0 left-0 right-0 h-64 bg-gradient-to-b from-[#3a1e0a] to-transparent opacity-20"></div>
+      </div>
 
       {/* Main Content */}
-      <div
-        className="fixed inset-0 flex items-center justify-center"
-        style={{ zIndex: 10 }}
-      >
-        <section className="w-full flex flex-col items-center justify-center">
-          <div className="container mx-auto px-4 flex items-center justify-center">
-            <div className="py-16 md:py-24 max-w-3xl w-full text-center space-y-8">
-              {/* New badge */}
-              <div className="flex items-center justify-center">
-                <div className="inline-flex items-center gap-2 bg-white/10 px-4 py-1.5 rounded-full text-sm">
-                  <span className="bg-gradient-to-r from-sky-400 to-blue-500 text-white text-xs px-2 py-0.5 rounded-full">
-                    New
-                  </span>
-                  <span className="flex items-center gap-2 text-white">
-                    Multi-AI Agent Framework for Market Prediction, Smart
-                    Trading, Token Launching & On-Chain Betting
-                  </span>
-                </div>
-              </div>
-
-              {/* Hero content */}
-              <div className="space-y-8 flex flex-col items-center">
-                <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-center text-white">
-                  HYPER
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-blue-500 hover:glow">
-                    SONIC
-                  </span>
-                </h1>
-                <p className="text-lg text-gray-300 text-center max-w-2xl mx-auto">
-                  Built on Sonic - the high-performance EVM blockchain built for
-                  DeFi and Web3 innovation
-                </p>
-                <div className="flex justify-center gap-4 mt-4">
-                  <Button
-                    size="lg"
-                    className="bg-gradient-to-r from-sky-400 to-blue-500 hover:from-sky-500 hover:to-blue-600 text-white rounded-full px-8 hover:glow"
-                    onClick={handleConnectWallet}
-                  >
-                    Let's GOO!
-                  </Button>
-                  <Button
-                    size="lg"
-                    variant="outline"
-                    className="rounded-full px-8 hover:glow text-white border-white"
-                  >
-                    View Demo
-                  </Button>
-                </div>
-              </div>
+      <div className="container mx-auto flex flex-col justify-center items-center relative z-10 h-screen">
+        {/* Hero Section */}
+        <div className="flex flex-col md:flex-row items-center justify-center w-full max-w-6xl relative -mt-24">
+          {/* Left: Moka Pot */}
+          <div className="md:absolute md:-left-20 lg:-left-32 flex justify-center mb-8 md:mb-0">
+            <div className="relative">
+              <Image
+                src="/mokapot.png"
+                alt="Moka Pot"
+                width={280}
+                height={280}
+                className="animate-float drop-shadow-[0_0_15px_rgba(139,69,19,0.6)]"
+                style={{ animationDelay: "0.2s" }}
+                priority
+              />
+              <div className="absolute -top-10 left-1/2 w-8 h-8 bg-[#8B4513] opacity-30 rounded-full blur-md animate-steam"></div>
+              <div
+                className="absolute -top-12 left-1/3 w-6 h-6 bg-[#8B4513] opacity-30 rounded-full blur-md animate-steam-delayed"
+                style={{ animationDelay: "1.2s" }}
+              ></div>
             </div>
           </div>
-        </section>
 
-        {/* Add the glow animation styles */}
-        <style jsx global>{`
-          @keyframes glow {
-            0% {
-              text-shadow: 0 0 5px rgba(56, 189, 248, 0.5);
-            }
-            50% {
-              text-shadow: 0 0 10px rgba(56, 189, 248, 0.7),
-                0 0 15px rgba(59, 130, 246, 0.5);
-            }
-            100% {
-              text-shadow: 0 0 5px rgba(56, 189, 248, 0.5);
-            }
-          }
+          {/* Center: Text */}
+          <div className="text-center mx-auto max-w-3xl px-4">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 text-[#e8c992] transform hover:scale-105 transition-transform drop-shadow-[0_0_10px_rgba(219,182,108,0.7)] whitespace-nowrap">
+              Brew the Future of Memes
+            </h1>
+            <p className="text-lg md:text-xl mb-8 text-[#e8d5a9]">
+              Brewed fresh on The Expresso Network.
+            </p>
+            <button
+              className="bg-[#8B4513] hover:bg-[#A0522D] px-8 py-3 rounded-lg text-lg font-semibold transition-all transform hover:translate-y-[-4px] hover:shadow-[0_0_20px_rgba(139,69,19,0.8)] active:translate-y-0 text-[#e8d5a9]"
+              onClick={handleConnectWallet}
+            >
+              Get Brewing
+            </button>
+          </div>
 
-          .hover\\:glow:hover {
-            animation: glow 1.5s ease-in-out infinite;
-          }
-        `}</style>
+          {/* Coffee beans in hero section (absolutely positioned) */}
+          <div className="md:absolute md:right-0 lg:-right-20 md:-top-32 z-0 hidden md:block">
+            <Image
+              src="/coffeebean.png"
+              alt="Coffee Bean"
+              width={220}
+              height={220}
+              className="animate-float-slow"
+              style={{ animationDelay: "0.5s" }}
+              priority
+            />
+          </div>
+          <div className="md:absolute md:right-30 lg:-right-8 md:top-35 opacity-60 z-0 hidden md:block">
+            <Image
+              src="/coffeebean.png"
+              alt="Coffee Bean"
+              width={130}
+              height={130}
+              className="animate-float-delayed"
+              style={{ animationDelay: "1.5s" }}
+              priority
+            />
+          </div>
+        </div>
       </div>
     </AppLayout>
   );

@@ -135,7 +135,7 @@ const DeBridgeWidget = () => {
           window.deBridge.widget({
             v: "1",
             element: "debridgeWidget",
-            title: "HyperSonic",
+            title: "CaffiFi",
             description: "",
             width: "100%",
             height: "650px",

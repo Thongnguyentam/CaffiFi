@@ -23,7 +23,7 @@ const Navbar: React.FC = () => {
           <div className="flex-shrink-0 flex items-center">
             <Link href="/" className="flex items-center">
               <span className="text-[#00A8E8] text-xl sm:text-2xl font-bold">
-                HYPERSONIC
+                CaffiFi
               </span>
             </Link>
           </div>

@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Watchlist | HyperSonic",
+  title: "Watchlist | CaffiFi",
   description: "One-stop shop for all your meme coin needs",
 };
 
