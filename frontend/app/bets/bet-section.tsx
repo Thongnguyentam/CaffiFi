@@ -75,15 +75,13 @@ export function BetSection({
     <section className="space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <h2 className="text-2xl font-semibold">{title}</h2>
-          <span className="text-sm text-muted-foreground">
-            {totalBets} total
-          </span>
+          <h2 className="text-2xl font-semibold text-[#e8d5a9]">{title}</h2>
+          <span className="text-sm text-[#e8d5a9]/70">{totalBets} total</span>
         </div>
         {showViewAll && (
           <Link
             href={`/bets/all?filter=${title.toLowerCase()}`}
-            className="text-sm text-muted-foreground hover:text-primary transition-colors"
+            className="text-sm text-[#d4b37f] hover:text-[#e8d5a9] transition-colors"
           >
             View All {title}
           </Link>
@@ -113,9 +111,9 @@ export function BetSection({
                 return (
                   <div
                     key={bet.id}
-                    className="border border-red-500 rounded-md p-4"
+                    className="border border-[#8B4513]/30 rounded-md p-4 bg-[#1a0f02]/60"
                   >
-                    <p>Error rendering bet</p>
+                    <p className="text-[#e8d5a9]">Error rendering bet</p>
                     <p className="text-xs text-red-400">{String(error)}</p>
                   </div>
                 );
@@ -125,7 +123,7 @@ export function BetSection({
 
           {totalPages > 1 && (
             <div className="flex items-center justify-between mt-8">
-              <div className="text-sm text-muted-foreground whitespace-nowrap">
+              <div className="text-sm text-[#e8d5a9]/70 whitespace-nowrap">
                 Showing {startIndex + 1}-
                 {Math.min(startIndex + itemsPerPage, totalBets)} of {totalBets}{" "}
                 bets
@@ -139,11 +137,12 @@ export function BetSection({
                         e.preventDefault();
                         if (currentPage > 1) onPageChange(currentPage - 1);
                       }}
-                      className={
+                      className={cn(
+                        "border-[#8B4513]/30 text-[#d4b37f] hover:bg-[#8B4513]/20 hover:text-[#e8d5a9]",
                         currentPage === 1
                           ? "pointer-events-none opacity-50"
                           : ""
-                      }
+                      )}
                     />
                   </PaginationItem>
 
@@ -164,6 +163,11 @@ export function BetSection({
                               onPageChange(page);
                             }}
                             isActive={currentPage === page}
+                            className={
+                              currentPage === page
+                                ? "bg-[#8B4513] text-[#e8d5a9]"
+                                : "text-[#d4b37f] hover:bg-[#8B4513]/20 hover:text-[#e8d5a9]"
+                            }
                           >
                             {page}
                           </PaginationLink>
@@ -174,7 +178,7 @@ export function BetSection({
                     if (page === currentPage - 2 || page === currentPage + 2) {
                       return (
                         <PaginationItem key={page}>
-                          <PaginationEllipsis />
+                          <PaginationEllipsis className="text-[#d4b37f]" />
                         </PaginationItem>
                       );
                     }
@@ -189,11 +193,12 @@ export function BetSection({
                         if (currentPage < totalPages)
                           onPageChange(currentPage + 1);
                       }}
-                      className={
+                      className={cn(
+                        "border-[#8B4513]/30 text-[#d4b37f] hover:bg-[#8B4513]/20 hover:text-[#e8d5a9]",
                         currentPage === totalPages
                           ? "pointer-events-none opacity-50"
                           : ""
-                      }
+                      )}
                     />
                   </PaginationItem>
                 </PaginationContent>
@@ -202,8 +207,8 @@ export function BetSection({
           )}
         </>
       ) : (
-        <div className="border border-white/10 rounded-xl bg-black/20 p-10 text-center">
-          <p className="text-muted-foreground">
+        <div className="border border-[#8B4513]/30 rounded-xl bg-[#1a0f02]/60 p-10 text-center">
+          <p className="text-[#e8d5a9]/70">
             No {title.toLowerCase()} available
           </p>
         </div>

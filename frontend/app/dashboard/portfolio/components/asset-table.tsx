@@ -54,8 +54,8 @@ const mockAssets: Asset[] = [
   },
   {
     id: "0x79bbf4508b1391af3a0f4b30bb5fc4aa9ab0e07c",
-    symbol: "S",
-    name: "Sonic",
+    symbol: "ETH",
+    name: "Ethereum",
     address: "0x8C96Dd1A8B1952Ce6F3a582170bb173eD591D40b",
     category: "layer1",
     avgCost: 0.45,
@@ -203,7 +203,7 @@ const getCoinLogo = (symbol: string) => {
     BTC: "https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/128/color/btc.png",
     WETH: "https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/128/color/eth.png",
     SOL: "https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/128/color/sol.png",
-    S: "https://s2.coinmarketcap.com/static/img/coins/200x200/32684.png",
+    ETH: "https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/128/color/eth.png",
     PEPE: "https://assets.coingecko.com/coins/images/29850/large/pepe-token.jpeg?1682922725",
     BLUR: "https://assets.coingecko.com/coins/images/28453/large/blur.png?1670745921",
     UNI: "https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/128/color/uni.png",
@@ -248,31 +248,31 @@ export function AssetTable({ searchQuery }: AssetTableProps) {
   };
 
   return (
-    <Card className="overflow-hidden border-white/10 bg-black/60 backdrop-blur-xl">
+    <Card className="overflow-hidden border-[#8B4513]/30 bg-[#1a0f02]/60 backdrop-blur-xl">
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead>
-            <tr className="border-b border-white/10">
-              <th className="px-4 py-3 text-left">Asset</th>
-              <th className="px-4 py-3 text-right">Price</th>
-              <th className="px-4 py-3 text-right">24h P/L</th>
-              <th className="px-4 py-3 text-right">Avg. Cost</th>
-              <th className="px-4 py-3 text-right">Holdings</th>
-              <th className="px-4 py-3 text-right">P/L</th>
-              <th className="px-4 py-3 text-right">P/L(%)</th>
-              <th className="px-4 py-3 text-right">Value</th>
-              <th className="px-4 py-3 text-center">Actions</th>
+            <tr className="border-b border-[#8B4513]/30">
+              <th className="px-4 py-3 text-left text-[#e8d5a9]">Asset</th>
+              <th className="px-4 py-3 text-right text-[#e8d5a9]">Price</th>
+              <th className="px-4 py-3 text-right text-[#e8d5a9]">24h P/L</th>
+              <th className="px-4 py-3 text-right text-[#e8d5a9]">Avg. Cost</th>
+              <th className="px-4 py-3 text-right text-[#e8d5a9]">Holdings</th>
+              <th className="px-4 py-3 text-right text-[#e8d5a9]">P/L</th>
+              <th className="px-4 py-3 text-right text-[#e8d5a9]">P/L(%)</th>
+              <th className="px-4 py-3 text-right text-[#e8d5a9]">Value</th>
+              <th className="px-4 py-3 text-center text-[#e8d5a9]">Actions</th>
             </tr>
           </thead>
           <tbody>
             {filteredAssets.map((asset) => (
               <tr
                 key={asset.id}
-                className="border-b border-white/10 hover:bg-white/5"
+                className="border-b border-[#8B4513]/30 hover:bg-[#8B4513]/10"
               >
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 overflow-hidden rounded-full bg-white/10">
+                    <div className="w-8 h-8 overflow-hidden rounded-full bg-[#8B4513]/20">
                       <Image
                         src={getCoinLogo(asset.symbol) || "/placeholder.svg"}
                         alt={asset.name}
@@ -283,15 +283,15 @@ export function AssetTable({ searchQuery }: AssetTableProps) {
                     <div>
                       <div className="font-medium">
                         <span
-                          className="font-semibold transition-colors cursor-pointer hover:text-blue-500"
+                          className="font-semibold transition-colors cursor-pointer text-[#e8d5a9] hover:text-[#d4b37f]"
                           onClick={() => router.push(`/coins/${asset.id}`)}
                         >
                           {asset.name}
                         </span>
                       </div>
-                      <div className="text-sm text-muted-foreground">
+                      <div className="text-sm">
                         <span
-                          className="block text-sm text-gray-400 transition-colors cursor-pointer hover:text-blue-500"
+                          className="block text-sm text-[#e8d5a9]/70 transition-colors cursor-pointer hover:text-[#d4b37f]"
                           onClick={() => router.push(`/coins/${asset.id}`)}
                         >
                           {asset.symbol}
@@ -300,7 +300,7 @@ export function AssetTable({ searchQuery }: AssetTableProps) {
                     </div>
                   </div>
                 </td>
-                <td className="px-4 py-3 text-right">
+                <td className="px-4 py-3 text-right text-[#e8d5a9]">
                   ${formatNumber(asset.price)}
                 </td>
                 <td className="px-4 py-3 text-right">
@@ -312,10 +312,10 @@ export function AssetTable({ searchQuery }: AssetTableProps) {
                     ${formatNumber(asset.dailyPL)}
                   </span>
                 </td>
-                <td className="px-4 py-3 text-right">
+                <td className="px-4 py-3 text-right text-[#e8d5a9]">
                   ${formatNumber(asset.avgCost)}
                 </td>
-                <td className="px-4 py-3 text-right">
+                <td className="px-4 py-3 text-right text-[#e8d5a9]">
                   {formatNumber(asset.holdings)}
                 </td>
                 <td className="px-4 py-3 text-right">
@@ -336,7 +336,7 @@ export function AssetTable({ searchQuery }: AssetTableProps) {
                     {formatNumber(asset.plPercent)}%
                   </span>
                 </td>
-                <td className="px-4 py-3 text-right">
+                <td className="px-4 py-3 text-right text-[#e8d5a9]">
                   ${formatNumber(asset.value)}
                 </td>
                 <td className="px-4 py-3">
@@ -344,32 +344,39 @@ export function AssetTable({ searchQuery }: AssetTableProps) {
                     <Button
                       variant="default"
                       size="sm"
-                      className="bg-gradient-to-r from-blue-400 to-blue-500"
+                      className="bg-gradient-to-r from-[#d4b37f] to-[#8B4513] text-[#e8d5a9] hover:from-[#8B4513] hover:to-[#d4b37f]"
                       onClick={() => handleAutoShill(asset)}
                     >
                       Auto Shill
                     </Button>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-[#d4b37f] hover:text-[#e8d5a9] hover:bg-[#8B4513]/20"
+                        >
                           <MoreVertical className="w-4 h-4" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem>
-                          <LineChart className="w-4 h-4 mr-2" />
+                      <DropdownMenuContent
+                        align="end"
+                        className="border-[#8B4513]/30 bg-[#1a0f02] text-[#e8d5a9]"
+                      >
+                        <DropdownMenuItem className="hover:bg-[#8B4513]/20 hover:text-[#e8d5a9] cursor-pointer">
+                          <LineChart className="w-4 h-4 mr-2 text-[#d4b37f]" />
                           View Chart
                         </DropdownMenuItem>
-                        <DropdownMenuItem>
-                          <History className="w-4 h-4 mr-2" />
+                        <DropdownMenuItem className="hover:bg-[#8B4513]/20 hover:text-[#e8d5a9] cursor-pointer">
+                          <History className="w-4 h-4 mr-2 text-[#d4b37f]" />
                           Transaction History
                         </DropdownMenuItem>
-                        <DropdownMenuItem>
-                          <Share2 className="w-4 h-4 mr-2" />
+                        <DropdownMenuItem className="hover:bg-[#8B4513]/20 hover:text-[#e8d5a9] cursor-pointer">
+                          <Share2 className="w-4 h-4 mr-2 text-[#d4b37f]" />
                           Share
                         </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem className="text-red-500">
+                        <DropdownMenuSeparator className="bg-[#8B4513]/30" />
+                        <DropdownMenuItem className="text-red-500 hover:bg-[#8B4513]/20 hover:text-red-400 cursor-pointer">
                           <Trash2 className="w-4 h-4 mr-2" />
                           Remove
                         </DropdownMenuItem>

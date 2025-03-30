@@ -43,15 +43,15 @@ export function AIInputForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <Card className="p-6 bg-primary/5 border-primary/20">
+      <Card className="p-6 bg-[#3a1e0a]/30 border-[#8B4513]/40 shadow-sm">
         <div className="space-y-4">
           <div className="flex items-center gap-2">
             {inputMethod === "ai-joke" ? (
-              <Bot className="w-5 h-5 text-primary" />
+              <Bot className="w-5 h-5 text-[#d4b37f]" />
             ) : (
-              <Wand2 className="w-5 h-5 text-primary" />
+              <Wand2 className="w-5 h-5 text-[#d4b37f]" />
             )}
-            <h3 className="font-medium">
+            <h3 className="font-medium text-[#e8d5a9]">
               {inputMethod === "ai-joke"
                 ? "Enter your meme idea or joke"
                 : "Enter a tweet URL"}
@@ -63,7 +63,7 @@ export function AIInputForm({
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="E.g., Trump got so mad he turned into a meme coin that only goes up when he tweets"
-              className="min-h-[100px]"
+              className="min-h-[100px] bg-[#1a0f02]/60 border-[#8B4513]/40 text-[#e8d5a9] placeholder-[#d4b37f]/50 focus-visible:ring-[#d4b37f]"
             />
           ) : (
             <Input
@@ -71,18 +71,22 @@ export function AIInputForm({
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="https://twitter.com/username/status/123456789"
+              className="bg-[#1a0f02]/60 border-[#8B4513]/40 text-[#e8d5a9] placeholder-[#d4b37f]/50 focus-visible:ring-[#d4b37f]"
             />
           )}
 
           {error && (
-            <Alert variant="destructive">
+            <Alert
+              variant="destructive"
+              className="bg-[#A0522D]/20 border-[#A0522D]/40 text-[#e8d5a9]"
+            >
               <AlertDescription>{error}</AlertDescription>
             </Alert>
           )}
 
           <Button
             type="submit"
-            className="w-full"
+            className="w-full bg-[#8B4513] hover:bg-[#A0522D] text-[#e8d5a9] border border-[#8B4513]/60"
             disabled={isGenerating || !input.trim()}
           >
             {isGenerating ? (

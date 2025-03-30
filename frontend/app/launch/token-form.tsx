@@ -112,19 +112,21 @@ export function TokenFormSection({
 
   const renderLaunchConfiguration = () => (
     <div>
-      <h3 className="text-lg font-semibold mb-4">Launch Configuration</h3>
-      <Card className="bg-primary/5 border-primary/10">
+      <h3 className="text-lg font-semibold mb-4 text-[#e8d5a9]">
+        Launch Configuration
+      </h3>
+      <Card className="bg-[#3a1e0a]/30 border-[#8B4513]/40 shadow-sm">
         <CardContent className="p-6">
           <div className="space-y-4">
             <div className="grid grid-cols-2 items-center gap-4">
               <div className="flex items-center gap-2">
-                <span className="text-sm">Initial Supply</span>
+                <span className="text-sm text-[#e8d5a9]">Initial Supply</span>
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger>
-                      <Info className="h-4 w-4 text-muted-foreground" />
+                      <Info className="h-4 w-4 text-[#d4b37f]/70" />
                     </TooltipTrigger>
-                    <TooltipContent>
+                    <TooltipContent className="bg-[#1a0f02] border-[#8B4513]/40 text-[#e8d5a9]">
                       <p>The initial amount of tokens that will be minted</p>
                     </TooltipContent>
                   </Tooltip>
@@ -137,27 +139,27 @@ export function TokenFormSection({
                   onChange={(e) =>
                     onConfigChange("initialSupply", e.target.value)
                   }
-                  className="font-mono"
+                  className="font-mono bg-[#1a0f02]/60 border-[#8B4513]/40 text-[#e8d5a9] focus-visible:ring-[#d4b37f]"
                   min="1000"
                   max={launchConfig.maxSupply}
                 />
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-[#d4b37f]/70">
                   tokens
                 </span>
               </div>
             </div>
 
-            <Separator />
+            <Separator className="bg-[#8B4513]/30" />
 
             <div className="grid grid-cols-2 items-center gap-4">
               <div className="flex items-center gap-2">
-                <span className="text-sm">Max Supply</span>
+                <span className="text-sm text-[#e8d5a9]">Max Supply</span>
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger>
-                      <Info className="h-4 w-4 text-muted-foreground" />
+                      <Info className="h-4 w-4 text-[#d4b37f]/70" />
                     </TooltipTrigger>
-                    <TooltipContent>
+                    <TooltipContent className="bg-[#1a0f02] border-[#8B4513]/40 text-[#e8d5a9]">
                       <p>Maximum number of tokens that can ever exist</p>
                     </TooltipContent>
                   </Tooltip>
@@ -168,26 +170,28 @@ export function TokenFormSection({
                   type="number"
                   value={launchConfig.maxSupply}
                   onChange={(e) => onConfigChange("maxSupply", e.target.value)}
-                  className="font-mono"
+                  className="font-mono bg-[#1a0f02]/60 border-[#8B4513]/40 text-[#e8d5a9] focus-visible:ring-[#d4b37f]"
                   min={launchConfig.initialSupply}
                 />
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-[#d4b37f]/70">
                   tokens
                 </span>
               </div>
             </div>
 
-            <Separator />
+            <Separator className="bg-[#8B4513]/30" />
 
             <div className="grid grid-cols-2 items-center gap-4">
               <div className="flex items-center gap-2">
-                <span className="text-sm">Initial Liquidity</span>
+                <span className="text-sm text-[#e8d5a9]">
+                  Initial Liquidity
+                </span>
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger>
-                      <Info className="h-4 w-4 text-muted-foreground" />
+                      <Info className="h-4 w-4 text-[#d4b37f]/70" />
                     </TooltipTrigger>
-                    <TooltipContent>
+                    <TooltipContent className="bg-[#1a0f02] border-[#8B4513]/40 text-[#e8d5a9]">
                       <p>Percentage of tokens allocated to initial liquidity</p>
                     </TooltipContent>
                   </Tooltip>
@@ -199,30 +203,34 @@ export function TokenFormSection({
                   onConfigChange("liquidityPercentage", value)
                 }
               >
-                <SelectTrigger className="font-mono">
+                <SelectTrigger className="font-mono bg-[#1a0f02]/60 border-[#8B4513]/40 text-[#e8d5a9] focus-visible:ring-[#d4b37f]">
                   <SelectValue placeholder="Select percentage" />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="40">40%</SelectItem>
-                  <SelectItem value="50">50%</SelectItem>
-                  <SelectItem value="60">60%</SelectItem>
-                  <SelectItem value="70">70%</SelectItem>
-                  <SelectItem value="80">80%</SelectItem>
+                <SelectContent className="bg-[#1a0f02] border-[#8B4513]/40">
+                  {["30", "40", "50", "60", "70", "80"].map((value) => (
+                    <SelectItem
+                      key={value}
+                      value={value}
+                      className="text-[#e8d5a9] focus:bg-[#8B4513]/20 focus:text-[#d4b37f]"
+                    >
+                      {value}%
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
 
-            <Separator />
+            <Separator className="bg-[#8B4513]/30" />
 
             <div className="grid grid-cols-2 items-center gap-4">
               <div className="flex items-center gap-2">
-                <span className="text-sm">Lockup Period</span>
+                <span className="text-sm text-[#e8d5a9]">Lockup Period</span>
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger>
-                      <Info className="h-4 w-4 text-muted-foreground" />
+                      <Info className="h-4 w-4 text-[#d4b37f]/70" />
                     </TooltipTrigger>
-                    <TooltipContent>
+                    <TooltipContent className="bg-[#1a0f02] border-[#8B4513]/40 text-[#e8d5a9]">
                       <p>Duration for which the liquidity will be locked</p>
                     </TooltipContent>
                   </Tooltip>
@@ -232,10 +240,10 @@ export function TokenFormSection({
                 value={launchConfig.lockupPeriod}
                 onValueChange={(value) => onConfigChange("lockupPeriod", value)}
               >
-                <SelectTrigger className="font-mono">
+                <SelectTrigger className="font-mono bg-[#1a0f02]/60 border-[#8B4513]/40 text-[#e8d5a9] focus-visible:ring-[#d4b37f]">
                   <SelectValue placeholder="Select period" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-[#1a0f02] border-[#8B4513]/40">
                   <SelectItem value="90">90 days</SelectItem>
                   <SelectItem value="180">180 days</SelectItem>
                   <SelectItem value="365">1 year</SelectItem>

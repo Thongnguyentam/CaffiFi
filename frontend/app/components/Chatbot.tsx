@@ -13,6 +13,7 @@ import {
   TrendingUp,
   Zap,
   HelpCircle,
+  Coffee,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -182,10 +183,10 @@ export function Chatbot() {
           >
             <Button
               onClick={() => setIsOpen(true)}
-              className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-blue-700"
+              className="flex items-center gap-2 bg-[#8B4513] hover:bg-[#A0522D] text-[#e8d5a9] shadow-[0_4px_12px_rgba(139,69,19,0.3)]"
             >
-              <MessageCircle className="h-5 w-5" />
-              <span>Need Help?</span>
+              <Coffee className="h-5 w-5" />
+              <span>Barista Bot</span>
             </Button>
           </motion.div>
         )}
@@ -198,28 +199,30 @@ export function Chatbot() {
             transition={{ duration: 0.2 }}
             className="w-full h-[500px] overflow-hidden"
           >
-            <Card className="bg-[#1A1B1E] border-none w-full h-full overflow-hidden shadow-xl flex flex-col">
+            <Card className="bg-[#1a0f02] border-[#8B4513]/40 w-full h-full overflow-hidden shadow-xl flex flex-col">
               <CardContent className="p-0 flex flex-col h-full">
                 {/* Header */}
-                <div className="flex items-center justify-between p-3 bg-black/20 backdrop-blur-sm border-b border-white/10">
+                <div className="flex items-center justify-between p-3 bg-[#3a1e0a]/80 backdrop-blur-sm border-b border-[#8B4513]/40">
                   <div className="flex items-center gap-2">
-                    <div className="h-8 w-8 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-xs">
-                      AI
+                    <div className="h-8 w-8 rounded-full bg-gradient-to-br from-[#A0522D] to-[#8B4513] flex items-center justify-center text-[#e8d5a9] text-xs">
+                      <Coffee className="h-4 w-4" />
                     </div>
-                    <span className="font-medium">CaffiFi Assistant</span>
+                    <span className="font-medium text-[#e8d5a9]">
+                      CaffiFi Barista
+                    </span>
                   </div>
                   <Button
                     variant="ghost"
                     size="icon"
                     onClick={() => setIsOpen(false)}
-                    className="h-8 w-8 rounded-full"
+                    className="h-8 w-8 rounded-full text-[#e8d5a9] hover:text-[#d4b37f] hover:bg-[#3a1e0a]"
                   >
                     <X className="h-4 w-4" />
                   </Button>
                 </div>
 
                 {/* Chat messages */}
-                <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-[#1A1B1E]">
+                <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-[#1a0f02]">
                   <AnimatePresence>
                     {messages.map((msg, index) => (
                       <motion.div
@@ -234,16 +237,16 @@ export function Chatbot() {
                         <div
                           className={`p-3 rounded-xl text-sm max-w-[80%] ${
                             msg.role === "user"
-                              ? "bg-blue-600 text-white self-end"
-                              : "bg-[#2A2B2E] text-gray-200 self-start"
+                              ? "bg-[#8B4513] text-[#e8d5a9] self-end"
+                              : "bg-[#3a1e0a] text-[#e8d5a9] self-start"
                           }`}
                         >
                           {msg.content}
                           <div
                             className={`text-xs mt-1 ${
                               msg.role === "user"
-                                ? "text-blue-200"
-                                : "text-gray-400"
+                                ? "text-[#d4b37f]"
+                                : "text-[#d4b37f]/70"
                             }`}
                           >
                             {msg.timestamp}
@@ -255,47 +258,47 @@ export function Chatbot() {
 
                   {isLoading && (
                     <div className="flex justify-center">
-                      <Loader2 className="h-6 w-6 animate-spin text-blue-600" />
+                      <Loader2 className="h-6 w-6 animate-spin text-[#d4b37f]" />
                     </div>
                   )}
                   <div ref={chatEndRef} />
                 </div>
 
                 {/* Quick Insight Buttons */}
-                <div className="px-4 pt-3 pb-2 bg-[#1A1B1E] border-[#2A2B2E]">
+                <div className="px-4 pt-3 pb-2 bg-[#1a0f02] border-[#3a1e0a]">
                   <div className="grid grid-cols-2 gap-2 mb-2">
                     <Button
                       variant="outline"
-                      className="bg-[#2A2B2E] border-[#353538] text-gray-300 hover:bg-[#353538] hover:text-white flex items-center justify-start text-xs sm:text-sm"
+                      className="bg-[#3a1e0a]/80 border-[#8B4513]/40 text-[#e8d5a9] hover:bg-[#8B4513]/60 hover:text-[#e8d5a9] flex items-center justify-start text-xs sm:text-sm"
                       onClick={() => handleInsightRequest("Meme Coin Analysis")}
                     >
-                      <Brain className="mr-1 h-4 w-4 flex-shrink-0" />
+                      <Brain className="mr-1 h-4 w-4 flex-shrink-0 text-[#d4b37f]" />
                       <span className="truncate">Meme Coin Analysis</span>
                     </Button>
                     <Button
                       variant="outline"
-                      className="bg-[#2A2B2E] border-[#353538] text-gray-300 hover:bg-[#353538] hover:text-white flex items-center justify-start text-xs sm:text-sm"
+                      className="bg-[#3a1e0a]/80 border-[#8B4513]/40 text-[#e8d5a9] hover:bg-[#8B4513]/60 hover:text-[#e8d5a9] flex items-center justify-start text-xs sm:text-sm"
                       onClick={() => handleInsightRequest("Market Trends")}
                     >
-                      <TrendingUp className="mr-1 h-4 w-4 flex-shrink-0" />
+                      <TrendingUp className="mr-1 h-4 w-4 flex-shrink-0 text-[#d4b37f]" />
                       <span className="truncate">Market Trends</span>
                     </Button>
                     <Button
                       variant="outline"
-                      className="bg-[#2A2B2E] border-[#353538] text-gray-300 hover:bg-[#353538] hover:text-white flex items-center justify-start text-xs sm:text-sm"
+                      className="bg-[#3a1e0a]/80 border-[#8B4513]/40 text-[#e8d5a9] hover:bg-[#8B4513]/60 hover:text-[#e8d5a9] flex items-center justify-start text-xs sm:text-sm"
                       onClick={() => handleInsightRequest("Risk Assessment")}
                     >
-                      <Zap className="mr-1 h-4 w-4 flex-shrink-0" />
+                      <Zap className="mr-1 h-4 w-4 flex-shrink-0 text-[#d4b37f]" />
                       <span className="truncate">Risk Assessment</span>
                     </Button>
                     <Button
                       variant="outline"
-                      className="bg-[#2A2B2E] border-[#353538] text-gray-300 hover:bg-[#353538] hover:text-white flex items-center justify-start text-xs sm:text-sm"
+                      className="bg-[#3a1e0a]/80 border-[#8B4513]/40 text-[#e8d5a9] hover:bg-[#8B4513]/60 hover:text-[#e8d5a9] flex items-center justify-start text-xs sm:text-sm"
                       onClick={() =>
                         handleInsightRequest("Portfolio Optimization")
                       }
                     >
-                      <Star className="mr-1 h-4 w-4 flex-shrink-0" />
+                      <Star className="mr-1 h-4 w-4 flex-shrink-0 text-[#d4b37f]" />
                       <span className="truncate">Portfolio Optimization</span>
                     </Button>
                   </div>
@@ -304,21 +307,21 @@ export function Chatbot() {
                 {/* Input Area */}
                 <form
                   onSubmit={handleSendMessage}
-                  className="p-4 border-t border-[#2A2B2E] flex items-center gap-2 bg-[#1A1B1E]"
+                  className="p-4 border-t border-[#8B4513]/40 flex items-center gap-2 bg-[#1a0f02]"
                 >
                   <Input
                     type="text"
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
-                    placeholder="Ask about meme coins..."
-                    className="flex-1 bg-[#2A2B2E] border-[#353538] focus-visible:ring-blue-600 text-white"
+                    placeholder="Ask about crypto..."
+                    className="flex-1 bg-[#3a1e0a]/60 border-[#8B4513]/40 focus-visible:ring-[#d4b37f] focus-visible:border-[#d4b37f] text-[#e8d5a9] placeholder-[#d4b37f]/50"
                     disabled={isLoading}
                   />
                   <Button
                     type="submit"
                     size="icon"
                     disabled={isLoading || !input.trim()}
-                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                    className="bg-[#8B4513] hover:bg-[#A0522D] text-[#e8d5a9]"
                   >
                     <Send className="w-4 h-4" />
                   </Button>

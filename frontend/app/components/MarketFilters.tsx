@@ -36,7 +36,10 @@ export function MarketFilters({
       <div className="flex items-center gap-2">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="w-[130px]">
+            <Button
+              variant="outline"
+              className="w-[130px] border-[#8B4513]/40 bg-[#1a0f02]/60 text-[#e8d5a9] hover:bg-[#8B4513]/20 hover:text-[#e8d5a9] hover:border-[#8B4513]"
+            >
               <div className="flex items-center gap-2">
                 {selectedChain ? (
                   <>
@@ -52,18 +55,25 @@ export function MarketFilters({
                 ) : (
                   "All Chains"
                 )}
-                <ChevronDown className="ml-auto h-4 w-4" />
+                <ChevronDown className="ml-auto h-4 w-4 text-[#d4b37f]" />
               </div>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-[200px]">
-            <DropdownMenuItem onClick={() => onChainSelect(null)}>
+          <DropdownMenuContent
+            align="end"
+            className="w-[200px] border-[#8B4513]/30 bg-[#1a0f02] text-[#e8d5a9]"
+          >
+            <DropdownMenuItem
+              onClick={() => onChainSelect(null)}
+              className="hover:bg-[#8B4513]/20 focus:bg-[#8B4513]/20 hover:text-[#e8d5a9] cursor-pointer"
+            >
               <span className="font-medium">All Chains</span>
             </DropdownMenuItem>
             {chains.map((chain) => (
               <DropdownMenuItem
                 key={chain.id}
                 onClick={() => onChainSelect(chain)}
+                className="hover:bg-[#8B4513]/20 focus:bg-[#8B4513]/20 hover:text-[#e8d5a9] cursor-pointer"
               >
                 <div className="flex items-center gap-2">
                   <Image
@@ -89,8 +99,8 @@ export function MarketFilters({
                 size="sm"
                 className={`flex items-center gap-2 ${
                   activeFilter === filter.id
-                    ? "text-primary bg-primary/10"
-                    : "text-muted-foreground hover:text-primary"
+                    ? "text-[#e8d5a9] bg-[#8B4513]/30"
+                    : "text-[#e8d5a9]/70 hover:text-[#e8d5a9] hover:bg-[#8B4513]/20"
                 }`}
                 onClick={() =>
                   onFilterSelect(
@@ -103,7 +113,7 @@ export function MarketFilters({
                   )
                 }
               >
-                <Icon className="w-4 h-4" />
+                <Icon className="w-4 h-4 text-[#d4b37f]" />
                 {filter.label}
               </Button>
             );
@@ -113,7 +123,7 @@ export function MarketFilters({
 
       <Button
         asChild
-        className="bg-gradient-to-r from-sky-400 to-blue-500 hover:from-sky-400/90 hover:to-blue-500/90"
+        className="bg-gradient-to-r from-[#d4b37f] to-[#8B4513] text-[#e8d5a9] hover:from-[#8B4513] hover:to-[#d4b37f]"
       >
         <Link href="/launch">
           <Rocket className="mr-2 h-4 w-4" />

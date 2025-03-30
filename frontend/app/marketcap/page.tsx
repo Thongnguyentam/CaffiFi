@@ -5,6 +5,7 @@ import { MemeCoinMarketCap } from "../components/MemeCoinMarketCap";
 import { fetchTrendingTokens } from "@/app/lib/coins";
 import { useState, useEffect } from "react";
 import { TrendingCoin } from "@/app/types/coins";
+import { Coffee, Coins, TrendingUp } from "lucide-react";
 
 interface SparklineProps {
   data: number[];
@@ -17,7 +18,7 @@ function Sparkline({
   data,
   width = 60,
   height = 20,
-  color = "#4ade80",
+  color = "#8B4513",
 }: SparklineProps) {
   const min = Math.min(...data);
   const max = Math.max(...data);
@@ -102,17 +103,33 @@ export default function MarketcapPage(): JSX.Element {
   }, []);
 
   return (
-    <AppLayout showFooter={false}>
+    <AppLayout>
       <div className="relative z-10 container py-8">
-        <h1 className="mb-2 text-4xl font-bold">
-          Today's Meme Coin Prices by{" "}
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 via-[#00ff00] to-emerald-400">
-            Market Cap
-          </span>
-        </h1>
-        <p className="mb-8 text-muted-foreground">
-          Track and analyze the latest meme coins across multiple chains
-        </p>
+        <div className="mb-8 bg-[#1a0f02]/90 backdrop-blur-xl p-6 rounded-xl border border-[#8B4513]/30 shadow-md">
+          <div className="flex items-center gap-3 mb-2">
+            <Coins className="h-8 w-8 text-[#d4b37f]" />
+            <h1 className="text-4xl font-bold">
+              Today's Meme Coin Prices by{" "}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#8B4513] via-[#d4b37f] to-[#A0522D]">
+                Market Cap
+              </span>
+            </h1>
+          </div>
+          <div className="flex items-center gap-2">
+            <TrendingUp className="h-5 w-5 text-[#8B4513]" />
+            <p className="text-[#e8d5a9]/70">
+              Track and analyze the latest meme coins across multiple chains
+            </p>
+          </div>
+          <div className="mt-4 p-4 bg-[#3a1e0a]/50 rounded-lg border border-[#8B4513]/20 flex items-center gap-3">
+            <Coffee className="h-5 w-5 text-[#d4b37f]" />
+            <p className="text-[#e8d5a9]">
+              <span className="font-bold text-[#d4b37f]">CaffiFi Insight:</span>{" "}
+              Brew your own crypto portfolio with confidence by analyzing these
+              trending meme coins.
+            </p>
+          </div>
+        </div>
         <MemeCoinMarketCap coins={trendingCoins} />
       </div>
     </AppLayout>

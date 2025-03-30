@@ -90,13 +90,16 @@ export default function QuickSwapPage() {
       <div className="container py-8 max-w-2xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2 text-center">
-            Quick <span className="text-blue-400">Swap</span>
+            Quick{" "}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#d4b37f] to-[#8B4513]">
+              Swap
+            </span>
           </h1>
         </div>
 
         {isLoading ? (
-          <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+          <div className="flex justify-center items-center h-64 bg-[#1a0f02]/60 rounded-xl border border-[#8B4513]/40">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#d4b37f]"></div>
           </div>
         ) : (
           <CoinSwap
