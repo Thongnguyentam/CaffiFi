@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback, Suspense } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -73,31 +72,6 @@ interface ActionType {
   prompt: string;
 }
 
-const quickActions: ActionType[] = [
-  {
-    iconName: "Fish",
-    label: "Whale Activity",
-    prompt: "Show me recent whale activity. What are they dumping and buying?",
-  },
-  {
-    iconName: "ArrowLeftRight",
-    label: "Compare Coins",
-    prompt:
-      "Compare the top trending meme coins. Show key metrics and differences.",
-  },
-  {
-    iconName: "LineChart",
-    label: "Stalker Mode",
-    prompt: "Which tokens have strong holders but low volume?",
-  },
-  {
-    iconName: "Newspaper",
-    label: "News Scanner",
-    prompt:
-      "Show me the latest news and social media sentiment about meme coins.",
-  },
-];
-
 interface IAttachment {
   url: string;
   contentType: string;
@@ -160,7 +134,6 @@ function AIChatbotContent() {
   const [editingContent, setEditingContent] = useState("");
   const [isListening, setIsListening] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [showFollowUpActions, setShowFollowUpActions] = useState(false);
   const searchParams = useSearchParams();
   const [showSwapInterface, setShowSwapInterface] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -191,7 +164,6 @@ function AIChatbotContent() {
     if (!input) return;
 
     setHasInteracted(true);
-    setShowFollowUpActions(false);
 
     const attachments: IAttachment[] | undefined = selectedFile
       ? [
@@ -259,7 +231,6 @@ function AIChatbotContent() {
           })),
         ]
       );
-      setShowFollowUpActions(true);
     },
     onError: (e) => {
       // Remove the thinking message on error
@@ -294,25 +265,6 @@ function AIChatbotContent() {
       startNewChat();
     }
   }, [searchParams.get("new"), searchParams.get("t")]);
-
-  // Follow-up quick actions based on previous interaction
-  const followUpActions = [
-    {
-      label: "Quick Swap",
-      prompt: "Help me swap these tokens on the best DEX with lowest fees",
-      icon: <ArrowLeftRight className="w-4 h-4" />,
-    },
-    {
-      label: "Latest News",
-      prompt: "Show me the latest news about these tokens",
-      icon: <Newspaper className="w-4 h-4" />,
-    },
-    {
-      label: "Price Alert",
-      prompt: "Set a price alert for these tokens",
-      icon: <LineChart className="w-4 h-4" />,
-    },
-  ];
 
   const scrollToBottom = useCallback(() => {
     if (messagesEndRef.current) {
@@ -351,24 +303,11 @@ function AIChatbotContent() {
     setShowSwapInterface(false);
   };
 
-  const handleQuickAction = (prompt: string) => {
-    setHasInteracted(true);
-    setShowFollowUpActions(false);
-    setInput(prompt);
-
-    const fakeEvent = {
-      preventDefault: () => {},
-    } as React.FormEvent<HTMLFormElement>;
-
-    handleSendMessage(fakeEvent);
-  };
-
   // Function to start a new chat
   const startNewChat = () => {
     queryClient.setQueryData(["messages", agentId], []);
     setInput("");
     setHasInteracted(false);
-    setShowFollowUpActions(false);
   };
 
   const handleCopy = (content: string | SwapMessageContent) => {
@@ -662,235 +601,163 @@ function AIChatbotContent() {
 
   return (
     <div className="ml-10 mr-10 mx-auto flex flex-col h-[calc(100vh-5rem)] max-h-[calc(100vh-5rem)] pt-12">
-      <AnimatePresence>
-        {!hasInteracted && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="py-8 mt-4 space-y-6 text-center"
-          >
-            <div className="flex items-center justify-center w-16 h-16 mx-auto rounded-full bg-primary/10">
-              <Brain className="w-8 h-8 text-primary" />
-            </div>
-            <h1 className="text-4xl font-bold">
-              CaffiFi{" "}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-blue-500">
-                Bot
-              </span>
-            </h1>
-          </motion.div>
-        )}
-      </AnimatePresence>
-      {/* Quick Actions */}
-      <AnimatePresence>
-        {!hasInteracted && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="grid grid-cols-1 gap-4 p-4 md:grid-cols-2 lg:grid-cols-4"
-          >
-            {quickActions.map((action) => {
-              const Icon = icons[action.iconName];
-              return (
-                <Card
-                  key={action.label}
-                  className="p-4 cursor-pointer bg-[#2A2B2E] border-[#353538] text-gray-300 hover:bg-[#353538] hover:text-white transition-colors"
-                  onClick={() => handleQuickAction(action.prompt)}
-                >
-                  <div className="flex items-center gap-3">
-                    <Icon className="w-5 h-5 text-primary" />
-                    <span className="text-sm font-medium">{action.label}</span>
-                  </div>
-                </Card>
-              );
-            })}
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {!hasInteracted && (
+        <div className="text-center">
+          <div className="flex items-center justify-center w-16 h-16 mx-auto rounded-full bg-primary/10">
+            <Brain className="w-8 h-8 text-primary" />
+          </div>
+          <h1 className="text-4xl font-bold">
+            CaffiFi{" "}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-700 to-yellow-600">
+              Bot
+            </span>
+          </h1>
+        </div>
+      )}
 
       {/* Chat Area */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.3 }}
-        className="flex-1 p-4 mt-2 space-y-4 overflow-y-auto"
-      >
-        {messages.map((message, index) => {
-          const isBot = message.user === "Sage" || message.data;
-          return (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
+      {messages.map((message, index) => {
+        const isBot = message.user === "Sage" || message.data;
+        return (
+          <div
+            key={index}
+            className={cn(
+              "flex gap-3",
+              isBot ? "items-start" : "items-start flex-row-reverse"
+            )}
+          >
+            <Avatar>
+              {isBot ? (
+                <>
+                  <AvatarImage src="https://example.com/bot-meme-avatar.png" />
+                  <AvatarFallback>
+                    <Bot className="w-5 h-5" />
+                  </AvatarFallback>
+                </>
+              ) : (
+                <>
+                  <AvatarImage src="https://example.com/user-meme-avatar.png" />
+                  <AvatarFallback>U</AvatarFallback>
+                </>
+              )}
+            </Avatar>
+            <div
               className={cn(
-                "flex gap-3",
-                isBot ? "items-start" : "items-start flex-row-reverse"
+                "flex flex-col gap-2",
+                isBot ? "items-start" : "items-end"
               )}
             >
-              <Avatar>
-                {isBot ? (
-                  <>
-                    <AvatarImage src="https://example.com/bot-meme-avatar.png" />
-                    <AvatarFallback>
-                      <Bot className="w-5 h-5" />
-                    </AvatarFallback>
-                  </>
-                ) : (
-                  <>
-                    <AvatarImage src="https://example.com/user-meme-avatar.png" />
-                    <AvatarFallback>U</AvatarFallback>
-                  </>
-                )}
-              </Avatar>
-              <div
-                className={cn(
-                  "flex flex-col gap-2",
-                  isBot ? "items-start" : "items-end"
-                )}
-              >
-                {editingMessageIndex === index ? (
-                  <div className="flex items-center gap-2">
-                    <Input
-                      value={editingContent}
-                      onChange={(e) => setEditingContent(e.target.value)}
-                      className="min-w-[300px]"
-                      autoFocus
-                    />
-                    <Button size="sm" onClick={handleSaveEdit}>
-                      Save
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => setEditingMessageIndex(null)}
-                    >
-                      Cancel
-                    </Button>
-                  </div>
-                ) : (
-                  <div
-                    className={cn(
-                      "rounded-lg px-4 py-2 max-w-[80%]",
-                      isBot
-                        ? "bg-secondary text-secondary-foreground"
-                        : "bg-primary text-primary-foreground"
-                    )}
+              {editingMessageIndex === index ? (
+                <div className="flex items-center gap-2">
+                  <Input
+                    value={editingContent}
+                    onChange={(e) => setEditingContent(e.target.value)}
+                    className="min-w-[300px]"
+                    autoFocus
+                  />
+                  <Button size="sm" onClick={handleSaveEdit}>
+                    Save
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => setEditingMessageIndex(null)}
                   >
-                    {isBot ? (
-                      message.isLoading ? (
-                        <ThinkingMessage />
-                      ) : (
-                        <div className="text-sm whitespace-pre-wrap">
-                          {renderMessageContent(message)}
-                        </div>
-                      )
+                    Cancel
+                  </Button>
+                </div>
+              ) : (
+                <div
+                  className={cn(
+                    "rounded-lg px-4 py-2 max-w-[80%]",
+                    isBot
+                      ? "bg-secondary text-secondary-foreground"
+                      : "bg-primary text-primary-foreground"
+                  )}
+                >
+                  {isBot ? (
+                    message.isLoading ? (
+                      <ThinkingMessage />
                     ) : (
                       <div className="text-sm whitespace-pre-wrap">
                         {renderMessageContent(message)}
                       </div>
-                    )}
-                    {message.attachments && message.attachments.length > 0 && (
-                      <div className="flex items-center gap-2 p-2 mt-2 rounded bg-background/10">
-                        <Plus className="w-4 h-4" />
-                        <a
-                          href={message.attachments[0].url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-sm underline"
-                        >
-                          {message.attachments[0].title}
-                        </a>
-                      </div>
-                    )}
-                  </div>
-                )}
-                <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <span>
-                    {new Date(message.createdAt).toLocaleTimeString()}
-                  </span>
-                  {isBot ? (
-                    <div className="flex items-center gap-2">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="w-6 h-6"
-                        onClick={() => handleCopy(message.text)}
-                      >
-                        <Copy className="w-3 h-3" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="w-6 h-6"
-                        onClick={() => handleSpeak(message.text)}
-                      >
-                        <Volume2 className="w-3 h-3" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="w-6 h-6"
-                        onClick={() => handleRegenerate(index)}
-                      >
-                        <RefreshCw className="w-3 h-3" />
-                      </Button>
-                    </div>
+                    )
                   ) : (
-                    <div className="flex items-center gap-2">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="w-6 h-6"
-                        onClick={() => handleCopy(message.text)}
+                    <div className="text-sm whitespace-pre-wrap">
+                      {renderMessageContent(message)}
+                    </div>
+                  )}
+                  {message.attachments && message.attachments.length > 0 && (
+                    <div className="flex items-center gap-2 p-2 mt-2 rounded bg-background/10">
+                      <Plus className="w-4 h-4" />
+                      <a
+                        href={message.attachments[0].url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-sm underline"
                       >
-                        <Copy className="w-3 h-3" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="w-6 h-6"
-                        onClick={() => handleEdit(index, message)}
-                      >
-                        <Pencil className="w-3 h-3" />
-                      </Button>
+                        {message.attachments[0].title}
+                      </a>
                     </div>
                   )}
                 </div>
+              )}
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <span>{new Date(message.createdAt).toLocaleTimeString()}</span>
+                {isBot ? (
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="w-6 h-6"
+                      onClick={() => handleCopy(message.text)}
+                    >
+                      <Copy className="w-3 h-3" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="w-6 h-6"
+                      onClick={() => handleSpeak(message.text)}
+                    >
+                      <Volume2 className="w-3 h-3" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="w-6 h-6"
+                      onClick={() => handleRegenerate(index)}
+                    >
+                      <RefreshCw className="w-3 h-3" />
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="w-6 h-6"
+                      onClick={() => handleCopy(message.text)}
+                    >
+                      <Copy className="w-3 h-3" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="w-6 h-6"
+                      onClick={() => handleEdit(index, message)}
+                    >
+                      <Pencil className="w-3 h-3" />
+                    </Button>
+                  </div>
+                )}
               </div>
-            </motion.div>
-          );
-        })}
-        <div ref={messagesEndRef} />
-      </motion.div>
-
-      {/* Follow-up Quick Actions */}
-      <AnimatePresence>
-        {showFollowUpActions && hasInteracted && messages.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="px-4 py-3"
-          >
-            <div className="flex justify-center gap-4">
-              {followUpActions.map((action, index) => (
-                <Button
-                  key={index}
-                  variant="outline"
-                  size="default"
-                  className="bg-[#2A2B2E] border-[#353538] text-gray-300 hover:bg-[#353538] hover:text-white flex items-center justify-start text-sm gap-2 px-6 py-2 min-w-[160px]"
-                  onClick={() => handleQuickAction(action.prompt)}
-                >
-                  <span className="text-primary">{action.icon}</span>
-                  <span>{action.label}</span>
-                </Button>
-              ))}
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          </div>
+        );
+      })}
+      <div ref={messagesEndRef} />
 
       {/* Input Area */}
       <div className="pt-4 mt-auto">
