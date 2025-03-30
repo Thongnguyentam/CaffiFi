@@ -305,7 +305,7 @@ export function WalletSettings() {
       <div>
         <h3 className="text-lg font-medium">Wallet Settings</h3>
         <CardDescription>
-          Manage your credits and wallet connection for HyperSonic.
+          Manage your credits and wallet connection for CaffiFi.
         </CardDescription>
       </div>
 

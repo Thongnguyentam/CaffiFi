@@ -588,10 +588,11 @@ function AIChatbotContent() {
     if (message.transaction) {
       console.log("message.transaction", message.transaction);
       // Check if this is a token swap (approve + swap)
-      if (message.transaction.length === 2 &&
-          message.transaction[0].transactionType === 'approve' &&
-          message.transaction[1].transactionType === 'swap') {
-        
+      if (
+        message.transaction.length === 2 &&
+        message.transaction[0].transactionType === "approve" &&
+        message.transaction[1].transactionType === "swap"
+      ) {
         const approveTransaction = message.transaction[0];
         const swapTransaction = message.transaction[1];
         console.log("approveTransaction", approveTransaction);
@@ -603,11 +604,13 @@ function AIChatbotContent() {
             transaction={message.transaction[1]} // Show the swap details
             onSubmit={async () => {
               // First do the approval
-              const approveResult = await handleTransactionSubmit(approveTransaction);
+              const approveResult = await handleTransactionSubmit(
+                approveTransaction
+              );
               if (approveResult.error) {
                 return approveResult;
               }
-              
+
               // If approval was successful, do the swap
               const swapResult = await handleTransactionSubmit(swapTransaction);
               return swapResult;
@@ -615,25 +618,29 @@ function AIChatbotContent() {
           />
         );
       }
-      
+
       // For other cases (single transaction)
       if (message.transaction.length === 1) {
         const transaction = message.transaction[0]; //create
-        if (message.transaction[0].transactionType === 'create') {
-          return(
+        if (message.transaction[0].transactionType === "create") {
+          return (
             <TransactionCard
               key={message.createdAt}
               transaction={transaction}
               onSubmit={async () => {
-                const createResult =  await handleTransactionSubmit(transaction);
+                const createResult = await handleTransactionSubmit(transaction);
                 if (createResult.error && transaction.tokenDetails) {
-                  unPinFromIPFS(transaction.tokenDetails.imageURI, transaction.tokenDetails.metadataURI);
+                  unPinFromIPFS(
+                    transaction.tokenDetails.imageURI,
+                    transaction.tokenDetails.metadataURI
+                  );
                 }
                 return createResult;
               }}
             />
-          )
-        } else{ // swap or buy
+          );
+        } else {
+          // swap or buy
           return (
             <TransactionCard
               key={message.createdAt}
@@ -642,7 +649,7 @@ function AIChatbotContent() {
             />
           );
         }
-      } 
+      }
     }
 
     // Default text rendering
@@ -667,7 +674,7 @@ function AIChatbotContent() {
               <Brain className="w-8 h-8 text-primary" />
             </div>
             <h1 className="text-4xl font-bold">
-              HyperSonic{" "}
+              CaffiFi{" "}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-blue-500">
                 Bot
               </span>

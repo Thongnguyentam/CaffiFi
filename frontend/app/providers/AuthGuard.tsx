@@ -46,8 +46,11 @@ export function AuthGuard({ children }: AuthGuardProps) {
       (route) => pathname === route || pathname.startsWith(`${route}/`)
     );
 
-    // If the route requires auth and user is not authenticated, show auth required component
-    if (requiresAuth && (!isConnected || !isAuthenticated)) {
+    // Also check localStorage directly for a more reliable check
+    const localStorageAuth = localStorage.getItem("isAuthenticated") === "true";
+
+    // Show auth required if the route requires auth and NEITHER connection method is valid
+    if (requiresAuth && !isConnected && !isAuthenticated && !localStorageAuth) {
       console.log("Access denied: Authentication required");
       setShowAuthRequired(true);
     } else {

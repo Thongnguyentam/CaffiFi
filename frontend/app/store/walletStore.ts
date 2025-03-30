@@ -93,11 +93,6 @@ export const useWalletStore = create<WalletStore>()(
           const balanceWei = await provider.getBalance(address);
           const balance = ethers.formatEther(balanceWei);
 
-          // Sign message for authentication
-          const message = "Sign this message to verify your identity";
-          const signature = await signer.signMessage(message);
-          console.log("Signature:", signature);
-
           // Update state
           set({
             isConnected: true,
@@ -113,6 +108,20 @@ export const useWalletStore = create<WalletStore>()(
           // Save to localStorage for persistence
           localStorage.setItem("isAuthenticated", "true");
           localStorage.setItem("userAddress", address);
+
+          try {
+            // Sign message for authentication - make this optional
+            const message = "Sign this message to verify your identity";
+            const signature = await signer.signMessage(message);
+            console.log("Signature:", signature);
+          } catch (signError) {
+            // If signing fails, log the error but continue with connection
+            console.warn(
+              "Signature failed, but continuing with connection:",
+              signError
+            );
+            // The user is still authenticated even if signature fails
+          }
 
           // Setup event listeners for account and chain changes
           window.ethereum.on("accountsChanged", (accounts: string[]) => {

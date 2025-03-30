@@ -74,13 +74,13 @@ const NavItem = ({
     <div
       className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all cursor-pointer ${
         isActive
-          ? "bg-gray-900 border-l-2 border-blue-500 text-blue-300 shadow-[0_0_10px_rgba(59,130,246,0.2)]"
-          : "hover:bg-gray-900 text-gray-300 hover:text-blue-400 hover:shadow-[0_0_5px_rgba(59,130,246,0.1)]"
+          ? "bg-[#3a1e0a] border-l-2 border-[#d4b37f] text-[#ffffff] shadow-[0_0_10px_rgba(212,179,127,0.2)]"
+          : "hover:bg-[#3a1e0a]/70 text-[#e8d5a9]/70 hover:text-[#e8d5a9] hover:shadow-[0_0_5px_rgba(212,179,127,0.1)]"
       }`}
     >
       <div className="flex items-center flex-1" onClick={handleMainClick}>
         <span
-          className={`${isActive ? "text-blue-400" : "text-blue-500"} mr-3`}
+          className={`${isActive ? "text-[#d4b37f]" : "text-[#8B4513]"} mr-3`}
         >
           {icon}
         </span>
@@ -88,7 +88,7 @@ const NavItem = ({
       </div>
       {hasSubItems && (
         <span
-          className="text-gray-500 hover:text-blue-400 p-1 rounded-full hover:bg-black/40"
+          className="text-[#e8d5a9]/50 hover:text-[#d4b37f] p-1 rounded-full hover:bg-[#3a1e0a]"
           onClick={handleToggleClick}
         >
           {isExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
@@ -110,8 +110,8 @@ const SubNavItem = ({ label, href, isActive = false }: SubNavItemProps) => {
       href={href}
       className={`flex items-center pl-11 pr-4 py-2 rounded-lg transition-all ${
         isActive
-          ? "bg-black/40 text-blue-400 shadow-[0_0_8px_rgba(59,130,246,0.15)]"
-          : "hover:bg-black/30 text-gray-400 hover:text-blue-400 hover:shadow-[0_0_5px_rgba(59,130,246,0.1)]"
+          ? "bg-[#3a1e0a]/80 text-[#d4b37f] shadow-[0_0_8px_rgba(212,179,127,0.15)]"
+          : "hover:bg-[#3a1e0a]/60 text-[#e8d5a9]/60 hover:text-[#d4b37f] hover:shadow-[0_0_5px_rgba(212,179,127,0.1)]"
       }`}
     >
       <span>{label}</span>
@@ -129,10 +129,10 @@ const ChatHistoryItem = ({ title, date, href }: ChatHistoryItemProps) => {
   return (
     <Link
       href={href}
-      className="flex flex-col gap-1 pl-11 pr-4 py-2 rounded-lg hover:bg-black/30 transition-all hover:shadow-[0_0_5px_rgba(59,130,246,0.1)]"
+      className="flex flex-col gap-1 pl-11 pr-4 py-2 rounded-lg hover:bg-[#3a1e0a]/60 transition-all hover:shadow-[0_0_5px_rgba(212,179,127,0.1)]"
     >
-      <span className="text-sm text-gray-300 truncate">{title}</span>
-      <span className="text-xs text-gray-500 flex items-center gap-1">
+      <span className="text-sm text-[#e8d5a9] truncate">{title}</span>
+      <span className="text-xs text-[#e8d5a9]/50 flex items-center gap-1">
         <Clock size={12} />
         {date}
       </span>
@@ -232,19 +232,19 @@ export function SiteLeftbar() {
   }
 
   return (
-    <div className="h-full overflow-y-auto bg-black/80 backdrop-blur-sm border-r border-blue-500/20 py-4">
+    <div className="h-full overflow-y-auto bg-[#1a0f02]/90 backdrop-blur-sm border-r border-[#8B4513]/40 py-4">
       <div className="px-4 pt-5 mb-6">
-        <div className="text-blue-300 text-xs uppercase tracking-wider mb-2 opacity-70">
-          HYPERSONIC TERMINAL
+        <div className="text-[#d4b37f] text-xs uppercase tracking-wider mb-2 opacity-70">
+          CaffiFi BREW STATION
         </div>
-        <div className="h-0.5 bg-gradient-to-r from-sky-400 to-blue-400"></div>
+        <div className="h-0.5 bg-gradient-to-r from-[#d4b37f] to-[#8B4513]"></div>
       </div>
 
       <nav className="space-y-1 px-2 pb-20">
         {/* Dashboard Section */}
         <NavItem
           icon={<LayoutDashboard size={20} />}
-          label="Dashboard"
+          label="Brew Dashboard"
           href="/dashboard"
           hasSubItems={true}
           isActive={activeSection === "dashboard"}
@@ -285,7 +285,7 @@ export function SiteLeftbar() {
         {/* Chat Bot Section */}
         <NavItem
           icon={<Bot size={20} />}
-          label="Chat Bot"
+          label="Barista Bot"
           href="/chatbot"
           hasSubItems={true}
           isActive={activeSection === "hedge-bot"}
@@ -299,13 +299,13 @@ export function SiteLeftbar() {
             <div className="px-4 py-2">
               <div className="relative">
                 <Search
-                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-blue-300"
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#d4b37f]"
                   size={16}
                 />
                 <input
                   type="text"
                   placeholder="Search conversations..."
-                  className="w-full bg-black/50 border border-blue-900/50 rounded-lg py-2 pl-9 pr-3 text-sm text-blue-300 placeholder-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-500"
+                  className="w-full bg-[#3a1e0a]/50 border border-[#8B4513]/50 rounded-lg py-2 pl-9 pr-3 text-sm text-[#e8d5a9] placeholder-[#d4b37f]/50 focus:outline-none focus:ring-1 focus:ring-[#d4b37f] focus:border-[#8B4513]"
                 />
               </div>
             </div>
@@ -314,7 +314,7 @@ export function SiteLeftbar() {
             <div className="px-4 py-2">
               <Link href={`/chatbot?new=true&t=${Date.now()}`}>
                 <Button
-                  className="w-full bg-black hover:bg-black/80 text-blue-500 border border-blue-500/50 hover:border-blue-400 hover:shadow-[0_0_10px_rgba(59,130,246,0.3)] transition-all flex items-center justify-center gap-2"
+                  className="w-full bg-[#3a1e0a] hover:bg-[#8B4513] text-[#e8d5a9] border border-[#8B4513]/50 hover:border-[#d4b37f] hover:shadow-[0_0_10px_rgba(212,179,127,0.3)] transition-all flex items-center justify-center gap-2"
                   size="sm"
                 >
                   <Plus size={16} />
@@ -326,7 +326,7 @@ export function SiteLeftbar() {
             {/* Chat History */}
             <div className="mt-2">
               <div className="flex items-center justify-between px-4 py-2">
-                <span className="text-xs font-medium text-blue-500 uppercase">
+                <span className="text-xs font-medium text-[#d4b37f] uppercase">
                   Recent Chats
                 </span>
               </div>
@@ -342,7 +342,7 @@ export function SiteLeftbar() {
                 {chatHistory.length > 5 && (
                   <Link
                     href="/chatbot/history"
-                    className="flex items-center justify-center py-2 text-sm text-blue-600 hover:text-blue-400 transition-colors"
+                    className="flex items-center justify-center py-2 text-sm text-[#d4b37f] hover:text-[#e8d5a9] transition-colors"
                   >
                     View more
                   </Link>
@@ -355,7 +355,7 @@ export function SiteLeftbar() {
         {/* Watchlist */}
         <NavItem
           icon={<Bookmark size={20} />}
-          label="Watchlist"
+          label="Bean Watchlist"
           href="/watchlist"
           isActive={activeSection === "watchlist"}
           onToggle={() => setActiveSection("watchlist")}
@@ -364,7 +364,7 @@ export function SiteLeftbar() {
         {/* Settings */}
         <NavItem
           icon={<Settings size={20} />}
-          label="Settings"
+          label="Brew Settings"
           href="/settings"
           isActive={activeSection === "settings"}
           onToggle={() => setActiveSection("settings")}

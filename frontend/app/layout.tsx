@@ -5,7 +5,7 @@ import "./globals.css";
 import type React from "react"; // Import React
 
 export const metadata = {
-  title: "HyperSonic",
+  title: "CaffiFi",
   description: "One-stop shop for all your meme coin needs",
 };
 

@@ -85,7 +85,7 @@ export function SocialSettings() {
               <div className="h-10 w-10 rounded-full bg-blue-500 flex items-center justify-center">
                 <MessageCircle className="h-5 w-5 text-white" />
               </div>
-              <p className="font-medium">HyperSonic Bot</p>
+              <p className="font-medium">CaffiFi Bot</p>
             </div>
             <Button>Connect</Button>
           </div>
@@ -93,7 +93,7 @@ export function SocialSettings() {
           <div className="flex items-center gap-2 p-4 rounded-lg bg-yellow-500/10 border border-yellow-500/20">
             <AlertTriangle className="h-5 w-5 text-yellow-500" />
             <p className="text-sm text-yellow-500">
-              Start a chat with @HyperSonicBot on Telegram and use the command
+              Start a chat with @CaffiFiBot on Telegram and use the command
               /connect to link your account.
             </p>
           </div>

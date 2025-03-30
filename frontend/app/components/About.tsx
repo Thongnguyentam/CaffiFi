@@ -6,9 +6,9 @@ export default function About() {
         <div className="max-w-3xl mx-auto text-center">
           <div className="space-y-4">
             <p className="text-lg">
-              HyperSonic was founded with a simple mission: to democratize
-              Discord bot creation and make it accessible to everyone,
-              regardless of technical skill.
+              CaffiFi was founded with a simple mission: to democratize Discord
+              bot creation and make it accessible to everyone, regardless of
+              technical skill.
             </p>
             <p className="text-xl">
               Our platform combines cutting-edge technology with an intuitive
