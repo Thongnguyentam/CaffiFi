@@ -89,7 +89,7 @@ export default function LaunchPage() {
       setLoadingAI(true);
 
       const result = await generateTokenWithAI(inputPrompt);
-      
+
       if (!result.imageBase64) {
         throw new Error("No image data received");
       }
@@ -130,7 +130,7 @@ export default function LaunchPage() {
       setLoadingAI(true);
 
       const result = await generateTokenWithAI(prompt);
-      
+
       if (!result.imageBase64) {
         throw new Error("No image data received");
       }
@@ -273,18 +273,21 @@ export default function LaunchPage() {
   };
 
   return (
-    <AppLayout showFooter={false}>
+    <AppLayout>
       <div className="py-8">
         <div className="container max-w-7xl">
           <div className="flex flex-col items-center mb-12 space-y-4 text-center">
             <div className="space-y-4">
-              <Badge variant="secondary" className="mb-4">
+              <Badge
+                variant="secondary"
+                className="mb-4 bg-[#8B4513]/20 text-[#d4b37f] border-[#8B4513]/40"
+              >
                 Token Launch Platform
               </Badge>
-              <h1 className="text-4xl font-bold text-transparent md:text-5xl bg-gradient-to-r from-sky-400 to-blue-500 bg-clip-text">
+              <h1 className="text-4xl font-bold text-transparent md:text-5xl bg-gradient-to-r from-[#d4b37f] to-[#8B4513] bg-clip-text">
                 Launch Your Own Token
               </h1>
-              <p className="max-w-2xl mx-auto text-lg text-muted-foreground">
+              <p className="max-w-2xl mx-auto text-lg text-[#e8d5a9]/70">
                 Create, deploy, and manage your meme token with our secure and
                 automated platform. No coding required.
               </p>
@@ -292,10 +295,12 @@ export default function LaunchPage() {
           </div>
 
           <div>
-            <Card className="border-primary/20 bg-background/60 backdrop-blur-xl">
+            <Card className="border-[#8B4513]/40 bg-[#1a0f02]/90 backdrop-blur-xl shadow-md">
               <CardHeader>
-                <CardTitle>Create Your Token</CardTitle>
-                <CardDescription>
+                <CardTitle className="text-[#e8d5a9]">
+                  Create Your Token
+                </CardTitle>
+                <CardDescription className="text-[#d4b37f]/70">
                   Choose how you want to create your token
                 </CardDescription>
               </CardHeader>

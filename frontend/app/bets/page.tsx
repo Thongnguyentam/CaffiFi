@@ -332,389 +332,191 @@ export default function BetsPage() {
   );
 
   return (
-    <AppLayout showFooter={false}>
-      <div className="py-8">
-        <div className="container pt-2 pl-12 max-w-[1600px] mx-auto px-4">
-          {/* Header */}
-          <div className="mb-12">
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-              <div>
-                <h1 className="text-4xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-blue-500">
-                  Prediction Markets
-                </h1>
-                <p className="text-muted-foreground">
-                  Place your bets and challenge others on future events
-                </p>
-              </div>
-              <div className="flex items-center gap-4">
-                <Link href="/bets/create">
-                  <Button className="bg-gradient-to-r from-sky-400 to-blue-500 hover:from-sky-400/90 hover:to-blue-500/90">
-                    <Rocket className="mr-2 h-4 w-4" />
-                    Create Prediction
-                  </Button>
-                </Link>
-                <div className="flex items-center gap-2 bg-black/40 backdrop-blur-sm rounded-full px-4 py-2 border border-white/10">
-                  <div className="text-sm">
-                    <span className="text-gray-400">Total Volume:</span>{" "}
-                    <span className="font-mono font-medium text-white">
-                      {totalVolume} S
-                    </span>
-                  </div>
-                  <div className="w-px h-4 bg-white/10" />
-                  <div className="text-sm">
-                    <span className="text-gray-400">Active Bets:</span>{" "}
-                    <span className="font-mono font-medium text-white">
-                      {activeBets.length}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
+    <AppLayout>
+      <div className="container py-6 mx-auto space-y-8">
+        {/* Page Header */}
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div>
+            <h1 className="text-3xl font-bold">
+              Coffee{" "}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#d4b37f] to-[#8B4513]">
+                Bets
+              </span>
+            </h1>
+            <p className="text-[#e8d5a9]/70 mt-1">
+              Place wagers on future outcomes and earn rewards.
+            </p>
           </div>
 
-          {/* Wallet Warning - show when wallet is not connected */}
-          {!isWalletConnected && !loading && (
-            <div className="mb-8">
-              <Alert
-                variant="default"
-                className="bg-yellow-500/10 border-yellow-500/20"
-              >
-                <Wallet className="h-5 w-5 text-yellow-500" />
-                <AlertTitle>Wallet Not Connected</AlertTitle>
-                <AlertDescription>
-                  Connect your wallet to interact with bets on the blockchain
-                  and see the latest data.
-                </AlertDescription>
-              </Alert>
-            </div>
-          )}
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <Link href="/bets/create" className="w-full sm:w-auto">
+              <Button className="w-full sm:w-auto bg-[#8B4513] hover:bg-[#A0522D] text-[#e8d5a9] border-[#8B4513] border">
+                <Rocket className="mr-2 h-4 w-4" />
+                Create Bet
+              </Button>
+            </Link>
 
-          {/* Search and Filters */}
-          <div className="flex flex-col lg:flex-row gap-4 mb-8">
-            <div className="relative flex-1">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#d4b37f]" />
               <Input
                 type="text"
                 placeholder="Search bets..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-12"
+                className="pl-9 border-[#8B4513]/30 bg-[#1a0f02]/60 text-[#e8d5a9] placeholder-[#e8d5a9]/40 focus-visible:ring-[#8B4513]"
               />
             </div>
+          </div>
+        </div>
+
+        {/* Content Status */}
+        {!isWalletConnected ? (
+          <Alert className="border-[#8B4513]/30 bg-[#1a0f02]/60 text-[#e8d5a9]">
+            <Wallet className="h-4 w-4 text-[#d4b37f]" />
+            <AlertTitle className="text-[#e8d5a9]">
+              Wallet not connected
+            </AlertTitle>
+            <AlertDescription className="text-[#e8d5a9]/70">
+              Please connect your wallet to view and place bets.
+            </AlertDescription>
+          </Alert>
+        ) : loading ? (
+          <div className="flex flex-col items-center justify-center py-12">
+            <Loader2 className="h-12 w-12 animate-spin text-[#d4b37f]" />
+            <p className="mt-4 text-[#e8d5a9]/70">Loading bets...</p>
+          </div>
+        ) : activeBets.length === 0 && pastBets.length === 0 ? (
+          <Alert className="border-[#8B4513]/30 bg-[#1a0f02]/60 text-[#e8d5a9]">
+            <AlertCircle className="h-4 w-4 text-[#d4b37f]" />
+            <AlertTitle className="text-[#e8d5a9]">No bets found</AlertTitle>
+            <AlertDescription className="text-[#e8d5a9]/70">
+              There are currently no bets available. Create a new bet to get
+              started.
+            </AlertDescription>
+          </Alert>
+        ) : (
+          <>
+            {/* Stats Cards Row */}
+            <div className="grid gap-4 md:grid-cols-3">
+              <div className="rounded-xl border border-[#8B4513]/30 bg-[#1a0f02]/60 p-4">
+                <div className="text-[#e8d5a9]/70 mb-1 text-sm">
+                  Total Volume
+                </div>
+                <div className="text-2xl font-bold text-[#e8d5a9]">
+                  {totalVolume} ETH
+                </div>
+              </div>
+
+              <div className="rounded-xl border border-[#8B4513]/30 bg-[#1a0f02]/60 p-4">
+                <div className="text-[#e8d5a9]/70 mb-1 text-sm">
+                  Active Bets
+                </div>
+                <div className="text-2xl font-bold text-[#e8d5a9]">
+                  {activeBets.length}
+                </div>
+              </div>
+
+              <div className="rounded-xl border border-[#8B4513]/30 bg-[#1a0f02]/60 p-4">
+                <div className="text-[#e8d5a9]/70 mb-1 text-sm">
+                  Resolved Bets
+                </div>
+                <div className="text-2xl font-bold text-[#e8d5a9]">
+                  {pastBets.filter((bet) => bet.isResolved).length}
+                </div>
+              </div>
+            </div>
+
+            {/* Leaderboard Section */}
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-semibold text-[#e8d5a9]">
+                  Top Winners
+                </h2>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-[#d4b37f]"
+                      >
+                        <AlertCircle className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent className="bg-[#1a0f02] border-[#8B4513]/30 text-[#e8d5a9]">
+                      <p>Users with the highest winnings across all bets</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                <LeaderboardCard
+                  title="Top Winner"
+                  entries={[{ address: "0x1a2...3b4c", amount: 1.24, rank: 1 }]}
+                />
+                <LeaderboardCard
+                  title="Runner Up"
+                  entries={[{ address: "0x4d5...6e7f", amount: 0.89, rank: 2 }]}
+                />
+                <LeaderboardCard
+                  title="Third Place"
+                  entries={[{ address: "0x7g8...9h0i", amount: 0.67, rank: 3 }]}
+                />
+                <LeaderboardCard
+                  title="Fourth Place"
+                  entries={[{ address: "0xj1k...2l3m", amount: 0.51, rank: 4 }]}
+                />
+              </div>
+            </div>
+
+            {/* Active Bets Section */}
+            <BetSection
+              title="Active Bets"
+              bets={activeBets.filter((bet) => {
+                // Filter by search term
+                if (
+                  searchTerm &&
+                  !bet.title.toLowerCase().includes(searchTerm.toLowerCase())
+                ) {
+                  return false;
+                }
+
+                // Filter by category if selected
+                if (selectedCategory && bet.category !== selectedCategory) {
+                  return false;
+                }
+
+                return true;
+              })}
+              currentPage={activeCurrentPage}
+              onPageChange={setActiveCurrentPage}
+              itemsPerPage={6}
+            />
+
+            {/* Filters */}
             <BetFilters
               activeFilter="all"
               selectedCategory={selectedCategory}
               onFilterChange={() => {}}
               onCategoryChange={setSelectedCategory}
             />
-          </div>
 
-          {/* Time Filters */}
-          <div className="flex items-center gap-4 mb-6">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <span>Time Filter:</span>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-5 w-5 rounded-full p-0 text-muted-foreground"
-                    >
-                      <span className="sr-only">Time filter info</span>
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className="h-4 w-4"
-                      >
-                        <circle cx="12" cy="12" r="10" />
-                        <path d="M12 16v-4" />
-                        <path d="M12 8h.01" />
-                      </svg>
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent side="right" className="max-w-xs">
-                    <p>Filter active bets by their remaining time:</p>
-                    <ul className="mt-2 list-disc list-inside text-xs">
-                      <li>
-                        <span className="font-medium">All:</span> Show all
-                        active bets
-                      </li>
-                      <li>
-                        <span className="font-medium">120 Minutes:</span> Show
-                        bets ending within 2 hours
-                      </li>
-                      <li>
-                        <span className="font-medium">12 Hours:</span> Show bets
-                        ending within 12 hours
-                      </li>
-                    </ul>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
-            <div className="flex items-center gap-2">
-              <Button
-                variant={timeFilter === "all" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setTimeFilter("all")}
-                className={
-                  timeFilter === "all"
-                    ? "bg-gradient-to-r from-blue-400 to-[#00ff00] text-black font-medium"
-                    : "border-white/10 hover:bg-blue-500/10 hover:text-blue-400"
-                }
-              >
-                <span className="flex items-center gap-1">
-                  All
-                  <span className="inline-flex items-center justify-center ml-1.5 px-1.5 py-0.5 rounded-full text-xs bg-black/30">
-                    {loading ? (
-                      <svg className="animate-spin h-3 w-3" viewBox="0 0 24 24">
-                        <circle
-                          className="opacity-25"
-                          cx="12"
-                          cy="12"
-                          r="10"
-                          stroke="currentColor"
-                          strokeWidth="4"
-                          fill="none"
-                        ></circle>
-                        <path
-                          className="opacity-75"
-                          fill="currentColor"
-                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                        ></path>
-                      </svg>
-                    ) : (
-                      filteredActiveBets.length
-                    )}
-                  </span>
-                </span>
-              </Button>
-              <Button
-                variant={timeFilter === "120min" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setTimeFilter("120min")}
-                className={
-                  timeFilter === "120min"
-                    ? "bg-gradient-to-r from-blue-400 to-blue-500 text-black font-medium"
-                    : "border-white/10 hover:bg-blue-500/10 hover:text-blue-400"
-                }
-              >
-                <span className="flex items-center gap-1">
-                  120 Minutes
-                  <span className="inline-flex items-center justify-center ml-1.5 px-1.5 py-0.5 rounded-full text-xs bg-black/30">
-                    {loading ? (
-                      <svg className="animate-spin h-3 w-3" viewBox="0 0 24 24">
-                        <circle
-                          className="opacity-25"
-                          cx="12"
-                          cy="12"
-                          r="10"
-                          stroke="currentColor"
-                          strokeWidth="4"
-                          fill="none"
-                        ></circle>
-                        <path
-                          className="opacity-75"
-                          fill="currentColor"
-                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                        ></path>
-                      </svg>
-                    ) : (
-                      betsIn120Min
-                    )}
-                  </span>
-                  {timeFilter === "120min" && (
-                    <span className="inline-flex items-center justify-center w-4 h-4 ml-1 bg-black/30 rounded-full">
-                      <span className="w-2 h-2 bg-black rounded-full"></span>
-                    </span>
-                  )}
-                </span>
-              </Button>
-              <Button
-                variant={timeFilter === "12hours" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setTimeFilter("12hours")}
-                className={
-                  timeFilter === "12hours"
-                    ? "bg-gradient-to-r from-blue-400 to-blue-500 text-black font-medium"
-                    : "border-white/10 hover:bg-blue-500/10 hover:text-blue-400"
-                }
-              >
-                <span className="flex items-center gap-1">
-                  12 Hours
-                  <span className="inline-flex items-center justify-center ml-1.5 px-1.5 py-0.5 rounded-full text-xs bg-black/30">
-                    {loading ? (
-                      <svg className="animate-spin h-3 w-3" viewBox="0 0 24 24">
-                        <circle
-                          className="opacity-25"
-                          cx="12"
-                          cy="12"
-                          r="10"
-                          stroke="currentColor"
-                          strokeWidth="4"
-                          fill="none"
-                        ></circle>
-                        <path
-                          className="opacity-75"
-                          fill="currentColor"
-                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                        ></path>
-                      </svg>
-                    ) : (
-                      betsIn12Hours
-                    )}
-                  </span>
-                  {timeFilter === "12hours" && (
-                    <span className="inline-flex items-center justify-center w-4 h-4 ml-1 bg-black/30 rounded-full">
-                      <span className="w-2 h-2 bg-black rounded-full"></span>
-                    </span>
-                  )}
-                </span>
-              </Button>
-            </div>
-          </div>
-
-          {/* Loading State */}
-          {loading && (
-            <div className="flex flex-col items-center justify-center py-20">
-              <Loader2 className="h-10 w-10 animate-spin text-blue-500 mb-4" />
-              <p className="text-muted-foreground mb-6">
-                Loading bets from the blockchain...
-              </p>
-              <Button
-                variant="outline"
-                onClick={handleRefresh}
-                className="border-white/10"
-              >
-                Refresh Data
-              </Button>
-            </div>
-          )}
-
-          {/* No Bets State */}
-          {!loading && bets.length === 0 && (
-            <div className="col-span-12 space-y-4">
-              <Alert variant="default" className="bg-black/40 border-white/10">
-                <AlertCircle className="h-5 w-5 text-blue-500" />
-                <AlertTitle>No Bets Found</AlertTitle>
-                <AlertDescription>
-                  {isWalletConnected
-                    ? "There are currently no bets on the blockchain. Be the first to create one!"
-                    : "Connect your wallet to see and interact with bets."}
-                </AlertDescription>
-              </Alert>
-
-              <div className="text-center py-10">
-                <Link href="/bets/create">
-                  <Button className="bg-gradient-to-r from-blue-400 to-blue-500 hover:from-blue-400/90 hover:to-blue-500/90">
-                    <Rocket className="mr-2 h-4 w-4" />
-                    Create a Bet
-                  </Button>
-                </Link>
-              </div>
-            </div>
-          )}
-
-          {/* Main Content */}
-          {!loading && bets.length > 0 && (
-            <div className="grid grid-cols-12 gap-6">
-              {/* Bets Sections */}
-              <div className="col-span-12 lg:col-span-9 space-y-12">
-                {/* Active Bets */}
-                {filteredActiveBets.length > 0 ? (
-                  <BetSection
-                    title={`Active Bets${
-                      timeFilter !== "all"
-                        ? timeFilter === "120min"
-                          ? " (Next 2 Hours)"
-                          : " (Next 12 Hours)"
-                        : ""
-                    }`}
-                    bets={filteredActiveBets}
-                    currentPage={activeCurrentPage}
-                    onPageChange={setActiveCurrentPage}
-                    itemsPerPage={6}
-                    showViewAll={true}
-                  />
-                ) : (
-                  <div className="space-y-4">
-                    <h2 className="text-2xl font-semibold">
-                      {`Active Bets${
-                        timeFilter !== "all"
-                          ? timeFilter === "120min"
-                            ? " (Next 2 Hours)"
-                            : " (Next 12 Hours)"
-                          : ""
-                      }`}
-                    </h2>
-                    <div className="text-center py-10 border border-white/10 rounded-xl bg-black/20">
-                      <p className="text-muted-foreground">
-                        No active bets available
-                        {timeFilter !== "all"
-                          ? ` in the selected time range`
-                          : ""}
-                      </p>
-                    </div>
-                  </div>
-                )}
-
-                {/* Past Bets */}
-                <div className="space-y-6">
-                  <div className="flex items-center justify-between">
-                    <h2 className="text-2xl font-semibold">Past Bets</h2>
-                    <Link
-                      href="/bets/history"
-                      className="text-sm text-muted-foreground hover:text-primary transition-colors"
-                    >
-                      View All Past Bets
-                    </Link>
-                  </div>
-                  {filteredPastBets.length > 0 ? (
-                    <div className="overflow-hidden rounded-xl border border-white/10">
-                      <PastBetsSlider bets={filteredPastBets} />
-                    </div>
-                  ) : (
-                    <div className="text-center py-10 border border-white/10 rounded-xl bg-black/20">
-                      <p className="text-muted-foreground">
-                        No past bets found
-                      </p>
-                    </div>
-                  )}
+            {/* Past Bets Slider */}
+            <div>
+              <h2 className="text-xl font-semibold mb-4 text-[#e8d5a9]">
+                Past Bets
+              </h2>
+              {pastBets.length > 0 ? (
+                <PastBetsSlider bets={pastBets} />
+              ) : (
+                <div className="text-center p-8 border border-[#8B4513]/30 bg-[#1a0f02]/30 rounded-xl">
+                  <p className="text-[#e8d5a9]/70">No past bets available.</p>
                 </div>
-              </div>
-
-              {/* Leaderboards */}
-              <div className="col-span-12 lg:col-span-3 space-y-6">
-                <LeaderboardCard
-                  title="Top Bettors"
-                  entries={[
-                    { address: "0x1234...5678", amount: 1000, rank: 1 },
-                    { address: "0x8765...4321", amount: 750, rank: 2 },
-                    { address: "0x9876...5432", amount: 500, rank: 3 },
-                    { address: "0x5432...1098", amount: 250, rank: 4 },
-                    { address: "0x1098...7654", amount: 100, rank: 5 },
-                  ]}
-                />
-                <LeaderboardCard
-                  title="Recent Winners"
-                  entries={[
-                    { address: "0xabcd...efgh", amount: 2500, rank: 1 },
-                    { address: "0xijkl...mnop", amount: 1500, rank: 2 },
-                    { address: "0xqrst...uvwx", amount: 1000, rank: 3 },
-                    { address: "0xyzab...cdef", amount: 750, rank: 4 },
-                    { address: "0xghij...klmn", amount: 500, rank: 5 },
-                  ]}
-                />
-              </div>
+              )}
             </div>
-          )}
-        </div>
+          </>
+        )}
       </div>
     </AppLayout>
   );

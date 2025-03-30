@@ -1,28 +1,36 @@
-"use client"
+"use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend } from "recharts"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { PieChart, Pie, Cell, ResponsiveContainer, Legend } from "recharts";
 
 const predictionData = [
-  { name: "Successful", value: 65, color: "#22c55e" },
-  { name: "Pending", value: 25, color: "#eab308" },
-  { name: "Failed", value: 10, color: "#ef4444" },
-]
+  { name: "Successful", value: 65, color: "#8B4513" },
+  { name: "Pending", value: 25, color: "#d4b37f" },
+  { name: "Failed", value: 10, color: "#A0522D" },
+];
 
 const performanceMetrics = [
-  { metric: "Average Success Rate", value: "76.4%" },
-  { metric: "Total Predictions", value: "1,234" },
-  { metric: "Active Users", value: "12,345" },
-  { metric: "Total Volume", value: "$1.2M" },
-]
+  { metric: "Average Success Rate", value: "76.4%", color: "#d4b37f" },
+  { metric: "Total Predictions", value: "1,234", color: "#8B4513" },
+  { metric: "Active Users", value: "12,345", color: "#A0522D" },
+  { metric: "Total Volume", value: "$1.2M", color: "#e8d5a9" },
+];
 
 export function DashboardAnalytics() {
   return (
     <div className="grid gap-6 md:grid-cols-2">
-      <Card className="border-white/10 bg-black/60 backdrop-blur-xl">
+      <Card className="border-[#8B4513]/30 bg-[#1a0f02]/90 backdrop-blur-xl shadow-md hover:shadow-[0_4px_12px_rgba(139,69,19,0.3)] transition-all">
         <CardHeader>
-          <CardTitle>Prediction Status</CardTitle>
-          <CardDescription>Distribution of prediction outcomes</CardDescription>
+          <CardTitle className="text-[#d4b37f]">Prediction Status</CardTitle>
+          <CardDescription className="text-[#e8d5a9]/70">
+            Distribution of prediction outcomes
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="h-[300px]">
@@ -48,23 +56,32 @@ export function DashboardAnalytics() {
         </CardContent>
       </Card>
 
-      <Card className="border-white/10 bg-black/60 backdrop-blur-xl">
+      <Card className="border-[#8B4513]/30 bg-[#1a0f02]/90 backdrop-blur-xl shadow-md hover:shadow-[0_4px_12px_rgba(139,69,19,0.3)] transition-all">
         <CardHeader>
-          <CardTitle>Performance Metrics</CardTitle>
-          <CardDescription>Key platform indicators</CardDescription>
+          <CardTitle className="text-[#d4b37f]">Performance Metrics</CardTitle>
+          <CardDescription className="text-[#e8d5a9]/70">
+            Key platform indicators
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid gap-4">
             {performanceMetrics.map((metric) => (
-              <div key={metric.metric} className="flex items-center justify-between p-4 rounded-lg bg-black/40">
-                <span className="text-muted-foreground">{metric.metric}</span>
-                <span className="font-mono font-bold">{metric.value}</span>
+              <div
+                key={metric.metric}
+                className="flex items-center justify-between p-4 rounded-lg bg-[#3a1e0a]/50 border border-[#8B4513]/20"
+              >
+                <span className="text-[#e8d5a9]/80">{metric.metric}</span>
+                <span
+                  style={{ color: metric.color }}
+                  className="font-mono font-bold"
+                >
+                  {metric.value}
+                </span>
               </div>
             ))}
           </div>
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
-

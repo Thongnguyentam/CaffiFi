@@ -21,9 +21,9 @@ const tokenStats = {
 };
 
 const chainDistribution = [
-  { chain: "ETH", percentage: 45 },
-  { chain: "BSC", percentage: 30 },
-  { chain: "SOL", percentage: 25 },
+  { chain: "ETH", percentage: 45, color: "#d4b37f" },
+  { chain: "BSC", percentage: 30, color: "#8B4513" },
+  { chain: "SOL", percentage: 25, color: "#A0522D" },
 ];
 
 export function LaunchedTokens() {
@@ -53,7 +53,7 @@ export function LaunchedTokens() {
               <Rocket className="h-5 w-5 text-[#d4b37f]" />
               <span className="text-[#e8d5a9]/70">Total Launched</span>
             </div>
-            <p className="text-2xl font-bold text-[#e8d5a9]">
+            <p className="text-2xl font-bold text-[#d4b37f]">
               {tokenStats.totalLaunched}
             </p>
           </div>
@@ -62,7 +62,7 @@ export function LaunchedTokens() {
               <TrendingUp className="h-5 w-5 text-[#d4b37f]" />
               <span className="text-[#e8d5a9]/70">Trending</span>
             </div>
-            <p className="text-2xl font-bold text-[#e8d5a9]">
+            <p className="text-2xl font-bold text-[#A0522D]">
               {tokenStats.trending}
             </p>
           </div>
@@ -83,7 +83,7 @@ export function LaunchedTokens() {
               <Wallet className="h-5 w-5 text-[#d4b37f]" />
               <span className="text-[#e8d5a9]/70">Total Volume</span>
             </div>
-            <p className="text-2xl font-bold text-[#e8d5a9]">
+            <p className="text-2xl font-bold text-[#8B4513]">
               {tokenStats.totalVolume}
             </p>
           </div>
@@ -100,7 +100,7 @@ export function LaunchedTokens() {
                 <p className="text-sm font-medium text-[#e8d5a9]">
                   {chain.chain}
                 </p>
-                <p className="text-lg font-bold text-[#d4b37f]">
+                <p className="text-lg font-bold" style={{ color: chain.color }}>
                   {chain.percentage}%
                 </p>
               </div>

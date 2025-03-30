@@ -15,6 +15,7 @@ import {
   DollarSign,
   Flame,
   BarChart3,
+  Calendar,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -203,12 +204,12 @@ export function BetCard({ bet }: { bet: Bet }) {
       whileHover={{ y: -5 }}
       className="group h-full overflow-visible"
     >
-      <Card className="overflow-visible border-white/10 bg-black/80 flex flex-col h-full relative">
+      <Card className="overflow-visible border-[#8B4513]/30 bg-[#1a0f02]/90 backdrop-blur-xl flex flex-col h-full relative">
         {/* Time Progress Bar */}
         {!isEffectivelyResolved && (
-          <div className="absolute top-0 left-0 right-0 h-1 bg-white/10 z-10">
+          <div className="absolute top-0 left-0 right-0 h-1 bg-[#8B4513]/20 z-10">
             <div
-              className="h-full bg-gradient-to-r from-green-400 to-[#00ff00]"
+              className="h-full bg-gradient-to-r from-[#d4b37f] to-[#8B4513]"
               style={{ width: `${timeProgress}%` }}
             />
           </div>
@@ -221,10 +222,10 @@ export function BetCard({ bet }: { bet: Bet }) {
               className={cn(
                 "font-bold text-3xl px-0 py-0 flex items-center justify-center transform -rotate-12",
                 bet.rank === 0
-                  ? "text-yellow-300"
+                  ? "text-[#d4b37f]"
                   : bet.rank === 1
-                  ? "text-gray-300"
-                  : "text-amber-500"
+                  ? "text-[#c0a172]"
+                  : "text-[#a38b62]"
               )}
             >
               <span
@@ -254,251 +255,137 @@ export function BetCard({ bet }: { bet: Bet }) {
               e.currentTarget.src = "/placeholder.svg";
             }}
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#1a0f02] to-transparent" />
 
-          {/* Countdown Timer Badge - Prominent version */}
-          {!isEffectivelyResolved && secondsLeft > 0 && (
-            <div className="absolute -top-4 -right-4 z-30">
+          {/* Timer / Status Badge */}
+          <div className="absolute bottom-3 left-3 flex flex-col gap-1">
+            {/* Status Badge */}
+            {isEffectivelyResolved ? (
+              <Badge
+                variant="outline"
+                className={cn(
+                  "text-xs rounded-md px-2 py-1 bg-[#1a0f02]/80 backdrop-blur-sm border-[#8B4513]/30 flex items-center gap-1 text-[#e8d5a9]",
+                  "group-hover:border-[#8B4513]/50"
+                )}
+              >
+                {bet.isResolved ? (
+                  <>
+                    {bet.result === "yes" ? (
+                      <CheckCircle2 className="h-3 w-3 text-[#92da6c]" />
+                    ) : (
+                      <XCircle className="h-3 w-3 text-red-400" />
+                    )}
+                    <span className="text-[#e8d5a9]">
+                      {bet.result === "yes" ? "Yes Won" : "No Won"}
+                    </span>
+                    <span
+                      className={cn(
+                        "ml-1 font-mono",
+                        bet.result === "yes" ? "text-[#92da6c]" : "text-red-400"
+                      )}
+                    >
+                      {bet.result === "yes"
+                        ? `${bet.yesProbability.toFixed(0)}%`
+                        : `${bet.noProbability.toFixed(0)}%`}
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <Clock className="h-3 w-3 text-[#d4b37f]" />
+                    <span>Resolved Soon</span>
+                  </>
+                )}
+              </Badge>
+            ) : (
+              <Badge
+                variant="outline"
+                className={cn(
+                  "text-xs rounded-md px-2 py-1 bg-[#1a0f02]/80 backdrop-blur-sm border-[#8B4513]/30 text-[#e8d5a9] flex items-center gap-1",
+                  phaseInfo.color,
+                  "group-hover:border-[#8B4513]/50"
+                )}
+              >
+                {phaseInfo.icon}
+                <span>{phaseInfo.label}</span>
+              </Badge>
+            )}
+
+            {/* Time Left */}
+            {!isEffectivelyResolved && (
               <div
                 className={cn(
-                  "px-5 py-2 rounded-full shadow-lg flex items-center justify-center",
-                  "bg-blue-500/20 backdrop-blur-sm  text-blue-400"
+                  "text-xl font-medium tracking-tight text-white/90",
+                  betPhase === "final" && "text-red-400 animate-pulse"
                 )}
               >
-                <span className="font-bold text-white text-sm whitespace-nowrap">
-                  {formattedTimeWithSeconds}
-                </span>
+                <TimeLeft
+                  endDate={bet.endDate}
+                  className="text-[#e8d5a9] font-medium"
+                />
               </div>
-            </div>
-          )}
-
-          {isEffectivelyResolved ? (
-            <div className="absolute top-4 right-4">
-              <Badge
-                variant="outline"
-                className={cn(
-                  "backdrop-blur-sm border-white/10",
-                  bet.result === "yes"
-                    ? "bg-blue-500/20 text-blue-500"
-                    : hasEnded && !bet.result
-                    ? "bg-yellow-500/20 text-yellow-500"
-                    : "bg-red-500/20 text-red-500"
-                )}
-              >
-                {hasEnded && !bet.isResolved ? "Ended" : "Resolved"}
-              </Badge>
-            </div>
-          ) : null}
-
-          {/* Stats Badges */}
-          <div className="absolute bottom-4 left-4 right-4 flex justify-between">
-            <div className="flex gap-2">
-              <Badge
-                variant="outline"
-                className="bg-black/80 backdrop-blur-sm border-white/10 text-white flex items-center"
-              >
-                <Users className="h-3 w-3 mr-1" />
-                {Math.floor(bet.totalPool / 100)} users
-              </Badge>
-            </div>
-
-            {!isEffectivelyResolved &&
-              bet.yesProbability > bet.noProbability && (
-                <Badge
-                  variant="outline"
-                  className="bg-black/80 backdrop-blur-sm border-white/10 text-white flex items-center"
-                >
-                  <TrendingUp className="h-3 w-3 mr-1" />
-                  Yes trending
-                </Badge>
-              )}
+            )}
           </div>
         </div>
 
         {/* Content */}
-        <div className="p-6 flex flex-col flex-grow">
-          <h3 className="text-lg font-semibold text-white mb-4 h-14 line-clamp-2 overflow-hidden">
-            {bet.title}
-          </h3>
+        <div className="flex-1 flex flex-col p-4">
+          <div className="flex-1">
+            <h3 className="font-semibold mb-2 text-lg leading-tight text-[#e8d5a9]">
+              {bet.title}
+            </h3>
 
-          <div className="space-y-4 flex-grow flex flex-col justify-between">
-            {/* Pool Distribution */}
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span
-                  className={cn(
-                    "flex items-center gap-1",
-                    isEffectivelyResolved
-                      ? bet.result === "yes"
-                        ? "text-green-400 font-medium"
-                        : "text-gray-400"
-                      : "text-green-400"
-                  )}
-                >
-                  Yes {(bet.yesProbability * 100).toFixed(0)}%
-                  {isEffectivelyResolved && bet.result === "yes" && (
-                    <CheckCircle2 className="h-4 w-4" />
-                  )}
-                </span>
-                <span
-                  className={cn(
-                    "flex items-center gap-1",
-                    isEffectivelyResolved
-                      ? bet.result === "no"
-                        ? "text-red-400 font-medium"
-                        : "text-gray-400"
-                      : "text-red-400"
-                  )}
-                >
-                  {isEffectivelyResolved && bet.result === "no" && (
-                    <XCircle className="h-4 w-4" />
-                  )}
-                  No {(bet.noProbability * 100).toFixed(0)}%
+            {/* Status Info */}
+            <div className="flex flex-wrap gap-2 mt-2 mb-3">
+              <div className="flex items-center gap-1 text-xs text-[#e8d5a9]/70">
+                <Trophy className="h-3 w-3 text-[#d4b37f]" />
+                <span>
+                  Pool: {bet.totalPool.toFixed(2)}{" "}
+                  <span className="text-xs">ETH</span>
                 </span>
               </div>
-              <div className="relative h-2 overflow-hidden rounded-full bg-white/5">
+
+              <div className="flex items-center gap-1 text-xs text-[#e8d5a9]/70">
+                <Calendar className="h-3 w-3 text-[#d4b37f]" />
+                <span>{formattedDate}</span>
+              </div>
+            </div>
+
+            {/* Probabilities */}
+            <div className="mt-4 mb-2">
+              <div className="flex items-center justify-between mb-1 text-xs">
+                <span className="text-[#92da6c]">
+                  Yes {bet.yesProbability.toFixed(0)}%
+                </span>
+                <span className="text-red-400">
+                  No {bet.noProbability.toFixed(0)}%
+                </span>
+              </div>
+
+              <div className="h-2 bg-[#8B4513]/20 rounded-full overflow-hidden">
                 <div
-                  className={cn(
-                    "absolute inset-y-0 left-0",
-                    isEffectivelyResolved
-                      ? "bg-white/20"
-                      : "bg-gradient-to-r from-green-400 to-[#00ff00]"
-                  )}
-                  style={{ width: `${bet.yesProbability * 100}%` }}
+                  className="h-full bg-gradient-to-r from-[#92da6c] to-[#92da6c]/70"
+                  style={{ width: `${bet.yesProbability}%` }}
                 />
               </div>
             </div>
+          </div>
 
-            {/* Time and Pool Info */}
-            <div className="mt-4 p-3 rounded-lg border border-white/10 bg-black/40">
-              <div className="flex items-center justify-between mb-2">
-                <div className="text-sm text-gray-400">
-                  {isEffectivelyResolved ? "Ended" : "Ends"}
-                </div>
-                <div className="text-sm font-medium">{formattedDate}</div>
-              </div>
-
-              {!isEffectivelyResolved && (
-                <div className="flex flex-col space-y-2">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center">
-                      <BarChart3 className="h-4 w-4 mr-1 text-gray-400" />
-                      <span className="text-sm">Volume</span>
-                    </div>
-                    <div className="text-sm font-medium">
-                      ${bet.totalPool.toLocaleString()}
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div
-                      className={`text-xs flex items-center ${phaseInfo.color}`}
-                    >
-                      {phaseInfo.icon}
-                      {phaseInfo.label}
-                    </div>
-                    <div className="text-xs text-gray-400">
-                      {bet.yesPool + bet.noPool} participants
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Actions or Results */}
-            <div className="mt-4">
-              {isEffectivelyResolved ? (
-                <div className="space-y-3">
-                  {/* Result Banner */}
-                  {bet.result ? (
-                    <div
-                      className={cn(
-                        "flex items-center gap-2 p-3 rounded-lg border",
-                        bet.result === "yes"
-                          ? "bg-green-500/10 border-green-500/20 text-green-500"
-                          : "bg-red-500/10 border-red-500/20 text-red-500"
-                      )}
-                    >
-                      <Trophy className="h-5 w-5" />
-                      <div className="flex-1">
-                        <span className="font-medium">
-                          {bet.result === "yes" ? "Yes" : "No"} was correct
-                        </span>
-                        <div className="text-sm opacity-90">
-                          {bet.result === "yes"
-                            ? `${(bet.yesProbability * 100).toFixed(
-                                0
-                              )}% predicted correctly`
-                            : `${(bet.noProbability * 100).toFixed(
-                                0
-                              )}% predicted correctly`}
-                          {" • "}
-                          {Number(winningPayout)}x payout
-                        </div>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-2 p-3 rounded-lg border border-yellow-500/20 bg-yellow-500/10 text-yellow-500">
-                      <Clock className="h-5 w-5" />
-                      <div className="flex-1">
-                        <span className="font-medium">Bet has ended</span>
-                        <div className="text-sm opacity-90">
-                          Waiting for resolution
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Share Results */}
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="outline"
-                      className="flex-1 border-white/10 hover:bg-blue-500/10 hover:text-blue-400 transition-colors"
-                    >
-                      View Details
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      className="border-white/10 hover:bg-blue-500/10 hover:text-blue-400 transition-colors"
-                    >
-                      <Twitter className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      className="border-white/10 hover:bg-blue-500/10 hover:text-blue-400 transition-colors"
-                    >
-                      <Share2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              ) : (
-                <div className="flex items-center gap-2 pt-2">
-                  <Link
-                    href={`/bets/place-bet?id=${bet.id}`}
-                    className="flex-1"
-                  >
-                    <Button className="w-full bg-gradient-to-r from-blue-400 to-blue-500 hover:opacity-90 text-black font-medium">
-                      Place Bet
-                    </Button>
-                  </Link>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    className="border-white/10 hover:bg-blue-500/10 hover:text-blue-400 transition-colors"
-                  >
-                    <Twitter className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    className="border-white/10 hover:bg-blue-500/10 hover:text-blue-400 transition-colors"
-                  >
-                    <Share2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              )}
-            </div>
+          {/* Action Button */}
+          <div className="mt-auto pt-3">
+            <Link href={`/bets/place-bet?id=${bet.id}`}>
+              <Button
+                className={cn(
+                  "w-full bg-[#8B4513] hover:bg-[#A0522D] text-[#e8d5a9] border-[#8B4513] border",
+                  isEffectivelyResolved &&
+                    "bg-[#8B4513]/30 hover:bg-[#8B4513]/40 text-[#e8d5a9]/70"
+                )}
+                disabled={isEffectivelyResolved}
+              >
+                {isEffectivelyResolved
+                  ? "Betting Closed"
+                  : `Place Bet (${bet.totalPool.toFixed(2)} ETH pool)`}
+              </Button>
+            </Link>
           </div>
         </div>
       </Card>

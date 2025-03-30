@@ -51,20 +51,6 @@ export default function DashboardPage() {
               </span>
             </h1>
           </div>
-
-          {/* Connected Wallet Display */}
-          {walletAddress && (
-            <div className="flex items-center gap-2 mt-2 md:mt-0 p-3 rounded-md bg-[#8B4513]/20 border border-[#d4b37f]/30">
-              <Wallet className="h-4 w-4 text-[#d4b37f]" />
-              <span className="text-sm font-medium text-[#e8d5a9]">
-                Wallet:
-              </span>
-              <span className="text-sm text-[#e8d5a9]/80">
-                {walletAddress.substring(0, 6)}...
-                {walletAddress.substring(walletAddress.length - 4)}
-              </span>
-            </div>
-          )}
         </div>
 
         <div className="space-y-4 max-w-5xl mx-auto">

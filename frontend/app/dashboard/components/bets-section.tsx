@@ -53,11 +53,12 @@ export function BetsSection() {
               <TrendingUp className="h-5 w-5 text-[#d4b37f]" />
               <span className="text-[#e8d5a9]/70">Active</span>
             </div>
-            <p className="text-2xl font-bold text-[#e8d5a9]">
+            <p className="text-2xl font-bold text-[#d4b37f]">
               {betStats.activeBets}
             </p>
             <p className="text-sm text-[#e8d5a9]/60 mt-1">
-              Value: {betStats.activeValue}
+              Value:{" "}
+              <span className="text-[#a05c35]">{betStats.activeValue}</span>
             </p>
           </div>
           <div className="bg-[#1a0f02]/80 rounded-lg p-4 border border-[#8B4513]/40">
@@ -69,7 +70,8 @@ export function BetsSection() {
               {betStats.wonBets}
             </p>
             <p className="text-sm text-[#e8d5a9]/60 mt-1">
-              of {betStats.totalBets} total
+              of <span className="text-[#8B4513]">{betStats.totalBets}</span>{" "}
+              total
             </p>
           </div>
           <div className="bg-[#1a0f02]/80 rounded-lg p-4 border border-[#8B4513]/40">
@@ -77,15 +79,17 @@ export function BetsSection() {
               <XCircle className="h-5 w-5 text-[#a05c35]" />
               <span className="text-[#e8d5a9]/70">Lost</span>
             </div>
-            <p className="text-2xl font-bold text-[#e8d5a9]">
+            <p className="text-2xl font-bold text-[#A0522D]">
               {betStats.lostBets}
             </p>
             <p className="text-sm text-[#e8d5a9]/60 mt-1">
               Rate:{" "}
-              {(100 - Number.parseFloat(betStats.winRate.slice(0, -1))).toFixed(
-                1
-              )}
-              %
+              <span className="text-[#e8d5a9]">
+                {(
+                  100 - Number.parseFloat(betStats.winRate.slice(0, -1))
+                ).toFixed(1)}
+                %
+              </span>
             </p>
           </div>
         </div>
@@ -96,7 +100,7 @@ export function BetsSection() {
               <Wallet className="h-5 w-5 text-[#d4b37f]" />
               <span className="text-[#e8d5a9]/70">Total Staked</span>
             </div>
-            <p className="text-xl font-bold text-[#e8d5a9]">
+            <p className="text-xl font-bold text-[#8B4513]">
               {betStats.totalStaked}
             </p>
           </div>
@@ -105,7 +109,7 @@ export function BetsSection() {
               <Target className="h-5 w-5 text-[#d4b37f]" />
               <span className="text-[#e8d5a9]/70">Best Win</span>
             </div>
-            <p className="text-xl font-bold text-[#e8d5a9]">
+            <p className="text-xl font-bold text-[#d4b37f]">
               {betStats.bestWin}
             </p>
           </div>
@@ -120,13 +124,13 @@ export function BetsSection() {
           </div>
           <div>
             <p className="text-sm text-[#e8d5a9]/70">Avg Return</p>
-            <p className="text-xl font-bold text-[#d4b37f]">
+            <p className="text-xl font-bold text-[#A0522D]">
               {betStats.avgReturn}
             </p>
           </div>
           <div>
             <p className="text-sm text-[#e8d5a9]/70">Win Rate</p>
-            <p className="text-xl font-bold text-[#d4b37f]">
+            <p className="text-xl font-bold text-[#e8d5a9]">
               {betStats.winRate}
             </p>
           </div>

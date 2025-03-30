@@ -312,7 +312,7 @@ export function MemeCoinMarketCap({
 
           <div className="relative w-full md:w-auto md:min-w-[300px]">
             <Search
-              className="absolute text-gray-500 transform -translate-y-1/2 left-3 top-1/2"
+              className="absolute text-[#d4b37f] transform -translate-y-1/2 left-3 top-1/2"
               size={16}
             />
             <Input
@@ -320,7 +320,7 @@ export function MemeCoinMarketCap({
               placeholder="Search tokens by name or symbol..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full py-2 pr-4 pl-9"
+              className="w-full py-2 pr-4 pl-9 bg-[#1a0f02]/60 border-[#8B4513]/40 text-[#e8d5a9] placeholder-[#d4b37f]/50 focus-visible:ring-[#d4b37f]"
             />
           </div>
         </div>
@@ -329,16 +329,24 @@ export function MemeCoinMarketCap({
         <div className="mt-4 overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-gray-800">
-                <th className="px-4 py-4 text-left"></th>
-                <th className="px-4 py-4 text-left">#</th>
-                <th className="px-4 py-4 text-left">Name</th>
-                <th className="px-4 py-4 text-right">Price</th>
-                <th className="px-4 py-4 text-right">24h %</th>
-                <th className="px-4 py-4 text-right">Market Cap</th>
-                <th className="px-4 py-4 text-right">Volume(24h)</th>
-                <th className="px-4 py-4 text-right"># Holders</th>
-                <th className="px-4 py-4 text-right">Last 7 Days</th>
+              <tr className="border-b border-[#8B4513]/30">
+                <th className="px-4 py-4 text-left text-[#e8d5a9]"></th>
+                <th className="px-4 py-4 text-left text-[#e8d5a9]">#</th>
+                <th className="px-4 py-4 text-left text-[#e8d5a9]">Name</th>
+                <th className="px-4 py-4 text-right text-[#e8d5a9]">Price</th>
+                <th className="px-4 py-4 text-right text-[#e8d5a9]">24h %</th>
+                <th className="px-4 py-4 text-right text-[#e8d5a9]">
+                  Market Cap
+                </th>
+                <th className="px-4 py-4 text-right text-[#e8d5a9]">
+                  Volume(24h)
+                </th>
+                <th className="px-4 py-4 text-right text-[#e8d5a9]">
+                  # Holders
+                </th>
+                <th className="px-4 py-4 text-right text-[#e8d5a9]">
+                  Last 7 Days
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -346,13 +354,14 @@ export function MemeCoinMarketCap({
                 getCurrentPageItems().map((coin, index) => (
                   <tr
                     key={coin.address}
-                    className="transition-colors duration-200 border-b border-gray-800 cursor-pointer hover:bg-gray-900/50 hover:shadow-lg"
+                    className="transition-colors duration-200 border-b border-[#8B4513]/30 cursor-pointer hover:bg-[#8B4513]/10 hover:shadow-lg"
                     onClick={() => handleCoinClick(coin.address)}
                   >
                     <td className="px-4 py-4">
                       <Button
                         variant="ghost"
                         size="sm"
+                        className="hover:bg-[#8B4513]/20"
                         onClick={(e) => {
                           e.stopPropagation();
                           handleFavoriteToggle(coin.address);
@@ -362,17 +371,17 @@ export function MemeCoinMarketCap({
                           className={`h-4 w-4 ${
                             favorites.includes(coin.address)
                               ? "text-yellow-500 fill-yellow-500"
-                              : ""
+                              : "text-[#d4b37f]"
                           }`}
                         />
                       </Button>
                     </td>
-                    <td className="px-4 py-4 text-gray-400">
+                    <td className="px-4 py-4 text-[#e8d5a9]/70">
                       {(currentPage - 1) * itemsPerPage + index + 1}
                     </td>
                     <td className="px-4 py-4">
                       <div className="flex items-center gap-2">
-                        <div className="flex-shrink-0 w-8 h-8 overflow-hidden rounded-full">
+                        <div className="flex-shrink-0 w-8 h-8 overflow-hidden rounded-full bg-[#8B4513]/20">
                           <img
                             src={coin.image}
                             alt={`${coin.name} logo`}
@@ -385,14 +394,18 @@ export function MemeCoinMarketCap({
                           />
                         </div>
                         <div>
-                          <span className="font-semibold">{coin.name}</span>
-                          <span className="block text-sm text-gray-400">
+                          <span className="font-semibold text-[#e8d5a9]">
+                            {coin.name}
+                          </span>
+                          <span className="block text-sm text-[#e8d5a9]/70">
                             {coin.symbol}
                           </span>
                         </div>
                       </div>
                     </td>
-                    <td className="px-4 py-4 text-right">${coin.price}</td>
+                    <td className="px-4 py-4 text-right text-[#e8d5a9]">
+                      ${coin.price}
+                    </td>
                     <td
                       className={`text-right py-4 px-4 ${
                         !coin.change.startsWith("-")
@@ -407,13 +420,15 @@ export function MemeCoinMarketCap({
                       )}
                       {coin.change}
                     </td>
-                    <td className="px-4 py-4 text-right">
+                    <td className="px-4 py-4 text-right text-[#e8d5a9]">
                       ${parseFloat(coin.marketCap).toLocaleString()}
                     </td>
                     <td className="px-4 py-4 text-right">
                       <div className="flex flex-col items-end">
-                        <span>${parseFloat(coin.volume).toLocaleString()}</span>
-                        <span className="text-sm text-gray-400">
+                        <span className="text-[#e8d5a9]">
+                          ${parseFloat(coin.volume).toLocaleString()}
+                        </span>
+                        <span className="text-sm text-[#e8d5a9]/70">
                           {(coin.volume_24h / coin.price).toLocaleString(
                             undefined,
                             { maximumFractionDigits: 2 }
@@ -423,7 +438,7 @@ export function MemeCoinMarketCap({
                         </span>
                       </div>
                     </td>
-                    <td className="px-4 py-4 text-right">
+                    <td className="px-4 py-4 text-right text-[#e8d5a9]">
                       {coin.holders} holders
                     </td>
                     <td className="px-4 py-4">
@@ -438,11 +453,14 @@ export function MemeCoinMarketCap({
                 ))
               ) : (
                 <tr>
-                  <td colSpan={11} className="py-8 text-center text-gray-400">
+                  <td
+                    colSpan={11}
+                    className="py-8 text-center text-[#e8d5a9]/70"
+                  >
                     {watchlistOnly ? (
                       <div className="flex flex-col items-center gap-2">
-                        <Star className="w-8 h-8 mb-2" />
-                        <p className="text-lg font-medium">
+                        <Star className="w-8 h-8 mb-2 text-[#d4b37f]" />
+                        <p className="text-lg font-medium text-[#e8d5a9]">
                           Your watchlist is empty
                         </p>
                         <p>Star some coins to add them to your watchlist</p>
@@ -463,9 +481,9 @@ export function MemeCoinMarketCap({
                 <PaginationItem>
                   <PaginationPrevious
                     onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                    className={
+                    className={`text-[#e8d5a9] hover:bg-[#8B4513]/20 ${
                       currentPage === 1 ? "pointer-events-none opacity-50" : ""
-                    }
+                    }`}
                   />
                 </PaginationItem>
                 {[...Array(totalPages)].map((_, i) => (
@@ -473,6 +491,11 @@ export function MemeCoinMarketCap({
                     <PaginationLink
                       onClick={() => setCurrentPage(i + 1)}
                       isActive={currentPage === i + 1}
+                      className={
+                        currentPage === i + 1
+                          ? "bg-[#8B4513] text-[#e8d5a9]"
+                          : "text-[#e8d5a9] hover:bg-[#8B4513]/20"
+                      }
                     >
                       {i + 1}
                     </PaginationLink>
@@ -483,11 +506,11 @@ export function MemeCoinMarketCap({
                     onClick={() =>
                       setCurrentPage((p) => Math.min(totalPages, p + 1))
                     }
-                    className={
+                    className={`text-[#e8d5a9] hover:bg-[#8B4513]/20 ${
                       currentPage === totalPages
                         ? "pointer-events-none opacity-50"
                         : ""
-                    }
+                    }`}
                   />
                 </PaginationItem>
               </PaginationContent>

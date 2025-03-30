@@ -283,317 +283,308 @@ export default function MyBetsPage() {
     <AppLayout>
       <div className="min-h-screen bg-gradient-to-b from-black to-gray-900">
         <div className="container py-8">
+          {/* Header section */}
+          <div className="relative mb-12 pb-6 border-b border-white/10">
+            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+              <div>
+                <h1 className="text-4xl font-bold mb-2">
+                  My{" "}
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-blue-500">
+                    Bets
+                  </span>
+                </h1>
+                <p className="text-lg text-muted-foreground">
+                  Track and manage your prediction market portfolio
+                </p>
+              </div>
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    type="search"
+                    placeholder="Search markets..."
+                    className="pl-10 w-full sm:w-[300px] bg-white/5 border-white/10 focus:border-green-500/50 transition-colors"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                </div>
+                <div className="flex gap-3">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => setShowFilters(!showFilters)}
+                    className={`border-white/10 hover:border-green-500/50 transition-colors ${
+                      showFilters ? "bg-green-500/10 border-green-500/50" : ""
+                    }`}
+                  >
+                    <Filter className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    className="bg-gradient-to-r from-blue-400 to-blue-500 hover:from-blue-500 hover:to-blue-600 transition-colors"
+                    asChild
+                  >
+                    <Link href="/bets/create">
+                      <Plus className="h-4 w-4 mr-2" />
+                      Create a Bet
+                    </Link>
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Statistics Cards */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="mb-12"
           >
-            {/* Header section */}
-            <div className="relative mb-12 pb-6 border-b border-white/10">
-              <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
-                <div>
-                  <h1 className="text-4xl font-bold mb-2">
-                    My{" "}
-                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-blue-500">
-                      Bets
-                    </span>
-                  </h1>
-                  <p className="text-lg text-muted-foreground">
-                    Track and manage your prediction market portfolio
-                  </p>
-                </div>
-                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      type="search"
-                      placeholder="Search markets..."
-                      className="pl-10 w-full sm:w-[300px] bg-white/5 border-white/10 focus:border-green-500/50 transition-colors"
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                    />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {/* Total Bets Card */}
+              <Card className="bg-white/5 border-white/10 hover:border-green-500/50 transition-all hover:transform hover:scale-[1.02] cursor-pointer">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                    <Dices className="h-4 w-4 text-green-400" />
+                    Total Markets
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-1">
+                    <div className="text-3xl font-bold">{totalBets}</div>
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <span className="inline-flex items-center px-2 py-1 rounded-full bg-blue-500/10 text-blue-400">
+                        {pendingBets} active
+                      </span>
+                      <span className="inline-flex items-center px-2 py-1 rounded-full bg-gray-500/10 text-gray-400">
+                        {pastBets.length} completed
+                      </span>
+                    </div>
                   </div>
-                  <div className="flex gap-3">
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={() => setShowFilters(!showFilters)}
-                      className={`border-white/10 hover:border-green-500/50 transition-colors ${
-                        showFilters ? "bg-green-500/10 border-green-500/50" : ""
+                </CardContent>
+              </Card>
+
+              {/* Win Rate Card */}
+              <Card className="bg-white/5 border-white/10 hover:border-green-500/50 transition-all hover:transform hover:scale-[1.02] cursor-pointer">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                    <Award className="h-4 w-4 text-green-400" />
+                    Success Rate
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-1">
+                    <div className="text-3xl font-bold">{winRate}%</div>
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <span className="inline-flex items-center px-2 py-1 rounded-full bg-green-500/10 text-green-400">
+                        {wonBets} won
+                      </span>
+                      <span className="inline-flex items-center px-2 py-1 rounded-full bg-red-500/10 text-red-400">
+                        {lostBets} lost
+                      </span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Total Profit Card */}
+              <Card className="bg-white/5 border-white/10 hover:border-green-500/50 transition-all hover:transform hover:scale-[1.02] cursor-pointer">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                    {totalProfit >= 0 ? (
+                      <TrendingUp className="h-4 w-4 text-green-400" />
+                    ) : (
+                      <TrendingDown className="h-4 w-4 text-red-400" />
+                    )}
+                    Total Profit
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-1">
+                    <div
+                      className={`text-3xl font-bold ${
+                        totalProfit >= 0 ? "text-green-400" : "text-red-400"
                       }`}
                     >
-                      <Filter className="h-4 w-4" />
+                      {totalProfit > 0 ? "+" : ""}
+                      {totalProfit.toFixed(4)} ETH
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      Lifetime profit/loss
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Active Pool Size Card */}
+              <Card className="bg-white/5 border-white/10 hover:border-green-500/50 transition-all hover:transform hover:scale-[1.02] cursor-pointer">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                    <BarChart className="h-4 w-4 text-green-400" />
+                    Active Pool Size
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-1">
+                    <div className="text-3xl font-bold">
+                      {ethers.formatEther(
+                        activeBets.reduce(
+                          (acc, bet) =>
+                            acc + BigInt(bet.initialPoolAmount.toString()),
+                          BigInt(0)
+                        )
+                      )}{" "}
+                      ETH
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      Total active pool size
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </motion.div>
+
+          {/* Filters */}
+          {showFilters && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              className="mb-8"
+            >
+              <Card className="bg-white/5 border-white/10">
+                <CardContent className="pt-6">
+                  <BetFilters
+                    activeFilter={activeFilter}
+                    selectedCategory={selectedCategory}
+                    onFilterChange={setActiveFilter}
+                    onCategoryChange={setSelectedCategory}
+                  />
+                </CardContent>
+              </Card>
+            </motion.div>
+          )}
+
+          {/* Tabs */}
+          <div className="bg-white/5 rounded-xl p-6">
+            <Tabs defaultValue="active" className="mb-8">
+              <TabsList className="bg-white/5 p-1">
+                <TabsTrigger
+                  value="active"
+                  className="data-[state=active]:bg-blue-500"
+                >
+                  Active Markets
+                </TabsTrigger>
+                <TabsTrigger
+                  value="past"
+                  className="data-[state=active]:bg-red-500"
+                >
+                  Past Markets
+                </TabsTrigger>
+                <TabsTrigger
+                  value="created"
+                  className="data-[state=active]:bg-green-500"
+                >
+                  Created by Me
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="active" className="mt-6">
+                {isLoading ? (
+                  <div className="flex items-center justify-center py-12">
+                    <Loader2 className="h-8 w-8 animate-spin text-green-400" />
+                  </div>
+                ) : filteredActiveBets.length > 0 ? (
+                  <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                    {filteredActiveBets.map((bet) => (
+                      <BetCard key={bet.id} bet={convertToDisplayBet(bet)} />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-12">
+                    <Dices className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                    <h3 className="text-xl font-medium mb-2">
+                      No active markets found
+                    </h3>
+                    <p className="text-muted-foreground max-w-md mx-auto mb-6">
+                      You don't have any active markets matching your search
+                      criteria.
+                    </p>
+                    <Button asChild>
+                      <Link href="/bets">Browse Markets</Link>
                     </Button>
-                    <Button
-                      className="bg-gradient-to-r from-blue-400 to-blue-500 hover:from-blue-500 hover:to-blue-600 transition-colors"
-                      asChild
-                    >
+                  </div>
+                )}
+              </TabsContent>
+
+              <TabsContent value="past" className="mt-6">
+                {isLoading ? (
+                  <div className="flex items-center justify-center py-12">
+                    <Loader2 className="h-8 w-8 animate-spin text-green-400" />
+                  </div>
+                ) : filteredPastBets.length > 0 ? (
+                  <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                    {filteredPastBets.map((bet) => (
+                      <BetCard key={bet.id} bet={convertToDisplayBet(bet)} />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-12">
+                    <Dices className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                    <h3 className="text-xl font-medium mb-2">
+                      No past markets found
+                    </h3>
+                    <p className="text-muted-foreground max-w-md mx-auto mb-6">
+                      You don't have any past markets matching your search
+                      criteria.
+                    </p>
+                    <Button asChild>
+                      <Link href="/bets">Browse Markets</Link>
+                    </Button>
+                  </div>
+                )}
+              </TabsContent>
+
+              <TabsContent value="created" className="mt-6">
+                {isLoading ? (
+                  <div className="flex items-center justify-center py-12">
+                    <Loader2 className="h-8 w-8 animate-spin text-green-400" />
+                  </div>
+                ) : myBets.filter(
+                    (bet) =>
+                      bet.creator.toLowerCase() === address?.toLowerCase()
+                  ).length > 0 ? (
+                  <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                    {myBets
+                      .filter(
+                        (bet) =>
+                          bet.creator.toLowerCase() === address?.toLowerCase()
+                      )
+                      .map((bet) => (
+                        <BetCard key={bet.id} bet={convertToDisplayBet(bet)} />
+                      ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-12">
+                    <Dices className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                    <h3 className="text-xl font-medium mb-2">
+                      No created markets yet
+                    </h3>
+                    <p className="text-muted-foreground max-w-md mx-auto mb-6">
+                      You haven't created any bets yet.
+                    </p>
+                    <Button asChild>
                       <Link href="/bets/create">
                         <Plus className="h-4 w-4 mr-2" />
                         Create a Bet
                       </Link>
                     </Button>
                   </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Statistics Cards */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-              className="mb-12"
-            >
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {/* Total Bets Card */}
-                <Card className="bg-white/5 border-white/10 hover:border-green-500/50 transition-all hover:transform hover:scale-[1.02] cursor-pointer">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                      <Dices className="h-4 w-4 text-green-400" />
-                      Total Markets
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-1">
-                      <div className="text-3xl font-bold">{totalBets}</div>
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <span className="inline-flex items-center px-2 py-1 rounded-full bg-blue-500/10 text-blue-400">
-                          {pendingBets} active
-                        </span>
-                        <span className="inline-flex items-center px-2 py-1 rounded-full bg-gray-500/10 text-gray-400">
-                          {pastBets.length} completed
-                        </span>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Win Rate Card */}
-                <Card className="bg-white/5 border-white/10 hover:border-green-500/50 transition-all hover:transform hover:scale-[1.02] cursor-pointer">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                      <Award className="h-4 w-4 text-green-400" />
-                      Success Rate
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-1">
-                      <div className="text-3xl font-bold">{winRate}%</div>
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <span className="inline-flex items-center px-2 py-1 rounded-full bg-green-500/10 text-green-400">
-                          {wonBets} won
-                        </span>
-                        <span className="inline-flex items-center px-2 py-1 rounded-full bg-red-500/10 text-red-400">
-                          {lostBets} lost
-                        </span>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Total Profit Card */}
-                <Card className="bg-white/5 border-white/10 hover:border-green-500/50 transition-all hover:transform hover:scale-[1.02] cursor-pointer">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                      {totalProfit >= 0 ? (
-                        <TrendingUp className="h-4 w-4 text-green-400" />
-                      ) : (
-                        <TrendingDown className="h-4 w-4 text-red-400" />
-                      )}
-                      Total Profit
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-1">
-                      <div
-                        className={`text-3xl font-bold ${
-                          totalProfit >= 0 ? "text-green-400" : "text-red-400"
-                        }`}
-                      >
-                        {totalProfit > 0 ? "+" : ""}
-                        {totalProfit.toFixed(4)} ETH
-                      </div>
-                      <p className="text-sm text-muted-foreground">
-                        Lifetime profit/loss
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Active Pool Size Card */}
-                <Card className="bg-white/5 border-white/10 hover:border-green-500/50 transition-all hover:transform hover:scale-[1.02] cursor-pointer">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                      <BarChart className="h-4 w-4 text-green-400" />
-                      Active Pool Size
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-1">
-                      <div className="text-3xl font-bold">
-                        {ethers.formatEther(
-                          activeBets.reduce(
-                            (acc, bet) =>
-                              acc + BigInt(bet.initialPoolAmount.toString()),
-                            BigInt(0)
-                          )
-                        )}{" "}
-                        ETH
-                      </div>
-                      <p className="text-sm text-muted-foreground">
-                        Total active pool size
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </motion.div>
-
-            {/* Filters */}
-            {showFilters && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-                className="mb-8"
-              >
-                <Card className="bg-white/5 border-white/10">
-                  <CardContent className="pt-6">
-                    <BetFilters
-                      activeFilter={activeFilter}
-                      selectedCategory={selectedCategory}
-                      onFilterChange={setActiveFilter}
-                      onCategoryChange={setSelectedCategory}
-                    />
-                  </CardContent>
-                </Card>
-              </motion.div>
-            )}
-
-            {/* Tabs */}
-            <div className="bg-white/5 rounded-xl p-6">
-              <Tabs defaultValue="active" className="mb-8">
-                <TabsList className="bg-white/5 p-1">
-                  <TabsTrigger
-                    value="active"
-                    className="data-[state=active]:bg-blue-500"
-                  >
-                    Active Markets
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="past"
-                    className="data-[state=active]:bg-red-500"
-                  >
-                    Past Markets
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="created"
-                    className="data-[state=active]:bg-green-500"
-                  >
-                    Created by Me
-                  </TabsTrigger>
-                </TabsList>
-
-                <TabsContent value="active" className="mt-6">
-                  {isLoading ? (
-                    <div className="flex items-center justify-center py-12">
-                      <Loader2 className="h-8 w-8 animate-spin text-green-400" />
-                    </div>
-                  ) : filteredActiveBets.length > 0 ? (
-                    <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-                      {filteredActiveBets.map((bet) => (
-                        <BetCard key={bet.id} bet={convertToDisplayBet(bet)} />
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-12">
-                      <Dices className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-                      <h3 className="text-xl font-medium mb-2">
-                        No active markets found
-                      </h3>
-                      <p className="text-muted-foreground max-w-md mx-auto mb-6">
-                        You don't have any active markets matching your search
-                        criteria.
-                      </p>
-                      <Button asChild>
-                        <Link href="/bets">Browse Markets</Link>
-                      </Button>
-                    </div>
-                  )}
-                </TabsContent>
-
-                <TabsContent value="past" className="mt-6">
-                  {isLoading ? (
-                    <div className="flex items-center justify-center py-12">
-                      <Loader2 className="h-8 w-8 animate-spin text-green-400" />
-                    </div>
-                  ) : filteredPastBets.length > 0 ? (
-                    <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-                      {filteredPastBets.map((bet) => (
-                        <BetCard key={bet.id} bet={convertToDisplayBet(bet)} />
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-12">
-                      <Dices className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-                      <h3 className="text-xl font-medium mb-2">
-                        No past markets found
-                      </h3>
-                      <p className="text-muted-foreground max-w-md mx-auto mb-6">
-                        You don't have any past markets matching your search
-                        criteria.
-                      </p>
-                      <Button asChild>
-                        <Link href="/bets">Browse Markets</Link>
-                      </Button>
-                    </div>
-                  )}
-                </TabsContent>
-
-                <TabsContent value="created" className="mt-6">
-                  {isLoading ? (
-                    <div className="flex items-center justify-center py-12">
-                      <Loader2 className="h-8 w-8 animate-spin text-green-400" />
-                    </div>
-                  ) : myBets.filter(
-                      (bet) =>
-                        bet.creator.toLowerCase() === address?.toLowerCase()
-                    ).length > 0 ? (
-                    <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-                      {myBets
-                        .filter(
-                          (bet) =>
-                            bet.creator.toLowerCase() === address?.toLowerCase()
-                        )
-                        .map((bet) => (
-                          <BetCard
-                            key={bet.id}
-                            bet={convertToDisplayBet(bet)}
-                          />
-                        ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-12">
-                      <Dices className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-                      <h3 className="text-xl font-medium mb-2">
-                        No created markets yet
-                      </h3>
-                      <p className="text-muted-foreground max-w-md mx-auto mb-6">
-                        You haven't created any bets yet.
-                      </p>
-                      <Button asChild>
-                        <Link href="/bets/create">
-                          <Plus className="h-4 w-4 mr-2" />
-                          Create a Bet
-                        </Link>
-                      </Button>
-                    </div>
-                  )}
-                </TabsContent>
-              </Tabs>
-            </div>
-          </motion.div>
+                )}
+              </TabsContent>
+            </Tabs>
+          </div>
         </div>
       </div>
     </AppLayout>

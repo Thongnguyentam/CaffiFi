@@ -269,6 +269,7 @@ export function SiteHeader() {
   const authenticatedMenuItems = useMemo(
     (): NavItem[] => [
       { label: "Marketcap", href: "/marketcap" },
+      { label: "Marketplace", href: "/marketplace" },
       { label: "Bets", href: "/bets" },
       { label: "Launch Tokens", href: "/launch" },
       { label: "Create Bets", href: "/bets/create" },
@@ -279,20 +280,20 @@ export function SiteHeader() {
 
   return (
     // Coffee-themed header for all pages
-    <nav className="container mx-auto px-6 py-4 flex items-center justify-between relative z-20">
-      <div className="flex items-center gap-2 transform hover:scale-105 transition-transform">
+    <nav className="flex items-center justify-between relative z-20 px-0 py-4 bg-[#1a0f02]/90 backdrop-blur-sm border-b border-[#8B4513]/40">
+      <div className="flex items-center gap-2 transform hover:scale-105 transition-transform ml-4">
         <Image src="/logo-nobg.svg" alt="CaffiFi Logo" width={40} height={40} />
         <Link href="/" className="text-2xl font-bold text-[#d4b37f]">
           CaffiFi
         </Link>
       </div>
 
-      <div className="hidden md:flex items-center gap-8">
+      <div className="hidden md:flex items-center gap-6 mr-4">
         {(isAuthenticated ? authenticatedMenuItems : menuItems).map((item) => (
           <Link
             key={item.label}
             href={item.href}
-            className={`transition-all transform hover:translate-y-[-2px] px-4 py-1.5 rounded-lg ${
+            className={`transition-all transform hover:translate-y-[-2px] px-3 py-1.5 rounded-lg ${
               pathname === item.href
                 ? "text-[#e8d5a9] font-bold bg-[#8B4513]/80 border border-[#d4b37f]/40 shadow-[0_4px_12px_rgba(139,69,19,0.2)]"
                 : "text-[#e8d5a9] hover:text-[#d4b37f] hover:bg-[#8B4513]/20"
@@ -301,17 +302,90 @@ export function SiteHeader() {
             {item.label}
           </Link>
         ))}
+
         {isAuthenticated ? (
-          <Link
-            href="/dashboard"
-            className={`transition-all transform hover:translate-y-[-2px] px-6 py-2 rounded-lg ${
-              pathname.includes("/dashboard")
-                ? "text-[#e8d5a9] font-bold bg-[#8B4513]/80 border border-[#d4b37f]/40 shadow-[0_4px_12px_rgba(139,69,19,0.2)]"
-                : "bg-[#8B4513] hover:bg-[#A0522D] text-[#e8d5a9] hover:shadow-[0_8px_16px_rgba(139,69,19,0.3)] active:translate-y-0"
-            }`}
-          >
-            Dashboard
-          </Link>
+          <div className="ml-2">
+            <div className="bg-[#3a1e0a] rounded-lg border border-[#8B4513]/60 overflow-hidden">
+              <ConnectButton.Custom>
+                {({
+                  account,
+                  chain,
+                  openAccountModal,
+                  openChainModal,
+                  openConnectModal,
+                  mounted,
+                }) => {
+                  const ready = mounted;
+                  const connected = ready && account && chain;
+
+                  return (
+                    <div
+                      {...(!ready && {
+                        "aria-hidden": true,
+                        style: {
+                          opacity: 0,
+                          pointerEvents: "none",
+                          userSelect: "none",
+                        },
+                      })}
+                      className="flex items-center"
+                    >
+                      {(() => {
+                        if (!connected) {
+                          return (
+                            <button
+                              onClick={openConnectModal}
+                              className="bg-[#8B4513] hover:bg-[#A0522D] px-6 py-2 rounded-lg transition-all transform hover:translate-y-[-2px] hover:shadow-[0_8px_16px_rgba(139,69,19,0.3)] active:translate-y-0 text-[#e8d5a9]"
+                            >
+                              Connect Wallet
+                            </button>
+                          );
+                        }
+
+                        return (
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={openChainModal}
+                              className="flex items-center gap-1 bg-[#8B4513]/70 hover:bg-[#8B4513] px-2 py-1.5 rounded-l-md text-[#e8d5a9]"
+                            >
+                              {chain.hasIcon && (
+                                <div className="w-4 h-4 overflow-hidden">
+                                  {chain.iconUrl && (
+                                    <img
+                                      alt={chain.name ?? "Chain icon"}
+                                      src={chain.iconUrl}
+                                      className="w-4 h-4"
+                                    />
+                                  )}
+                                </div>
+                              )}
+                              <span className="text-xs font-medium">
+                                {chain.name}
+                              </span>
+                            </button>
+
+                            <button
+                              onClick={openAccountModal}
+                              className="flex items-center gap-1 bg-[#8B4513]/70 hover:bg-[#8B4513] px-3 py-1.5 rounded-r-md text-[#e8d5a9]"
+                            >
+                              <span className="text-xs font-medium">
+                                {account.displayBalance
+                                  ? `${account.displayBalance}`
+                                  : ""}
+                              </span>
+                              <span className="text-xs">
+                                {account.displayName}
+                              </span>
+                            </button>
+                          </div>
+                        );
+                      })()}
+                    </div>
+                  );
+                }}
+              </ConnectButton.Custom>
+            </div>
+          </div>
         ) : (
           <button
             className="bg-[#8B4513] hover:bg-[#A0522D] px-6 py-2 rounded-lg transition-all transform hover:translate-y-[-2px] hover:shadow-[0_8px_16px_rgba(139,69,19,0.3)] active:translate-y-0 text-[#e8d5a9]"
@@ -323,7 +397,10 @@ export function SiteHeader() {
       </div>
 
       {/* Mobile menu toggle */}
-      <button className="md:hidden text-[#e8d5a9]" onClick={toggleMobileMenu}>
+      <button
+        className="md:hidden text-[#e8d5a9] mr-4"
+        onClick={toggleMobileMenu}
+      >
         {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
       </button>
 
@@ -346,24 +423,23 @@ export function SiteHeader() {
                 </Link>
               )
             )}
-            {isAuthenticated ? (
-              <Link
-                href="/dashboard"
-                className={`px-6 py-2 rounded-lg transition-all text-center ${
-                  pathname.includes("/dashboard")
-                    ? "text-[#e8d5a9] font-bold bg-[#8B4513]/80 border border-[#d4b37f]/40 shadow-[0_4px_12px_rgba(139,69,19,0.2)]"
-                    : "bg-[#8B4513] hover:bg-[#A0522D] text-[#e8d5a9]"
-                }`}
-              >
-                Dashboard
-              </Link>
-            ) : (
+            {!isAuthenticated && (
               <button
                 className="bg-[#8B4513] hover:bg-[#A0522D] px-6 py-2 rounded-lg text-[#e8d5a9] text-center"
                 onClick={handleConnectWallet}
               >
                 Connect Wallet
               </button>
+            )}
+            {isAuthenticated && (
+              <div className="mt-2 py-2 border-t border-[#8B4513]/40">
+                <ConnectButton
+                  showBalance={true}
+                  chainStatus="icon"
+                  accountStatus="full"
+                  label="Wallet"
+                />
+              </div>
             )}
           </div>
         </div>

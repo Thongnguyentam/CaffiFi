@@ -10,7 +10,13 @@ import { cn } from "@/lib/utils";
 dayjs.extend(relativeTime);
 dayjs.extend(duration);
 
-export function TimeLeft({ endDate }: { endDate: string }) {
+export function TimeLeft({
+  endDate,
+  className,
+}: {
+  endDate: string;
+  className?: string;
+}) {
   const [timeLeft, setTimeLeft] = useState("");
   const [isUrgent, setIsUrgent] = useState(false);
   const [days, setDays] = useState(0);
@@ -77,7 +83,7 @@ export function TimeLeft({ endDate }: { endDate: string }) {
 
   if (timeLeft === "Ended") {
     return (
-      <div className="flex items-center gap-1.5">
+      <div className={cn("flex items-center gap-1.5", className)}>
         <Clock className="h-4 w-4 text-red-500" />
         <span className="text-sm font-medium text-red-500">Ended</span>
       </div>
@@ -85,16 +91,16 @@ export function TimeLeft({ endDate }: { endDate: string }) {
   }
 
   return (
-    <div className="flex items-center gap-1.5">
+    <div className={cn("flex items-center gap-1.5", className)}>
       <Clock
-        className={cn("h-4 w-4", isUrgent ? "text-red-400" : "text-green-400")}
+        className={cn("h-4 w-4", isUrgent ? "text-red-400" : "text-[#d4b37f]")}
       />
       <div className="flex items-center">
         {days > 0 && (
           <span
             className={cn(
               "text-sm font-medium",
-              isUrgent ? "text-red-400" : "text-green-400"
+              isUrgent ? "text-red-400" : "text-[#e8d5a9]"
             )}
           >
             {days}d:
@@ -103,7 +109,7 @@ export function TimeLeft({ endDate }: { endDate: string }) {
         <span
           className={cn(
             "text-sm font-medium",
-            isUrgent ? "text-red-400" : "text-green-400"
+            isUrgent ? "text-red-400" : "text-[#e8d5a9]"
           )}
         >
           {formatTimeComponent(hours)}h:
@@ -111,7 +117,7 @@ export function TimeLeft({ endDate }: { endDate: string }) {
         <span
           className={cn(
             "text-sm font-medium",
-            isUrgent ? "text-red-400" : "text-green-400"
+            isUrgent ? "text-red-400" : "text-[#e8d5a9]"
           )}
         >
           {formatTimeComponent(minutes)}m:
@@ -119,7 +125,7 @@ export function TimeLeft({ endDate }: { endDate: string }) {
         <span
           className={cn(
             "text-sm font-medium animate-pulse",
-            isUrgent ? "text-red-400" : "text-green-400"
+            isUrgent ? "text-red-400" : "text-[#e8d5a9]"
           )}
         >
           {formatTimeComponent(seconds)}s
