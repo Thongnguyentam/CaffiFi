@@ -248,7 +248,7 @@ export default function CoinPage() {
                     <CardHeader className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
                       <CardTitle className="flex items-center gap-2 text-xl font-bold">
                         <span>{coinData.symbol}/USDT</span>
-                        <span className="text-sm text-green-400">(+8.56%)</span>
+                        <span className="text-sm text-amber-400">(+8.56%)</span>
                       </CardTitle>
                       <div className="w-full overflow-x-auto sm:w-auto">
                         <div className="flex gap-2 min-w-max">
@@ -262,6 +262,11 @@ export default function CoinPage() {
                               }
                               size="sm"
                               onClick={() => setSelectedTimeframe(timeframe)}
+                              className={
+                                selectedTimeframe === timeframe
+                                  ? "bg-[#8B4513] text-[#e8d5a9] hover:bg-[#A0522D]"
+                                  : "border-[#8B4513]/30 text-[#d4b37f] hover:bg-[#8B4513]/20"
+                              }
                             >
                               {timeframe}
                             </Button>
@@ -279,28 +284,46 @@ export default function CoinPage() {
                     <CardContent className="p-4">
                       <Tabs defaultValue="market-stats">
                         <div className="pb-2 overflow-x-auto">
-                          <TabsList className="inline-flex mb-4 min-w-max">
-                            <TabsTrigger value="market-stats">
+                          <TabsList className="inline-flex mb-4 min-w-max bg-[#1a0f02]/60 border border-[#8B4513]/30">
+                            <TabsTrigger
+                              value="market-stats"
+                              className="data-[state=active]:bg-[#8B4513] data-[state=active]:text-[#e8d5a9] text-[#d4b37f]"
+                            >
                               <Globe className="w-4 h-4 mr-2" />
                               Market Stats
                             </TabsTrigger>
-                            <TabsTrigger value="holders">
+                            <TabsTrigger
+                              value="holders"
+                              className="data-[state=active]:bg-[#8B4513] data-[state=active]:text-[#e8d5a9] text-[#d4b37f]"
+                            >
                               <Users className="w-4 h-4 mr-2" />
                               Top Holders
                             </TabsTrigger>
-                            <TabsTrigger value="traders">
+                            <TabsTrigger
+                              value="traders"
+                              className="data-[state=active]:bg-[#8B4513] data-[state=active]:text-[#e8d5a9] text-[#d4b37f]"
+                            >
                               <Activity className="w-4 h-4 mr-2" />
                               Traders
                             </TabsTrigger>
-                            <TabsTrigger value="liquidity">
+                            <TabsTrigger
+                              value="liquidity"
+                              className="data-[state=active]:bg-[#8B4513] data-[state=active]:text-[#e8d5a9] text-[#d4b37f]"
+                            >
                               <Layers className="w-4 h-4 mr-2" />
                               Liquidity
                             </TabsTrigger>
-                            <TabsTrigger value="bubble-map">
+                            <TabsTrigger
+                              value="bubble-map"
+                              className="data-[state=active]:bg-[#8B4513] data-[state=active]:text-[#e8d5a9] text-[#d4b37f]"
+                            >
                               <PieChart className="w-4 h-4 mr-2" />
                               Bubble Map
                             </TabsTrigger>
-                            <TabsTrigger value="wallets">
+                            <TabsTrigger
+                              value="wallets"
+                              className="data-[state=active]:bg-[#8B4513] data-[state=active]:text-[#e8d5a9] text-[#d4b37f]"
+                            >
                               <Wallet className="w-4 h-4 mr-2" />
                               Active Wallets
                             </TabsTrigger>

@@ -18,13 +18,12 @@ function formatMarketCap(value: number): string {
   } else if (value >= 1_000_000) {
     return `$${(value / 1_000_000).toFixed(2)}M`;
   } else {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD'
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
     }).format(value);
   }
 }
-
 
 const MarketStatsTab = ({
   coinData,
@@ -44,21 +43,25 @@ const MarketStatsTab = ({
     <div className="space-y-6">
       {/* Market Overview Stats */}
       <div className="grid grid-cols-4 gap-4">
-        <div className="p-4 border rounded-lg bg-black/20 border-gray-400/30">
-          <div className="text-sm text-muted-foreground">Market Cap</div>
-          <div className="text-xl font-bold">{formatMarketCap(coinData.marketCap)}</div>
+        <div className="p-4 border rounded-lg bg-[#1a0f02]/60 border-[#8B4513]/30">
+          <div className="text-sm text-[#e8d5a9]/70">Market Cap</div>
+          <div className="text-xl font-bold text-[#e8d5a9]">
+            {formatMarketCap(coinData.marketCap)}
+          </div>
         </div>
-        <div className="p-4 border rounded-lg bg-black/20 border-gray-400/30">
-          <div className="text-sm text-muted-foreground">Liquidity</div>
-          <div className="text-xl font-bold">{formatMarketCap(coinData.liquidity)}</div>
+        <div className="p-4 border rounded-lg bg-[#1a0f02]/60 border-[#8B4513]/30">
+          <div className="text-sm text-[#e8d5a9]/70">Liquidity</div>
+          <div className="text-xl font-bold text-[#e8d5a9]">
+            {formatMarketCap(coinData.liquidity)}
+          </div>
         </div>
-        <div className="p-4 border rounded-lg bg-black/20 border-gray-400/30">
-          <div className="text-sm text-muted-foreground"># of Holders</div>
-          <div className="text-xl font-bold">32K</div>
+        <div className="p-4 border rounded-lg bg-[#1a0f02]/60 border-[#8B4513]/30">
+          <div className="text-sm text-[#e8d5a9]/70"># of Holders</div>
+          <div className="text-xl font-bold text-[#e8d5a9]">32K</div>
         </div>
-        <div className="p-4 border rounded-lg bg-black/20 border-gray-400/30">
-          <div className="text-sm text-muted-foreground"># of Markets</div>
-          <div className="text-xl font-bold">43</div>
+        <div className="p-4 border rounded-lg bg-[#1a0f02]/60 border-[#8B4513]/30">
+          <div className="text-sm text-[#e8d5a9]/70"># of Markets</div>
+          <div className="text-xl font-bold text-[#e8d5a9]">43</div>
         </div>
       </div>
 
@@ -71,15 +74,15 @@ const MarketStatsTab = ({
         </div>
 
         {/* Column 2: Time Range Stats */}
-        <div className="p-4 border rounded-lg bg-black/30 border-gray-400/30">
+        <div className="p-4 border rounded-lg bg-[#1a0f02]/60 border-[#8B4513]/30">
           <div className="grid grid-cols-4 gap-4 mb-4">
             {volumeData.map((data) => (
               <button
                 key={data.timeRange}
-                className={`px-4 py-2 rounded-md border border-gray-400/30 ${
+                className={`px-4 py-2 rounded-md border border-[#8B4513]/30 ${
                   selectedTimeRange === data.timeRange
-                    ? "bg-gray-700 text-white"
-                    : "bg-black/20 text-gray-400 hover:bg-gray-800"
+                    ? "bg-[#8B4513] text-[#e8d5a9]"
+                    : "bg-[#1a0f02]/60 text-[#d4b37f] hover:bg-[#8B4513]/20"
                 }`}
                 onClick={() => setSelectedTimeRange(data.timeRange)}
               >
@@ -87,7 +90,7 @@ const MarketStatsTab = ({
                   <span className="font-medium">{data.timeRange}</span>
                   <span
                     className={`text-sm ${
-                      data.netChange >= 0 ? "text-green-400" : "text-red-400"
+                      data.netChange >= 0 ? "text-amber-400" : "text-amber-900"
                     }`}
                   >
                     {data.netChange > 0 ? "+" : ""}
@@ -99,60 +102,56 @@ const MarketStatsTab = ({
           </div>
           {/* Transaction Analysis */}
           <div className="space-y-4">
-            <div className="p-4 border rounded-lg bg-black/20 border-gray-400/30">
+            <div className="p-4 border rounded-lg bg-[#1a0f02]/60 border-[#8B4513]/30">
               <div className="flex items-center justify-between mb-2">
                 <div>
-                  <span className="mr-2 text-sm text-muted-foreground">
-                    TXNS
-                  </span>
-                  <span className="text-lg font-bold">16K</span>
+                  <span className="mr-2 text-sm text-[#e8d5a9]/70">TXNS</span>
+                  <span className="text-lg font-bold text-[#e8d5a9]">16K</span>
                 </div>
                 <div className="flex gap-20">
                   <div>
-                    <span className="text-sm text-green-400">BUYS</span>
-                    <span className="ml-2 text-sm text-muted-foreground">
+                    <span className="text-sm text-amber-400">BUYS</span>
+                    <span className="ml-2 text-sm text-[#e8d5a9]/70">
                       {selectedData.buyVolume}K
                     </span>
                   </div>
                   <div>
-                    <span className="text-sm text-red-400">SELLS</span>
-                    <span className="ml-2 text-sm text-muted-foreground">
+                    <span className="text-sm text-amber-900">SELLS</span>
+                    <span className="ml-2 text-sm text-[#e8d5a9]/70">
                       {selectedData.sellVolume}K
                     </span>
                   </div>
                 </div>
               </div>
-              <div className="h-2 overflow-hidden rounded-full bg-black/40">
+              <div className="h-2 overflow-hidden rounded-full bg-[#1a0f02]/60">
                 <div
-                  className="h-full bg-gradient-to-r from-green-400 to-red-400"
+                  className="h-full bg-gradient-to-r from-amber-500 to-amber-900"
                   style={{ width: "100%" }}
                 />
               </div>
               <div className="flex items-center justify-between mb-2">
                 <div>
-                  <span className="mr-2 text-sm text-muted-foreground">
-                    VOLUME
-                  </span>
-                  <span className="text-lg font-bold">$3M</span>
+                  <span className="mr-2 text-sm text-[#e8d5a9]/70">VOLUME</span>
+                  <span className="text-lg font-bold text-[#e8d5a9]">$3M</span>
                 </div>
                 <div className="flex gap-20">
                   <div>
-                    <span className="text-sm text-green-400">BUY VOL</span>
-                    <span className="ml-2 text-sm text-muted-foreground">
+                    <span className="text-sm text-amber-400">BUY VOL</span>
+                    <span className="ml-2 text-sm text-[#e8d5a9]/70">
                       ${selectedData.buyVolume}M
                     </span>
                   </div>
                   <div>
-                    <span className="text-sm text-red-400">SELL VOL</span>
-                    <span className="ml-2 text-sm text-muted-foreground">
+                    <span className="text-sm text-amber-900">SELL VOL</span>
+                    <span className="ml-2 text-sm text-[#e8d5a9]/70">
                       ${selectedData.sellVolume}M
                     </span>
                   </div>
                 </div>
               </div>
-              <div className="h-2 overflow-hidden rounded-full bg-black/40">
+              <div className="h-2 overflow-hidden rounded-full bg-[#1a0f02]/60">
                 <div
-                  className="h-full bg-gradient-to-r from-green-400 to-red-400"
+                  className="h-full bg-gradient-to-r from-amber-500 to-amber-900"
                   style={{ width: "100%" }}
                 />
               </div>
