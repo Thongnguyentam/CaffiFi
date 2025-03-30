@@ -22,7 +22,7 @@ cast call \
 ```
 
 ```
-cast send --rpc-url https://arbitrum-sepolia-rpc.publicnode.com 0x7dB0d23f4E6e55fbe57229f9F522799AEB6Cc65F 'depositEth() external payable returns (uint256)' --private-key 0c6aaedebed8f32db344a74f5fda724c42a1b7053450ebfecd29ba0e0922dd6b  --value 10000000000000000 -vvvv
+cast send --rpc-url https://arbitrum-sepolia-rpc.publicnode.com 0x7dB0d23f4E6e55fbe57229f9F522799AEB6Cc65F 'depositEth() external payable returns (uint256)' --private-key 0c6aaedebed8f32db344a74f5fda724c42a1b7053450ebfecd29ba0e0922dd6b  --value 500000000000000 -vvvv
 ```
 
 Check recipient balance: 

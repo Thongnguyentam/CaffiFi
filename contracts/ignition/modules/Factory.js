@@ -5,6 +5,8 @@ const { buildModule } = require("@nomicfoundation/hardhat-ignition/modules");
 const { ethers } = require("hardhat");
 
 const FEE = ethers.parseUnits("0.01", 18)
+const LZ_ENDPOINT = "0x6C7Ab2202C98C4227C5c46f1417D81144DA716Ff" // Sonic EndpointV2
+// const LZ_ENDPOINT = "0x6EDCE65403992e310A62460808c4b910D972f10f" // Arbitrum Sepolia Testnet
 
 module.exports = buildModule("FactoryModule", (m) => {
     // Get the agent wallet from private key
@@ -19,9 +21,10 @@ module.exports = buildModule("FactoryModule", (m) => {
 
     // set up the fee for the contract
     const fee = m.getParameter("fee", FEE);
-
+    const lzEndpoint = m.getParameter("lzEndpoint", LZ_ENDPOINT);
+    
     // Deploy Factory contract first
-    const factory = m.contract("Factory", [FEE]);
+    const factory = m.contract("Factory", [fee, lzEndpoint]);
 
     // Deploy Native Liquidity Pool Contract
     const liquidityPool = m.contract("NativeLiquidityPool", [factory]);

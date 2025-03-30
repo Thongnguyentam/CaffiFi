@@ -3,14 +3,16 @@ pragma solidity ^0.8.28;
 
 import {Token} from "./Token.sol";
 import "./NativeLiquidityPool.sol";
+import { OApp, Origin, MessagingFee } from "@layerzerolabs/oapp-evm/contracts/oapp/OApp.sol";
 
-contract Factory {
+contract Factory is OApp {
     uint256 public constant TARGET = 3 ether;
     uint256 public constant TOKEN_LIMIT = 500_000 ether;
     
     uint constant BASE_REWARD_PERCENTAGE = 3; // 3% reward
     uint256 public immutable fee;
     address public owner;
+    address public immutable lzEndpoint;
 
     uint256 public totalTokens;
     address[] public tokens;
@@ -42,9 +44,10 @@ contract Factory {
         _;
     }
 
-    constructor(uint256 _fee) {
+    constructor(uint256 _fee, address _lzEndpoint) OApp(_lzEndpoint, msg.sender){
         fee = _fee;
         owner = msg.sender;
+        lzEndpoint = _lzEndpoint;
     }
 
     function setLiquidityPool(address _liquidityPool) external onlyOwner {
@@ -64,7 +67,7 @@ contract Factory {
             _creator = msg.sender;
         }
 
-        Token token = new Token(_creator, _name, _symbol, _metadataURI, 1_000_000 ether);
+        Token token = new Token(_creator, _name, _symbol, _metadataURI, 1_000_000 ether, lzEndpoint);
         tokens.push(address(token));
         totalTokens++;
 
@@ -187,4 +190,47 @@ contract Factory {
     // function getTokenBySymbol(string memory _symbol) public view returns (address) {
     //     return tokenBySymbol[_symbol];
     // }
+
+    function sendLaunchToRemoteChain(
+        uint32 dstEid,
+        string memory _name,
+        string memory _symbol,
+        string memory _metadataURI,
+        address _creator,
+        bytes memory options
+    ) external payable {
+        bytes memory payload = abi.encode(_name, _symbol, _metadataURI, _creator);
+        _lzSend(dstEid, payload, options, MessagingFee(msg.value, 0), payable(msg.sender));
+    }
+
+    function _lzReceive(
+        Origin calldata, // not needed for now
+        bytes32,         // guid
+        bytes calldata payload,
+        address,         // executor
+        bytes calldata   // extra data
+    ) internal override {
+        (
+            string memory _name, 
+            string memory _symbol, 
+            string memory _metadataURI, 
+            address _creator
+        ) = abi.decode(payload, (string, string, string, address));
+        
+        _createCrossChainToken(_name, _symbol, _metadataURI, _creator);
+    }
+
+    function _createCrossChainToken(
+        string memory _name,
+        string memory _symbol,
+        string memory _metadataURI,
+        address _creator
+    ) internal {
+        Token token = new Token(_creator, _name, _symbol, _metadataURI, 1_000_000 ether, lzEndpoint);
+        tokens.push(address(token));
+        totalTokens++;
+        tokenToSale[address(token)] = TokenSale(address(token), _name, _metadataURI, _creator, 0, 0, true, false);
+        emit Created(address(token));
+    }
+
 } 
