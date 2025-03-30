@@ -87,10 +87,10 @@ interface CoinSwapProps {
 // Define token data with more details
 const defaultTokens: UIToken[] = [
   {
-    symbol: "S",
-    name: "Sonic",
+    symbol: "ETH",
+    name: "Ethereum",
     balance: 1.2,
-    icon: "⚡",
+    icon: "☕",
     change24h: "-0.5%",
     price: 4125,
     tokenData: null,
@@ -156,7 +156,7 @@ const DeBridgeWidget = () => {
             mode: "deswap",
             isEnableCalldata: false,
             styles:
-              "eyJhcHBCYWNrZ3JvdW5kIjoiIzAwMDEwMSIsImJvcmRlckNvbG9yIjoiIzM4YmRmOCIsInRvb2x0aXBCZyI6IiMwMzA2MGQiLCJwcmltYXJ5IjoiIzQ5NDk0ZCIsInByaW1hcnlCdG5CZyI6IiMzMTY3ZDkifQ==",
+              "eyJhcHBCYWNrZ3JvdW5kIjoiIzFhMGYwMiIsImJvcmRlckNvbG9yIjoiIzhCNDUxMyIsInRvb2x0aXBCZyI6IiMxYTBmMDIiLCJwcmltYXJ5IjoiI2Q0YjM3ZiIsInByaW1hcnlCdG5CZyI6IiM4QjQ1MTMifQ==",
             theme: "dark",
             isHideLogo: false,
             logo: "",
@@ -195,7 +195,7 @@ const DeBridgeWidget = () => {
           height: "650px",
           border: "none",
           overflow: "hidden",
-          background: "#000101",
+          background: "#1a0f02",
         }}
       ></div>
     </div>
@@ -259,11 +259,11 @@ const CoinSwap = ({
 
   // Combine ETH with marketplace tokens
   const tokens: UIToken[] = [
-    ...defaultTokens.filter((t) => t.symbol === "S"), // Only keep S from default tokens
+    ...defaultTokens.filter((t) => t.symbol === "ETH"), // Only keep ETH from default tokens
     ...marketplaceTokensFormatted,
   ];
 
-  // Find the token that matches the symbol or default to S
+  // Find the token that matches the symbol or default to ETH
   const defaultToken = tokens.find((t) => t.symbol === symbol) || tokens[0];
 
   const [fromToken, setFromToken] = useState<UIToken>(defaultToken);
@@ -332,7 +332,7 @@ const CoinSwap = ({
         setEthBalance(formattedEthBalance);
 
         // Update ETH token in the tokens array
-        const ethToken = tokens.find((t) => t.symbol === "S");
+        const ethToken = tokens.find((t) => t.symbol === "ETH");
         if (ethToken) {
           ethToken.balance = parseFloat(formattedEthBalance);
         }
@@ -402,7 +402,7 @@ const CoinSwap = ({
 
   // Get the current balance of the selected token
   const getSelectedTokenBalance = (token: UIToken): string => {
-    if (token.symbol === "S") {
+    if (token.symbol === "ETH") {
       return ethBalance;
     }
 
@@ -420,8 +420,8 @@ const CoinSwap = ({
       token.name.toLowerCase().includes(fromSearchQuery.toLowerCase())
   );
 
-  // For "To" tokens, only show marketplace tokens when swapping from S
-  // When swapping from a marketplace token, only show S
+  // For "To" tokens, only show marketplace tokens when swapping from ETH
+  // When swapping from a marketplace token, only show ETH
   const filteredToTokens =
     swapDirection === "ethToToken"
       ? marketplaceTokensFormatted.filter(
@@ -431,29 +431,29 @@ const CoinSwap = ({
         )
       : tokens.filter(
           (token) =>
-            token.symbol === "S" &&
+            token.symbol === "ETH" &&
             (token.symbol.toLowerCase().includes(toSearchQuery.toLowerCase()) ||
               token.name.toLowerCase().includes(toSearchQuery.toLowerCase()))
         );
 
   // Helper function to check if a token is swappable (graduated)
   const isTokenSwappable = (token: UIToken) => {
-    // S is always swappable
-    if (token.symbol === "S") return true;
+    // ETH is always swappable
+    if (token.symbol === "ETH") return true;
     // For other tokens, check if they are graduated (isOpen = false)
     return token.tokenData ? !token.tokenData.isOpen : true;
   };
 
   // Update swap direction when tokens change
   useEffect(() => {
-    if (fromToken.symbol === "S") {
+    if (fromToken.symbol === "ETH") {
       setSwapDirection("ethToToken");
     } else {
       setSwapDirection("tokenToEth");
-      // If we're swapping from token to S, ensure the "to" token is S
-      const sToken = tokens.find((t) => t.symbol === "S");
-      if (sToken && toToken.symbol !== "S") {
-        setToToken(sToken);
+      // If we're swapping from token to ETH, ensure the "to" token is ETH
+      const ethToken = tokens.find((t) => t.symbol === "ETH");
+      if (ethToken && toToken.symbol !== "ETH") {
+        setToToken(ethToken);
       }
     }
   }, [fromToken, toToken, tokens]);
@@ -479,7 +479,7 @@ const CoinSwap = ({
 
         if (
           swapDirection === "ethToToken" &&
-          fromToken.symbol === "S" &&
+          fromToken.symbol === "ETH" &&
           toToken.tokenData
         ) {
           // ETH to Token swap
@@ -502,7 +502,7 @@ const CoinSwap = ({
           setToAmount(formattedAmount);
         } else if (
           swapDirection === "tokenToEth" &&
-          toToken.symbol === "S" &&
+          toToken.symbol === "ETH" &&
           fromToken.tokenData
         ) {
           // Token to ETH swap
@@ -548,8 +548,8 @@ const CoinSwap = ({
   const handleSwapTokens = () => {
     // Only allow swapping if it's between ETH and a marketplace token
     if (
-      (fromToken.symbol === "S" && toToken.tokenData) ||
-      (toToken.symbol === "S" && fromToken.tokenData)
+      (fromToken.symbol === "ETH" && toToken.tokenData) ||
+      (toToken.symbol === "ETH" && fromToken.tokenData)
     ) {
       const temp = fromToken;
       setFromToken(toToken);
@@ -563,9 +563,9 @@ const CoinSwap = ({
     // Use the real balance from our state
     const balance = getSelectedTokenBalance(fromToken);
 
-    // If it's S, leave some for gas
-    if (fromToken.symbol === "S") {
-      // Leave 0.01 S for gas
+    // If it's ETH, leave some for gas
+    if (fromToken.symbol === "ETH") {
+      // Leave 0.01 ETH for gas
       const ethBalanceNum = parseFloat(balance);
       const maxAmount = Math.max(0, ethBalanceNum - 0.01).toString();
       handleFromAmountChange(maxAmount);
@@ -608,9 +608,9 @@ const CoinSwap = ({
         const gasCostInUsd = gasCostInEth * fromToken.price;
 
         // Set the dynamic values
-        setGasCost(`${gasCostInEth.toFixed(5)} S`);
+        setGasCost(`${gasCostInEth.toFixed(5)} ETH`);
         setFee(`$${(fromUsdValue * 0.003).toFixed(2)}`); // 0.3% fee
-        setGasOnDestination(`0.001 S`); // Small amount for destination chain gas
+        setGasOnDestination(`0.001 ETH`); // Small amount for destination chain gas
 
         // Estimate transaction time based on gas price
         const estimatedMinutes =
@@ -623,9 +623,9 @@ const CoinSwap = ({
       } catch (error) {
         console.error("Error calculating gas estimates:", error);
         // Set fallback values
-        setGasCost("0.005 S");
+        setGasCost("0.005 ETH");
         setFee("$0.50");
-        setGasOnDestination("0.001 S");
+        setGasOnDestination("0.001 ETH");
         setEstimatedTime("1-3 min");
       }
     };
@@ -634,9 +634,9 @@ const CoinSwap = ({
       calculateGasEstimates();
     } else {
       // Reset values when no amount is entered
-      setGasCost("0 S");
+      setGasCost("0 ETH");
       setFee("$0.00");
-      setGasOnDestination("0 S");
+      setGasOnDestination("0 ETH");
       setEstimatedTime("0 min");
     }
   }, [fromAmount, fromToken.price, fromUsdValue]);
@@ -750,7 +750,7 @@ const CoinSwap = ({
       setEthBalance(formattedEthBalance);
 
       // Update ETH token in the tokens array
-      const ethToken = tokens.find((t) => t.symbol === "S");
+      const ethToken = tokens.find((t) => t.symbol === "ETH");
       if (ethToken) {
         ethToken.balance = parseFloat(formattedEthBalance);
       }
@@ -804,8 +804,8 @@ const CoinSwap = ({
   const SonicLogo = () => (
     <div className="w-6 h-6 rounded-full overflow-hidden flex items-center justify-center">
       <img
-        src="https://s2.coinmarketcap.com/static/img/coins/200x200/32684.png"
-        alt="Sonic"
+        src="https://cryptologos.cc/logos/ethereum-eth-logo.png"
+        alt="Ethereum"
         className="w-full h-full object-cover"
       />
     </div>
@@ -813,7 +813,7 @@ const CoinSwap = ({
 
   // Update the token icon display in the token selection UI
   const renderTokenIcon = (token: UIToken) => {
-    if (token.symbol === "S") {
+    if (token.symbol === "ETH") {
       return <SonicLogo />;
     }
 
@@ -828,14 +828,14 @@ const CoinSwap = ({
     }
 
     return (
-      <div className="w-6 h-6 rounded-full bg-gray-700 flex items-center justify-center text-white">
+      <div className="w-6 h-6 rounded-full bg-amber-900/60 flex items-center justify-center text-white">
         {token.icon}
       </div>
     );
   };
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 sticky top-24">
       <Card className="border-[#8B4513]/30 bg-[#1a0f02]/90 backdrop-blur-xl">
         <CardContent className="p-4">
           {/* Swap Type Selector */}
@@ -996,7 +996,7 @@ const CoinSwap = ({
                 </div>
                 <div className="flex justify-between text-xs mt-1">
                   <span className="text-[#e8d5a9]/60">
-                    ${fromUsdValue ? fromUsdValue : "0.00"}
+                    ${fromUsdValue ? fromUsdValue.toFixed(2) : "0.00"}
                   </span>
                 </div>
               </div>
@@ -1125,7 +1125,7 @@ const CoinSwap = ({
                 </div>
                 <div className="flex justify-between text-xs mt-1">
                   <span className="text-[#e8d5a9]/60">
-                    ${toUsdValue ? toUsdValue : "0.00"}
+                    ${toUsdValue ? toUsdValue.toFixed(2) : "0.00"}
                   </span>
                 </div>
               </div>
@@ -1135,27 +1135,29 @@ const CoinSwap = ({
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <div className="flex items-center text-[#e8d5a9]/70">
-                      Price
+                      Rate
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <Info className="h-3 w-3 ml-1 text-[#d4b37f]" />
                           </TooltipTrigger>
                           <TooltipContent className="max-w-[250px] bg-[#1a0f02] border-[#8B4513]/30 text-[#e8d5a9]">
-                            <p>The price of conversion between tokens.</p>
+                            <p>The exchange rate between tokens.</p>
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
                     </div>
                     <span className="text-[#e8d5a9]">
-                      {estimatedPrice ? estimatedPrice : "-"}
+                      {estimatedPrice
+                        ? `1 ${fromToken.symbol} ≈ ${estimatedPrice} ${toToken.symbol}`
+                        : "-"}
                     </span>
                   </div>
                   {orderType === "instant" && (
                     <>
                       <div className="flex justify-between">
                         <div className="flex items-center text-[#e8d5a9]/70">
-                          Gas Fee
+                          Brewing Fee
                           <TooltipProvider>
                             <Tooltip>
                               <TooltipTrigger asChild>
@@ -1175,7 +1177,7 @@ const CoinSwap = ({
                       </div>
                       <div className="flex justify-between">
                         <div className="flex items-center text-[#e8d5a9]/70">
-                          Route
+                          Brew Method
                           <TooltipProvider>
                             <Tooltip>
                               <TooltipTrigger asChild>
@@ -1189,7 +1191,7 @@ const CoinSwap = ({
                         </div>
                         <span className="flex items-center text-[#e8d5a9]">
                           <Zap className="h-3 w-3 mr-1 text-[#d4b37f]" />
-                          Direct Swap
+                          Direct Brew
                         </span>
                       </div>
                     </>
@@ -1197,7 +1199,7 @@ const CoinSwap = ({
                   {orderType === "limit" && (
                     <div className="flex justify-between">
                       <div className="flex items-center text-[#e8d5a9]/70">
-                        Expiry
+                        Freshness
                         <TooltipProvider>
                           <Tooltip>
                             <TooltipTrigger asChild>
@@ -1256,16 +1258,16 @@ const CoinSwap = ({
                     {isCalculating ? (
                       <div className="flex items-center space-x-2">
                         <div className="animate-spin rounded-full h-4 w-4 border-2 border-t-transparent border-[#e8d5a9]"></div>
-                        <span>Processing...</span>
+                        <span>Brewing...</span>
                       </div>
                     ) : !fromAmount ? (
                       "Enter an amount"
                     ) : orderType === "instant" ? (
-                      "Swap"
+                      "Brew Coffee"
                     ) : orderType === "limit" ? (
                       "Place Limit Order"
                     ) : (
-                      "Cross-Chain Swap"
+                      "Cross-Chain Brew"
                     )}
                   </Button>
                 )}
@@ -1278,9 +1280,7 @@ const CoinSwap = ({
       {activeTransactions.length > 0 && (
         <Card className="overflow-hidden border-[#8B4513]/30 bg-[#1a0f02]/90 backdrop-blur-xl">
           <div className="border-b border-[#8B4513]/30 px-4 py-3">
-            <h3 className="text-sm font-medium text-[#e8d5a9]">
-              Recent Transactions
-            </h3>
+            <h3 className="text-sm font-medium text-[#e8d5a9]">Recent Brews</h3>
           </div>
           <CardContent className="p-0">
             <div className="divide-y divide-[#8B4513]/30">
@@ -1301,7 +1301,7 @@ const CoinSwap = ({
                     </p>
                     <div className="flex items-center text-xs text-[#e8d5a9]/70">
                       <span className="truncate">
-                        {tx.hash ? `${tx.hash.substring(0, 10)}...` : "Pending"}
+                        {tx.hash ? `${tx.hash.substring(0, 10)}...` : "Brewing"}
                       </span>
                       {tx.hash && (
                         <div className="flex ml-2 space-x-1">

@@ -382,9 +382,9 @@ export default function TokenDetailPage() {
       <AppLayout>
         <div className="container py-12">
           <div className="flex flex-col items-center justify-center min-h-[60vh]">
-            <div className="w-16 h-16 border-4 border-t-blue-500 border-b-blue-500 border-l-transparent border-r-transparent rounded-full animate-spin"></div>
+            <div className="w-16 h-16 border-4 border-t-amber-600 border-b-amber-800 border-l-transparent border-r-transparent rounded-full animate-spin"></div>
             <p className="mt-4 text-lg text-muted-foreground">
-              Loading token details...
+              Brewing token details...
             </p>
           </div>
         </div>
@@ -413,14 +413,18 @@ export default function TokenDetailPage() {
 
   return (
     <AppLayout>
-      <div className="pb-12">
+      <div className="pb-12 bg-gradient-to-b from-amber-950/30 to-transparent">
         <div className="container max-w-7xl mx-auto px-4 pt-6">
           {/* Header with Actions */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pt-4">
             <Link href="/marketplace">
-              <Button variant="outline" size="sm">
+              <Button
+                variant="outline"
+                size="sm"
+                className="border-amber-800/50 hover:bg-amber-800/20"
+              >
                 <ArrowLeft className="mr-2 h-4 w-4" />
-                Back to Marketplace
+                Back to Bean Market
               </Button>
             </Link>
             <div className="flex items-center gap-2">
@@ -430,16 +434,23 @@ export default function TokenDetailPage() {
                 onClick={toggleStar}
                 className={
                   isStarred
-                    ? "bg-blue-500/10 text-blue-500 border-blue-500/20"
-                    : ""
+                    ? "bg-amber-600/10 text-amber-400 border-amber-600/20"
+                    : "border-amber-800/50 hover:bg-amber-800/20"
                 }
               >
                 <Star
-                  className={`mr-2 h-4 w-4 ${isStarred ? "fill-blue-500" : ""}`}
+                  className={`mr-2 h-4 w-4 ${
+                    isStarred ? "fill-amber-400" : ""
+                  }`}
                 />
-                {isStarred ? "Watchlisted" : "Add to Watchlist"}
+                {isStarred ? "Favorite" : "Add to Favorites"}
               </Button>
-              <Button variant="outline" size="sm" onClick={handleShare}>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleShare}
+                className="border-amber-800/50 hover:bg-amber-800/20"
+              >
                 <Share2 className="mr-2 h-4 w-4" />
                 Share
               </Button>
@@ -455,11 +466,11 @@ export default function TokenDetailPage() {
             {/* Left Column */}
             <div className="lg:col-span-2 space-y-6">
               {/* Token Overview Card */}
-              <Card className="border-white/10 bg-black/50 backdrop-blur-xl">
+              <Card className="border-amber-800/30 bg-amber-950/40 backdrop-blur-xl">
                 <CardContent className="p-6">
                   <div className="flex flex-col md:flex-row gap-6">
                     {/* Token Image */}
-                    <div className="w-full md:w-48 h-48 relative rounded-lg overflow-hidden flex-shrink-0 bg-black/30">
+                    <div className="w-full md:w-48 h-48 relative rounded-lg overflow-hidden flex-shrink-0 bg-amber-900/30">
                       {/* Background placeholder */}
                       <div
                         className="w-full h-full absolute inset-0"
@@ -474,7 +485,7 @@ export default function TokenDetailPage() {
                       {/* Token Image with error handling */}
                       <Image
                         src={token?.imageUrl || DEFAULT_TOKEN_IMAGE}
-                        alt={token?.name || "Token"}
+                        alt={token?.name || "Bean Token"}
                         fill
                         className="object-cover z-10"
                         onError={(e) => {
@@ -499,7 +510,7 @@ export default function TokenDetailPage() {
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-4">
                         <h1 className="text-3xl font-bold">{token?.name}</h1>
-                        <Badge className="bg-gradient-to-r from-green-400 to-[#00ff00] text-white font-semibold">
+                        <Badge className="bg-gradient-to-r from-amber-600 to-amber-400 text-amber-950 font-semibold">
                           ${token?.symbol}
                         </Badge>
                       </div>
@@ -509,7 +520,7 @@ export default function TokenDetailPage() {
                       </p>
 
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <div className="bg-black/20 rounded-lg p-4">
+                        <div className="bg-amber-900/20 rounded-lg p-4">
                           <div className="text-muted-foreground text-sm mb-1">
                             Price
                           </div>
@@ -533,27 +544,18 @@ export default function TokenDetailPage() {
                           </div>
                         </div>
 
-                        <div className="bg-black/20 rounded-lg p-4">
+                        <div className="bg-amber-900/20 rounded-lg p-4">
                           <div className="text-muted-foreground text-sm mb-1">
-                            Market Cap
+                            Roast Cap
                           </div>
                           <div className="text-xl font-semibold">
                             {token?.marketCap}
                           </div>
                         </div>
 
-                        {/* <div className="bg-black/20 rounded-lg p-4">
+                        <div className="bg-amber-900/20 rounded-lg p-4">
                           <div className="text-muted-foreground text-sm mb-1">
-                            Volume 24h
-                          </div>
-                          <div className="text-xl font-semibold">
-                            {token?.volume24h}
-                          </div>
-                        </div> */}
-
-                        <div className="bg-black/20 rounded-lg p-4">
-                          <div className="text-muted-foreground text-sm mb-1">
-                            Holders
+                            Brewers
                           </div>
                           <div className="text-xl font-semibold">
                             {token?.holders}
@@ -566,7 +568,7 @@ export default function TokenDetailPage() {
               </Card>
 
               {/* Description Card */}
-              <Card className="border-white/10 bg-black/50 backdrop-blur-xl">
+              <Card className="border-amber-800/30 bg-amber-950/40 backdrop-blur-xl">
                 <CardHeader>
                   <CardTitle>About {token?.name}</CardTitle>
                 </CardHeader>
@@ -574,29 +576,31 @@ export default function TokenDetailPage() {
                   <div className="space-y-4">
                     <p className="text-muted-foreground">
                       {token?.description ||
-                        "No description available for this token."}
+                        "No description available for this bean."}
                     </p>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                      <div className="bg-black/20 p-4 rounded-lg">
+                      <div className="bg-amber-900/20 p-4 rounded-lg">
                         <h3 className="text-sm font-medium mb-2">
-                          Token Utility
+                          Bean Utility
                         </h3>
                         <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
-                          <li>Governance voting rights</li>
-                          <li>Platform fee discounts</li>
-                          <li>Access to premium features</li>
-                          <li>Staking rewards</li>
+                          <li>Café governance voting</li>
+                          <li>Brew shop discounts</li>
+                          <li>Premium coffee access</li>
+                          <li>Roasting rewards</li>
                         </ul>
                       </div>
 
-                      <div className="bg-black/20 p-4 rounded-lg">
-                        <h3 className="text-sm font-medium mb-2">Tokenomics</h3>
+                      <div className="bg-amber-900/20 p-4 rounded-lg">
+                        <h3 className="text-sm font-medium mb-2">
+                          Bean Economics
+                        </h3>
                         <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
                           <li>Total Supply: 1,000,000,000</li>
-                          <li>Circulating Supply: 250,000,000</li>
+                          <li>Brewing Supply: 250,000,000</li>
                           <li>Initial Distribution: 25%</li>
-                          <li>Team Allocation: 15% (locked)</li>
+                          <li>Barista Allocation: 15% (locked)</li>
                         </ul>
                       </div>
                     </div>
@@ -605,36 +609,36 @@ export default function TokenDetailPage() {
               </Card>
 
               {/* Price Chart Card */}
-              <Card className="border-white/10 bg-black/50 backdrop-blur-xl">
+              <Card className="border-amber-800/30 bg-amber-950/40 backdrop-blur-xl">
                 <CardHeader className="pb-2">
                   <div className="flex items-center justify-between">
-                    <CardTitle>Price History</CardTitle>
+                    <CardTitle>Brewing History</CardTitle>
                     <div className="flex items-center gap-2">
                       <Button
                         variant="outline"
                         size="sm"
-                        className="h-8 text-xs"
+                        className="h-8 text-xs border-amber-800/50 hover:bg-amber-800/20"
                       >
                         1D
                       </Button>
                       <Button
                         variant="outline"
                         size="sm"
-                        className="h-8 text-xs bg-blue-500/10 text-blue-500 border-blue-500/20"
+                        className="h-8 text-xs bg-amber-600/10 text-amber-400 border-amber-600/20"
                       >
                         1W
                       </Button>
                       <Button
                         variant="outline"
                         size="sm"
-                        className="h-8 text-xs"
+                        className="h-8 text-xs border-amber-800/50 hover:bg-amber-800/20"
                       >
                         1M
                       </Button>
                       <Button
                         variant="outline"
                         size="sm"
-                        className="h-8 text-xs"
+                        className="h-8 text-xs border-amber-800/50 hover:bg-amber-800/20"
                       >
                         1Y
                       </Button>
@@ -642,19 +646,19 @@ export default function TokenDetailPage() {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="aspect-[16/9] bg-black/20 rounded-lg flex flex-col items-center justify-center p-6">
-                    <BarChart3 className="h-16 w-16 text-white/20 mb-4" />
+                  <div className="aspect-[16/9] bg-amber-900/20 rounded-lg flex flex-col items-center justify-center p-6">
+                    <BarChart3 className="h-16 w-16 text-amber-500/20 mb-4" />
                     <p className="text-muted-foreground text-center">
-                      Price chart data will be available once there is
+                      Brewing chart data will be available once there is
                       sufficient trading activity.
                     </p>
                     <p className="text-sm text-muted-foreground text-center mt-2">
-                      Be one of the first to trade this token!
+                      Be one of the first to brew this bean!
                     </p>
                   </div>
 
                   <div className="grid grid-cols-3 gap-4 mt-4">
-                    <div className="bg-black/20 p-3 rounded-lg">
+                    <div className="bg-amber-900/20 p-3 rounded-lg">
                       <div className="text-xs text-muted-foreground">
                         All-time high
                       </div>
@@ -663,7 +667,7 @@ export default function TokenDetailPage() {
                         +36.36% from current
                       </div>
                     </div>
-                    <div className="bg-black/20 p-3 rounded-lg">
+                    <div className="bg-amber-900/20 p-3 rounded-lg">
                       <div className="text-xs text-muted-foreground">
                         All-time low
                       </div>
@@ -672,7 +676,7 @@ export default function TokenDetailPage() {
                         -36.36% from current
                       </div>
                     </div>
-                    <div className="bg-black/20 p-3 rounded-lg">
+                    <div className="bg-amber-900/20 p-3 rounded-lg">
                       <div className="text-xs text-muted-foreground">
                         30d change
                       </div>
@@ -689,11 +693,11 @@ export default function TokenDetailPage() {
             {/* Right Column */}
             <div className="space-y-6">
               {/* Buy Card - Moved to the top of the right column */}
-              <Card className="border-white/10 bg-black/50 backdrop-blur-xl">
+              <Card className="border-amber-800/30 bg-amber-950/40 backdrop-blur-xl">
                 <CardHeader>
-                  <CardTitle>Buy {token?.symbol}</CardTitle>
+                  <CardTitle>Brew {token?.symbol}</CardTitle>
                   <CardDescription>
-                    Purchase tokens directly with S
+                    Purchase beans directly with S
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -703,11 +707,11 @@ export default function TokenDetailPage() {
                         <AlertCircle className="h-5 w-5 text-red-500 mt-0.5 flex-shrink-0" />
                         <div>
                           <p className="text-sm text-red-500 font-medium">
-                            ❌ This token has graduated! No further purchases
-                            allowed.
+                            ❌ This bean has been fully brewed! No further
+                            purchases allowed.
                           </p>
                           <p className="text-xs text-red-400/80 mt-1">
-                            This token is no longer available for purchase. You
+                            This bean is no longer available for purchase. You
                             can still view its details and track its
                             performance.
                           </p>
@@ -726,14 +730,14 @@ export default function TokenDetailPage() {
                         value={buyAmount}
                         onChange={(e) => setBuyAmount(e.target.value)}
                         min="1"
-                        className={`bg-black/30 border-white/10 h-12 rounded-lg text-lg ${
+                        className={`bg-amber-900/30 border-amber-800/30 h-12 rounded-lg text-lg ${
                           isAmountExceedingLimit ? "border-red-500" : ""
                         }`}
                       />
                       {isAmountExceedingLimit && (
                         <p className="text-red-500 text-xs mt-1 flex items-center">
                           <AlertCircle className="h-3 w-3 mr-1" />
-                          Maximum purchase limit is 10,000 tokens
+                          Maximum purchase limit is 10,000 beans
                         </p>
                       )}
                     </div>
@@ -742,7 +746,7 @@ export default function TokenDetailPage() {
                         Total Cost
                       </label>
                       <div
-                        className={`bg-black/30 border border-white/10 h-12 rounded-lg flex items-center px-4 text-lg font-mono ${
+                        className={`bg-amber-900/30 border border-amber-800/30 h-12 rounded-lg flex items-center px-4 text-lg font-mono ${
                           isAmountExceedingLimit ? "border-red-500" : ""
                         }`}
                       >
@@ -768,7 +772,7 @@ export default function TokenDetailPage() {
                           </p>
                           <p className="text-xs text-red-400/80 mt-1">
                             For security reasons, purchases are limited to
-                            10,000 tokens per transaction. Please reduce the
+                            10,000 beans per transaction. Please reduce the
                             amount to continue.
                           </p>
                         </div>
@@ -777,7 +781,7 @@ export default function TokenDetailPage() {
                   )}
 
                   <Button
-                    className="w-full h-12 text-base font-semibold bg-gradient-to-r from-green-400 to-[#00ff00] hover:from-green-500 hover:to-green-600 text-white rounded-lg"
+                    className="w-full h-12 text-base font-semibold bg-gradient-to-r from-amber-700 to-amber-500 hover:from-amber-800 hover:to-amber-600 text-white rounded-lg"
                     onClick={handleBuyToken}
                     disabled={
                       isBuying ||
@@ -790,43 +794,43 @@ export default function TokenDetailPage() {
                     {isBuying ? (
                       <div className="flex items-center gap-2">
                         <Loader2 className="h-5 w-5 animate-spin" />
-                        <span>Processing...</span>
+                        <span>Brewing...</span>
                       </div>
                     ) : isTokenClosed ? (
                       <div className="flex items-center gap-2">
                         <AlertCircle className="h-5 w-5" />
-                        <span>Token Closed</span>
+                        <span>Bean Depleted</span>
                       </div>
                     ) : (
                       <div className="flex items-center gap-2">
                         <Rocket className="h-5 w-5" />
-                        <span>Buy {token?.symbol}</span>
+                        <span>Brew {token?.symbol}</span>
                       </div>
                     )}
                   </Button>
                 </CardContent>
-                <CardFooter className="bg-black/20 px-6 py-3 text-xs text-muted-foreground">
+                <CardFooter className="bg-amber-900/20 px-6 py-3 text-xs text-muted-foreground">
                   <div className="flex items-center gap-2">
                     <AlertCircle className="h-4 w-4" />
                     <span>
                       {isTokenClosed
-                        ? "This token is no longer available for purchase."
-                        : `Base cost: ${token?.baseCost} S per token. Gas fees may apply.`}
+                        ? "This bean is no longer available for purchase."
+                        : `Bean cost: ${token?.baseCost} S per bean. Grinding fees may apply.`}
                     </span>
                   </div>
                 </CardFooter>
               </Card>
 
               {/* Token Information Card */}
-              <Card className="border-white/10 bg-black/50 backdrop-blur-xl">
+              <Card className="border-amber-800/30 bg-amber-950/40 backdrop-blur-xl">
                 <CardHeader>
-                  <CardTitle>Token Information</CardTitle>
+                  <CardTitle>Bean Information</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    <div className="flex justify-between py-3 border-b border-white/10">
+                    <div className="flex justify-between py-3 border-b border-amber-800/30">
                       <span className="text-muted-foreground">
-                        Contract Address
+                        Bean Address
                       </span>
                       <div className="flex items-center gap-2">
                         <span className="font-mono text-sm">
@@ -843,42 +847,47 @@ export default function TokenDetailPage() {
                       </div>
                     </div>
 
-                    <div className="flex justify-between py-3 border-b border-white/10">
-                      <span className="text-muted-foreground">Network</span>
-                      <Badge variant="outline" className="bg-white/5">
+                    <div className="flex justify-between py-3 border-b border-amber-800/30">
+                      <span className="text-muted-foreground">
+                        Roast Network
+                      </span>
+                      <Badge
+                        variant="outline"
+                        className="bg-amber-900/20 border-amber-800/30"
+                      >
                         {token?.chain}
                       </Badge>
                     </div>
 
-                    <div className="flex justify-between py-3 border-b border-white/10">
-                      <span className="text-muted-foreground">Launch Date</span>
+                    <div className="flex justify-between py-3 border-b border-amber-800/30">
+                      <span className="text-muted-foreground">Roast Date</span>
                       <span>{token?.launchDate}</span>
                     </div>
 
-                    <div className="flex justify-between py-3 border-b border-white/10">
-                      <span className="text-muted-foreground">Creator</span>
+                    <div className="flex justify-between py-3 border-b border-amber-800/30">
+                      <span className="text-muted-foreground">
+                        Master Roaster
+                      </span>
                       <span className="font-mono text-sm">
                         {formatAddress(token?.creator)}
                       </span>
                     </div>
 
-                    <div className="flex justify-between py-3 border-b border-white/10">
+                    <div className="flex justify-between py-3 border-b border-amber-800/30">
                       <span className="text-muted-foreground">Status</span>
                       <Badge
                         className={`${
                           isTokenClosed
                             ? "bg-red-500/10 text-red-500 border-red-500/20"
-                            : "bg-green-500/10 text-green-500 border-green-500/20"
+                            : "bg-amber-500/10 text-amber-500 border-amber-500/20"
                         }`}
                       >
-                        {isTokenClosed ? "Closed" : "Active"}
+                        {isTokenClosed ? "Sold Out" : "Brewing"}
                       </Badge>
                     </div>
 
                     <div className="flex justify-between py-3">
-                      <span className="text-muted-foreground">
-                        Social Links
-                      </span>
+                      <span className="text-muted-foreground">Café Links</span>
                       <div className="flex items-center gap-2">
                         <Button variant="ghost" size="icon" className="h-8 w-8">
                           <Globe className="h-4 w-4" />
@@ -896,22 +905,20 @@ export default function TokenDetailPage() {
               </Card>
 
               {/* Recent Transactions */}
-              <Card className="border-white/10 bg-black/50 backdrop-blur-xl">
+              <Card className="border-amber-800/30 bg-amber-950/40 backdrop-blur-xl">
                 <CardHeader>
-                  <CardTitle>Recent Transactions</CardTitle>
+                  <CardTitle>Recent Brews</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
                     {/* Empty state for now */}
                     <div className="text-center py-6">
-                      <div className="bg-black/20 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3">
+                      <div className="bg-amber-900/20 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3">
                         <AlertCircle className="h-6 w-6 text-muted-foreground" />
                       </div>
-                      <p className="text-sm font-medium mb-1">
-                        No transactions yet
-                      </p>
+                      <p className="text-sm font-medium mb-1">No brews yet</p>
                       <p className="text-xs text-muted-foreground">
-                        Be the first to trade this token
+                        Be the first to brew this bean
                       </p>
                     </div>
                   </div>
@@ -919,54 +926,54 @@ export default function TokenDetailPage() {
               </Card>
 
               {/* Market Activity */}
-              <Card className="border-white/10 bg-black/50 backdrop-blur-xl">
+              <Card className="border-amber-800/30 bg-amber-950/40 backdrop-blur-xl">
                 <CardHeader>
-                  <CardTitle>Market Activity</CardTitle>
+                  <CardTitle>Brewing Activity</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    <div className="bg-black/20 p-4 rounded-lg">
+                    <div className="bg-amber-900/20 p-4 rounded-lg">
                       <div className="flex justify-between mb-2">
                         <span className="text-sm text-muted-foreground">
-                          Trading Volume (24h)
+                          Brewing Volume (24h)
                         </span>
                         <span className="text-sm font-medium">
                           {token?.volume24h}
                         </span>
                       </div>
-                      <div className="w-full bg-white/5 h-1.5 rounded-full overflow-hidden">
+                      <div className="w-full bg-amber-800/20 h-1.5 rounded-full overflow-hidden">
                         <div
-                          className="bg-gradient-to-r from-green-400 to-[#00ff00] h-full rounded-full"
+                          className="bg-gradient-to-r from-amber-700 to-amber-500 h-full rounded-full"
                           style={{ width: "35%" }}
                         ></div>
                       </div>
                     </div>
 
-                    <div className="bg-black/20 p-4 rounded-lg">
+                    <div className="bg-amber-900/20 p-4 rounded-lg">
                       <div className="flex justify-between mb-2">
                         <span className="text-sm text-muted-foreground">
-                          Liquidity
+                          Brew Strength
                         </span>
                         <span className="text-sm font-medium">$45,678.90</span>
                       </div>
-                      <div className="w-full bg-white/5 h-1.5 rounded-full overflow-hidden">
+                      <div className="w-full bg-amber-800/20 h-1.5 rounded-full overflow-hidden">
                         <div
-                          className="bg-gradient-to-r from-green-400 to-[#00ff00] h-full rounded-full"
+                          className="bg-gradient-to-r from-amber-700 to-amber-500 h-full rounded-full"
                           style={{ width: "62%" }}
                         ></div>
                       </div>
                     </div>
 
-                    <div className="bg-black/20 p-4 rounded-lg">
+                    <div className="bg-amber-900/20 p-4 rounded-lg">
                       <div className="flex justify-between mb-2">
                         <span className="text-sm text-muted-foreground">
-                          Buy/Sell Ratio
+                          Brew/Sell Ratio
                         </span>
                         <span className="text-sm font-medium">68% / 32%</span>
                       </div>
                       <div className="flex h-1.5 rounded-full overflow-hidden">
                         <div
-                          className="bg-green-500 h-full"
+                          className="bg-amber-600 h-full"
                           style={{ width: "68%" }}
                         ></div>
                         <div

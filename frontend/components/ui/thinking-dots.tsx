@@ -15,7 +15,7 @@ export function ThinkingDots() {
   }, []);
 
   return (
-    <span className="inline-block ml-1 min-w-[20px] text-blue-400 font-bold">
+    <span className="inline-block ml-1 min-w-[20px] text-[#d4b37f] font-bold">
       {dots}
     </span>
   );

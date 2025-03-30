@@ -450,6 +450,11 @@ export default function MarketplacePage() {
   const [isLoading, setIsLoading] = useState(true);
   const [tokens, setTokens] = useState<ExtendedMemeToken[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [isWalletConnected, setIsWalletConnected] = useState(false);
+
+  // Get the TestTokenService
+  const testTokenService = useTestTokenService();
+  const { data: walletClient } = useWalletClient();
 
   // Refs for infinite scroll
   const observer = useRef<IntersectionObserver>();
@@ -467,9 +472,24 @@ export default function MarketplacePage() {
     [isLoading]
   );
 
+  // Track if real tokens are available
+  const [realTokens, setRealTokens] = useState<ExtendedMemeToken[]>([]);
+  const [hasRealTokens, setHasRealTokens] = useState(false);
+
   // Calculate if there are more tokens to load
-  const totalTokens = mockTokens.length;
+  const totalTokens = tokens.length;
   const hasMore = currentPage * tokensPerPage < totalTokens;
+
+  // Update wallet connection status
+  useEffect(() => {
+    const isConnected = !!walletClient;
+    setIsWalletConnected(isConnected);
+
+    if (isConnected && !hasRealTokens) {
+      // If wallet is connected and we don't have real tokens yet, fetch them
+      fetchBlockchainTokens();
+    }
+  }, [walletClient]);
 
   // Use effect for initialization
   useEffect(() => {
@@ -483,7 +503,7 @@ export default function MarketplacePage() {
       setCurrentPage(1); // Reset to first page
       fetchTokens();
     }
-  }, [activeFilter, searchTerm, selectedChain, isMounted]);
+  }, [activeFilter, searchTerm, selectedChain, isMounted, hasRealTokens]);
 
   // Load more tokens when page changes
   useEffect(() => {
@@ -492,80 +512,166 @@ export default function MarketplacePage() {
     }
   }, [currentPage, isMounted]);
 
+  // Function to fetch tokens from the blockchain
+  async function fetchBlockchainTokens() {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      // Get tokens from the blockchain
+      const blockchainTokens = await testTokenService.testGetTokens({
+        isOpen: true,
+      });
+
+      if (!blockchainTokens || blockchainTokens.length === 0) {
+        console.log("No blockchain tokens found");
+        setHasRealTokens(false);
+        setIsLoading(false);
+        return;
+      }
+
+      // Process tokens and get prices
+      const formattedTokensPromises = blockchainTokens.map(async (token) => {
+        let tokenPrice = "0";
+        if (token.isOpen) {
+          try {
+            const tokenSaleData = {
+              token: token.token,
+              name: token.name,
+              creator: token.creator,
+              sold: token.sold,
+              raised: token.raised,
+              isOpen: token.isOpen,
+              metadataURI: token.image || "",
+            };
+
+            const price = await testTokenService.testGetPriceForTokens(
+              tokenSaleData,
+              BigInt(1)
+            );
+            tokenPrice = ethers.formatEther(price);
+          } catch (error) {
+            console.error(
+              `Error fetching price for token ${token.name}:`,
+              error
+            );
+            tokenPrice = "0";
+          }
+        }
+
+        return {
+          id: token.token,
+          token: token.token,
+          name: token.name,
+          symbol: token.symbol || token.name.substring(0, 4).toUpperCase(),
+          description: token.description || "No description available",
+          imageUrl: token.image || DEFAULT_TOKEN_IMAGE,
+          price: tokenPrice,
+          marketCap: (Number(token.raised) / 1e18).toFixed(2) + "k",
+          priceChange: Math.random() * 20 - 10, // Random for now
+          fundingRaised: token.raised.toString(),
+          chain: "ethereum",
+          volume24h: "$" + (Math.random() * 100000).toFixed(2),
+          holders: (Math.random() * 1000).toFixed(0),
+          launchDate: new Date().toISOString().split("T")[0],
+          status: "active" as const,
+          creator: token.creator,
+        };
+      });
+
+      const formattedTokens = await Promise.all(formattedTokensPromises);
+      const validTokens = formattedTokens.filter(
+        Boolean
+      ) as ExtendedMemeToken[];
+
+      if (validTokens.length > 0) {
+        setRealTokens(validTokens);
+        setHasRealTokens(true);
+        // Update the tokens state with real tokens
+        setTokens(validTokens);
+      }
+    } catch (error) {
+      console.error("Error fetching blockchain tokens:", error);
+      setHasRealTokens(false);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
   async function fetchTokens() {
     try {
       setIsLoading(true);
       setError(null);
 
-      // In a real app, this would be an API call with search params
-      // For now, we'll simulate with the mock data
-      let filteredTokens = [...mockTokens];
+      // If we have real tokens from the blockchain, use those
+      if (hasRealTokens && realTokens.length > 0) {
+        let filteredTokens = [...realTokens];
 
-      // Apply chain filter
-      if (selectedChain) {
-        filteredTokens = filteredTokens.filter(
-          (token) => token.chain === selectedChain.id
-        );
+        // Apply chain filter (if blockchain supports multiple chains)
+        if (selectedChain) {
+          filteredTokens = filteredTokens.filter(
+            (token) => token.chain === selectedChain.id
+          );
+        }
+
+        // Apply search filter
+        if (searchTerm) {
+          const search = searchTerm.toLowerCase();
+          filteredTokens = filteredTokens.filter(
+            (token) =>
+              token.name.toLowerCase().includes(search) ||
+              token.symbol.toLowerCase().includes(search) ||
+              (token.description &&
+                token.description.toLowerCase().includes(search))
+          );
+        }
+
+        // Apply sorting based on active filter
+        switch (activeFilter) {
+          case "trending":
+            filteredTokens = filteredTokens.sort(
+              (a, b) => Math.abs(b.priceChange) - Math.abs(a.priceChange)
+            );
+            break;
+          case "gainers":
+            filteredTokens = filteredTokens.sort(
+              (a, b) => b.priceChange - a.priceChange
+            );
+            break;
+          case "losers":
+            filteredTokens = filteredTokens.sort(
+              (a, b) => a.priceChange - b.priceChange
+            );
+            break;
+          case "volume":
+            filteredTokens = filteredTokens.sort((a, b) => {
+              const aMarketCap =
+                typeof a.marketCap === "string"
+                  ? parseFloat(a.marketCap.replace(/[^\d.-]/g, ""))
+                  : 0;
+              const bMarketCap =
+                typeof b.marketCap === "string"
+                  ? parseFloat(b.marketCap.replace(/[^\d.-]/g, ""))
+                  : 0;
+              return bMarketCap - aMarketCap;
+            });
+            break;
+          case "latest":
+          default:
+            // No additional sorting needed
+            break;
+        }
+
+        // Paginate
+        const paginatedTokens = filteredTokens.slice(0, tokensPerPage);
+        setTokens(paginatedTokens);
+      } else if (isWalletConnected) {
+        // If wallet is connected but we don't have real tokens yet, fetch them
+        await fetchBlockchainTokens();
+      } else {
+        // For wallet not connected, we could show a message or minimal set of mockTokens
+        setTokens([]);
       }
-
-      // Apply search filter
-      if (searchTerm) {
-        const search = searchTerm.toLowerCase();
-        filteredTokens = filteredTokens.filter(
-          (token) =>
-            token.name.toLowerCase().includes(search) ||
-            token.symbol.toLowerCase().includes(search) ||
-            token.description.toLowerCase().includes(search)
-        );
-      }
-
-      // Apply sorting based on active filter
-      switch (activeFilter) {
-        case "trending":
-          filteredTokens = filteredTokens.sort(
-            (a, b) => Math.abs(b.priceChange) - Math.abs(a.priceChange)
-          );
-          break;
-        case "gainers":
-          filteredTokens = filteredTokens.sort(
-            (a, b) => b.priceChange - a.priceChange
-          );
-          break;
-        case "losers":
-          filteredTokens = filteredTokens.sort(
-            (a, b) => a.priceChange - b.priceChange
-          );
-          break;
-        case "volume":
-          filteredTokens = filteredTokens.sort(
-            (a, b) =>
-              parseFloat(b.marketCap.replace(/[^\d.-]/g, "")) -
-              parseFloat(a.marketCap.replace(/[^\d.-]/g, ""))
-          );
-          break;
-        case "latest":
-        default:
-          // No additional sorting needed, mock data is already in latest order
-          break;
-      }
-
-      // Paginate
-      const paginatedTokens = filteredTokens.slice(0, tokensPerPage);
-
-      // Add additional properties from API
-      const enhancedTokens = paginatedTokens.map((token, index) => ({
-        ...token,
-        id: `token-${index}`,
-        volume24h: `$${(Math.random() * 1000000).toFixed(2)}`,
-        holders: `${Math.floor(Math.random() * 10000)}`,
-        launchDate: formatDate(
-          new Date(Date.now() - Math.random() * 90 * 24 * 60 * 60 * 1000)
-        ),
-        status: "active" as const,
-        creator: randomAddress(),
-      }));
-
-      setTokens(enhancedTokens);
     } catch (err) {
       console.error("Error fetching tokens:", err);
       setError("Failed to fetch tokens. Please try again later.");
@@ -582,74 +688,68 @@ export default function MarketplacePage() {
       const startIndex = (currentPage - 1) * tokensPerPage;
       const endIndex = startIndex + tokensPerPage;
 
-      // In a real app, this would be another API call for the next page
-      // For now, we simulate with mock data
-      let filteredTokens = [...mockTokens];
+      // If we have real tokens, use those
+      if (hasRealTokens && realTokens.length > 0) {
+        let filteredTokens = [...realTokens];
 
-      // Apply all filters same as fetchTokens
-      if (selectedChain) {
-        filteredTokens = filteredTokens.filter(
-          (token) => token.chain === selectedChain.id
-        );
+        // Apply all filters same as fetchTokens
+        if (selectedChain) {
+          filteredTokens = filteredTokens.filter(
+            (token) => token.chain === selectedChain.id
+          );
+        }
+
+        if (searchTerm) {
+          const search = searchTerm.toLowerCase();
+          filteredTokens = filteredTokens.filter(
+            (token) =>
+              token.name.toLowerCase().includes(search) ||
+              token.symbol.toLowerCase().includes(search) ||
+              (token.description &&
+                token.description.toLowerCase().includes(search))
+          );
+        }
+
+        // Apply the same sorting
+        switch (activeFilter) {
+          case "trending":
+            filteredTokens = filteredTokens.sort(
+              (a, b) => Math.abs(b.priceChange) - Math.abs(a.priceChange)
+            );
+            break;
+          case "gainers":
+            filteredTokens = filteredTokens.sort(
+              (a, b) => b.priceChange - a.priceChange
+            );
+            break;
+          case "losers":
+            filteredTokens = filteredTokens.sort(
+              (a, b) => a.priceChange - b.priceChange
+            );
+            break;
+          case "volume":
+            filteredTokens = filteredTokens.sort((a, b) => {
+              const aMarketCap =
+                typeof a.marketCap === "string"
+                  ? parseFloat(a.marketCap.replace(/[^\d.-]/g, ""))
+                  : 0;
+              const bMarketCap =
+                typeof b.marketCap === "string"
+                  ? parseFloat(b.marketCap.replace(/[^\d.-]/g, ""))
+                  : 0;
+              return bMarketCap - aMarketCap;
+            });
+            break;
+        }
+
+        // Get the next page of tokens
+        const nextPageTokens = filteredTokens.slice(startIndex, endIndex);
+
+        // Append to existing tokens
+        setTokens((prev) => [...prev, ...nextPageTokens]);
       }
-
-      if (searchTerm) {
-        const search = searchTerm.toLowerCase();
-        filteredTokens = filteredTokens.filter(
-          (token) =>
-            token.name.toLowerCase().includes(search) ||
-            token.symbol.toLowerCase().includes(search) ||
-            token.description.toLowerCase().includes(search)
-        );
-      }
-
-      // Apply the same sorting
-      switch (activeFilter) {
-        case "trending":
-          filteredTokens = filteredTokens.sort(
-            (a, b) => Math.abs(b.priceChange) - Math.abs(a.priceChange)
-          );
-          break;
-        case "gainers":
-          filteredTokens = filteredTokens.sort(
-            (a, b) => b.priceChange - a.priceChange
-          );
-          break;
-        case "losers":
-          filteredTokens = filteredTokens.sort(
-            (a, b) => a.priceChange - b.priceChange
-          );
-          break;
-        case "volume":
-          filteredTokens = filteredTokens.sort(
-            (a, b) =>
-              parseFloat(b.marketCap.replace(/[^\d.-]/g, "")) -
-              parseFloat(a.marketCap.replace(/[^\d.-]/g, ""))
-          );
-          break;
-      }
-
-      // Get the next page of tokens
-      const nextPageTokens = filteredTokens.slice(startIndex, endIndex);
-
-      // Enhance with additional properties
-      const enhancedTokens = nextPageTokens.map((token, index) => ({
-        ...token,
-        id: `token-${startIndex + index}`,
-        volume24h: `$${(Math.random() * 1000000).toFixed(2)}`,
-        holders: `${Math.floor(Math.random() * 10000)}`,
-        launchDate: formatDate(
-          new Date(Date.now() - Math.random() * 90 * 24 * 60 * 60 * 1000)
-        ),
-        status: "active" as const,
-        creator: randomAddress(),
-      }));
-
-      // Append to existing tokens
-      setTokens((prevTokens) => [...prevTokens, ...enhancedTokens]);
-    } catch (err) {
-      console.error("Error fetching more tokens:", err);
-      setError("Failed to fetch more tokens. Please try again later.");
+    } catch (error) {
+      console.error("Error fetching more tokens:", error);
     } finally {
       setIsLoading(false);
     }
@@ -661,104 +761,152 @@ export default function MarketplacePage() {
 
   return (
     <AppLayout>
-      <div className="container px-4 py-8 mx-auto max-w-[1600px]">
-        {/* Marketplace Header */}
-        <div className="flex flex-col mb-8 space-y-2">
-          <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#d4b37f] to-[#8B4513]">
-            Bean Marketplace
-          </h1>
-          <p className="text-[#e8d5a9]/70">
-            Discover and trade meme tokens on multiple chains
-          </p>
-        </div>
-
-        {/* Filters */}
-        <div className="flex flex-col mb-8 space-y-4 lg:flex-row lg:items-center lg:space-y-0 lg:space-x-4">
-          {/* Search Bar */}
-          <div className="relative flex-1">
-            <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-              <Search className="w-5 h-5 text-[#d4b37f]" />
+      <div className="relative z-10">
+        <div className="container py-8">
+          <div className="flex flex-col items-start justify-between gap-4 mb-8 md:flex-row md:items-center">
+            <div>
+              <h1 className="text-4xl font-bold">
+                Meme Token{" "}
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#d4b37f] to-[#8B4513]">
+                  Marketplace
+                </span>
+              </h1>
+              <p className="mt-2 text-[#e8d5a9]/70">
+                Discover and invest in the latest meme tokens
+              </p>
             </div>
-            <Input
-              type="text"
-              placeholder="Search by token name, symbol, or contract address..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 bg-[#1a0f02]/70 border-[#8B4513]/40 text-[#e8d5a9] placeholder-[#d4b37f]/40 focus-visible:ring-[#d4b37f] focus-visible:border-[#d4b37f]"
-            />
+            <div className="flex items-center gap-2">
+              <div className="relative">
+                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-[#d4b37f]" />
+                <Input
+                  type="search"
+                  placeholder="Search tokens..."
+                  className="pl-8 w-[200px] md:w-[300px] border-[#8B4513]/40 bg-[#1a0f02]/60 text-[#e8d5a9] placeholder-[#d4b37f]/50 focus-visible:ring-[#d4b37f] rounded-lg"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
+              <Button
+                variant="outline"
+                size="icon"
+                className="border-[#8B4513]/40 bg-[#1a0f02]/60 text-[#d4b37f] hover:bg-[#8B4513]/20 hover:text-[#e8d5a9] hover:border-[#8B4513]"
+              >
+                <Filter className="w-4 h-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                className="border-[#8B4513]/40 bg-[#1a0f02]/60 text-[#d4b37f] hover:bg-[#8B4513]/20 hover:text-[#e8d5a9] hover:border-[#8B4513]"
+              >
+                <ArrowUpDown className="w-4 h-4" />
+              </Button>
+            </div>
           </div>
 
-          {/* Token Type Buttons */}
-          <ButtonGroup
-            activeFilter={activeFilter}
-            setActiveFilter={setActiveFilter}
-          />
-        </div>
-
-        {/* Token Grid */}
-        <div className="mb-8">
-          {isLoading && tokens.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-20">
-              <Loader2 className="w-10 h-10 mb-4 animate-spin text-[#d4b37f]" />
-              <p className="text-[#e8d5a9]/70">Loading tokens...</p>
+          {/* Wallet Warning - show when wallet is not connected */}
+          {!isWalletConnected && !isLoading && (
+            <div className="mb-8">
+              <Alert
+                variant="default"
+                className="bg-[#8B4513]/10 border-[#8B4513]/30"
+              >
+                <Wallet className="h-5 w-5 text-[#d4b37f]" />
+                <AlertTitle className="text-[#e8d5a9]">
+                  Wallet Not Connected
+                </AlertTitle>
+                <AlertDescription className="text-[#e8d5a9]/70">
+                  Connect your wallet to see real tokens from the blockchain.
+                </AlertDescription>
+              </Alert>
             </div>
-          ) : error ? (
-            <div className="p-4 rounded-md bg-[#A0522D]/20 border border-[#A0522D]/40">
-              <div className="flex">
-                <div className="flex-shrink-0">
-                  <AlertCircle
-                    className="w-5 h-5 text-[#A0522D]"
-                    aria-hidden="true"
-                  />
-                </div>
-                <div className="ml-3">
-                  <h3 className="text-sm font-medium text-[#e8d5a9]">Error</h3>
-                  <div className="mt-2 text-sm text-[#e8d5a9]/70">
-                    <p>{error}</p>
+          )}
+
+          {/* Show a message if wallet is connected but no tokens found */}
+          {isWalletConnected && !isLoading && tokens.length === 0 && (
+            <div className="mb-8">
+              <Alert
+                variant="default"
+                className="bg-[#8B4513]/10 border-[#8B4513]/30"
+              >
+                <CupSoda className="h-5 w-5 text-[#d4b37f]" />
+                <AlertTitle className="text-[#e8d5a9]">
+                  No Tokens Found
+                </AlertTitle>
+                <AlertDescription className="text-[#e8d5a9]/70">
+                  No tokens are currently available. Create the first one by
+                  clicking "Create a Token"!
+                </AlertDescription>
+              </Alert>
+            </div>
+          )}
+
+          {/* Token Grid */}
+          <div className="mb-8">
+            {isLoading && tokens.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-20">
+                <Loader2 className="w-10 h-10 mb-4 animate-spin text-[#d4b37f]" />
+                <p className="text-[#e8d5a9]/70">Loading tokens...</p>
+              </div>
+            ) : error ? (
+              <div className="p-4 rounded-md bg-[#A0522D]/20 border border-[#A0522D]/40">
+                <div className="flex">
+                  <div className="flex-shrink-0">
+                    <AlertCircle
+                      className="w-5 h-5 text-[#A0522D]"
+                      aria-hidden="true"
+                    />
+                  </div>
+                  <div className="ml-3">
+                    <h3 className="text-sm font-medium text-[#e8d5a9]">
+                      Error
+                    </h3>
+                    <div className="mt-2 text-sm text-[#e8d5a9]/70">
+                      <p>{error}</p>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ) : tokens.length === 0 ? (
-            <div className="p-8 text-center border rounded-md bg-[#1a0f02]/70 border-[#8B4513]/40">
-              <CupSoda className="w-12 h-12 mx-auto mb-4 text-[#d4b37f]" />
-              <h3 className="text-lg font-medium text-[#e8d5a9]">
-                No Beans Found
-              </h3>
-              <p className="mt-2 text-[#e8d5a9]/70">
-                No tokens match your search criteria. Try adjusting your
-                filters.
-              </p>
-            </div>
-          ) : (
-            <>
-              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-                {tokens.map((token, index) => {
-                  // Add ref to last element for infinite scroll
-                  const isLastElement = index === tokens.length - 1;
-                  return isLastElement ? (
-                    <div
-                      key={`${token.id}-${index}`}
-                      ref={lastTokenElementRef as any}
-                    >
-                      <TokenCard token={token} index={index} />
-                    </div>
-                  ) : (
-                    <div key={`${token.id}-${index}`}>
-                      <TokenCard token={token} index={index} />
-                    </div>
-                  );
-                })}
+            ) : tokens.length === 0 ? (
+              <div className="p-8 text-center border rounded-md bg-[#1a0f02]/70 border-[#8B4513]/40">
+                <CupSoda className="w-12 h-12 mx-auto mb-4 text-[#d4b37f]" />
+                <h3 className="text-lg font-medium text-[#e8d5a9]">
+                  No Beans Found
+                </h3>
+                <p className="mt-2 text-[#e8d5a9]/70">
+                  No tokens match your search criteria. Try adjusting your
+                  filters.
+                </p>
               </div>
-
-              {/* Loading indicator for infinite scroll */}
-              {isLoading && tokens.length > 0 && (
-                <div className="flex justify-center mt-8">
-                  <Loader2 className="w-8 h-8 animate-spin text-[#d4b37f]" />
+            ) : (
+              <>
+                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+                  {tokens.map((token, index) => {
+                    // Add ref to last element for infinite scroll
+                    const isLastElement = index === tokens.length - 1;
+                    return isLastElement ? (
+                      <div
+                        key={`${token.id}-${index}`}
+                        ref={lastTokenElementRef as any}
+                      >
+                        <TokenCard token={token} index={index} />
+                      </div>
+                    ) : (
+                      <div key={`${token.id}-${index}`}>
+                        <TokenCard token={token} index={index} />
+                      </div>
+                    );
+                  })}
                 </div>
-              )}
-            </>
-          )}
+
+                {/* Loading indicator for infinite scroll */}
+                {isLoading && tokens.length > 0 && (
+                  <div className="flex justify-center mt-8">
+                    <Loader2 className="w-8 h-8 animate-spin text-[#d4b37f]" />
+                  </div>
+                )}
+              </>
+            )}
+          </div>
         </div>
       </div>
     </AppLayout>

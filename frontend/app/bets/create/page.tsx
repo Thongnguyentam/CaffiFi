@@ -376,7 +376,7 @@ export default function CreateBet() {
   }
 
   return (
-    <AppLayout showFooter={false}>
+    <AppLayout>
       <div className="container max-w-full mx-auto px-12 pt-6 pb-16">
         <div className="mb-6">
           <Link href="/bets">
@@ -569,7 +569,7 @@ export default function CreateBet() {
                                   !twitterHandleChanged && (
                                     <Badge
                                       variant="outline"
-                                      className="bg-blue-500/10 text-blue-500 border-blue-500/20"
+                                      className="bg-yellow-500/10 text-yellow-500 border-yellow-500/20"
                                     >
                                       Connected
                                     </Badge>

@@ -18,7 +18,6 @@ import {
   Brain,
 } from "lucide-react";
 import { SiteHeader } from "@/app/components/site-header";
-import { Footer } from "@/app/components/Footer";
 import { Input } from "@/components/ui/input";
 import Marquee from "react-fast-marquee";
 import { SiteLeftbar } from "@/app/components/site-leftbar";
@@ -357,7 +356,7 @@ export default function CoinPage() {
         </main>
       </div>
       {/* Only show footer when not logged in */}
-      {!isAuthenticated && <Footer />}
+      {!isAuthenticated}
     </div>
   );
 }

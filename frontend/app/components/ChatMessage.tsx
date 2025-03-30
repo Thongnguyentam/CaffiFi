@@ -1,28 +1,37 @@
-"use client"
+"use client";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { cn } from "@/lib/utils"
-import { motion } from "framer-motion"
-import { Bot, User } from "lucide-react"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
+import { Bot, User } from "lucide-react";
 
 interface ChatMessageProps {
-  text: string
-  isBot: boolean
-  timestamp?: string
-  avatar?: string
-  name?: string
+  text: string;
+  isBot: boolean;
+  timestamp?: string;
+  avatar?: string;
+  name?: string;
 }
 
-export function ChatMessage({ text, isBot, timestamp, avatar, name }: ChatMessageProps) {
+export function ChatMessage({
+  text,
+  isBot,
+  timestamp,
+  avatar,
+  name,
+}: ChatMessageProps) {
   // Split long messages into paragraphs
-  const paragraphs = text.split("\n").filter((p) => p.trim())
+  const paragraphs = text.split("\n").filter((p) => p.trim());
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className={cn("flex w-full gap-3 px-4", isBot ? "justify-start" : "justify-end")}
+      className={cn(
+        "flex w-full gap-3 px-4",
+        isBot ? "justify-start" : "justify-end"
+      )}
     >
       {isBot && (
         <Avatar>
@@ -41,7 +50,9 @@ export function ChatMessage({ text, isBot, timestamp, avatar, name }: ChatMessag
         <div
           className={cn(
             "relative max-w-[80%] space-y-2 rounded-2xl px-4 py-3",
-            isBot ? "bg-muted text-foreground" : "bg-gradient-to-r from-blue-600 to-blue-700 text-primary-foreground",
+            isBot
+              ? "bg-muted text-foreground"
+              : "bg-gradient-to-r from-[#d4b37f] to-[#8B4513] text-primary-foreground"
           )}
         >
           {paragraphs.map((paragraph, idx) => (
@@ -60,6 +71,5 @@ export function ChatMessage({ text, isBot, timestamp, avatar, name }: ChatMessag
         </Avatar>
       )}
     </motion.div>
-  )
+  );
 }
-
