@@ -1,7 +1,7 @@
 import { ethers } from "ethers";
 import { useWalletClient } from "wagmi";
 import BettingABI from "@/abi/Betting.json";
-let contractAddress = "0x152283040d467292e34750d4EfD64F84D4BD2bCc";
+let contractAddress = "0xd1b6BEa5A3b3dd4836100f5C55877c59d4666569";
 
 export const useBettingService = () => {
   const { data: walletClient } = useWalletClient();
@@ -14,6 +14,13 @@ export const useBettingService = () => {
 
     const chainId = await walletClient.getChainId();
     console.log("Chain ID:", chainId);
+
+    if (chainId === 57054) {
+      contractAddress = "0xd1b6BEa5A3b3dd4836100f5C55877c59d4666569";
+    } else if (chainId === 146) {
+      contractAddress = "0x7cebb1bae1e148c1f1a0f30b306e898da05f12dc";
+    }
+
     console.log("Using contract address:", contractAddress);
     return contractAddress;
   };
@@ -161,50 +168,27 @@ export const useBettingService = () => {
         BettingABI,
         provider
       );
-
-      // Use safe approach to get betCounter with fallback
-      let betCounter;
-      try {
-        betCounter = await bettingContract.betCounter();
-        console.log("Bet counter:", betCounter);
-      } catch (counterError) {
-        console.warn("Error fetching betCounter:", counterError);
-        console.log("Falling back to getBetCount method or default to 0");
-
-        // Try alternative method if available, otherwise default to 0
-        try {
-          betCounter = await bettingContract.getBetCount();
-          console.log("Bet count from alternative method:", betCounter);
-        } catch (altError) {
-          console.warn("Alternative method also failed:", altError);
-          betCounter = 0;
-        }
-      }
-
+      const betCounter = await bettingContract.betCounter();
+      console.log("Bet counter:", betCounter);
       const bets = [];
       for (let i = 0; i < betCounter; i++) {
-        try {
-          const betDetails = await bettingContract.getBetDetailsAsStruct(i);
-          bets.push({
-            id: betDetails[0],
-            creator: betDetails[1],
-            amount: betDetails[2],
-            title: betDetails[3],
-            description: betDetails[4],
-            category: betDetails[5],
-            twitterHandle: betDetails[6],
-            endDate: betDetails[7],
-            initialPoolAmount: betDetails[8],
-            imageURL: betDetails[9],
-            isClosed: betDetails[10],
-            supportCount: betDetails[11],
-            againstCount: betDetails[12],
-            outcome: betDetails[13],
-          });
-        } catch (betError) {
-          console.warn(`Error fetching bet at index ${i}:`, betError);
-          // Continue to next bet
-        }
+        const betDetails = await bettingContract.getBetDetailsAsStruct(i);
+        bets.push({
+          id: betDetails[0],
+          creator: betDetails[1],
+          amount: betDetails[2],
+          title: betDetails[3],
+          description: betDetails[4],
+          category: betDetails[5],
+          twitterHandle: betDetails[6],
+          endDate: betDetails[7],
+          initialPoolAmount: betDetails[8],
+          imageURL: betDetails[9],
+          isClosed: betDetails[10],
+          supportCount: betDetails[11],
+          againstCount: betDetails[12],
+          outcome: betDetails[13],
+        });
       }
       console.log("All bets:", bets);
       return bets;
