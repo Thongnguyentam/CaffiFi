@@ -75,21 +75,23 @@ const NavItem = ({
 
   return (
     <div
-      className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all cursor-pointer ${
+      className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
         isActive
-          ? "bg-[#8B4513] text-white shadow-[0_0_15px_rgba(139,69,19,0.4)]"
-          : "hover:bg-[#8B4513]/20 text-[#e8d5a9]/80 hover:text-[#e8d5a9]"
+          ? "bg-[#231f1c] text-[#e0d6cf]"
+          : "hover:bg-[#231f1c] text-[#c2b6ab] hover:text-[#e0d6cf]"
       }`}
     >
       <div className="flex items-center flex-1" onClick={handleMainClick}>
-        <span className={`${isActive ? "text-white" : "text-[#d4b37f]"} mr-3`}>
+        <span
+          className={`${isActive ? "text-[#c9804a]" : "text-[#8a7a6d]"} mr-3`}
+        >
           {icon}
         </span>
         <span>{label}</span>
       </div>
       {hasSubItems && (
         <span
-          className="text-[#e8d5a9]/50 hover:text-[#d4b37f] p-1 rounded-full hover:bg-[#3a1e0a]"
+          className="text-[#8a7a6d] hover:text-[#c9804a] p-1 rounded-full hover:bg-[#231f1c]"
           onClick={handleToggleClick}
         >
           {isExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
@@ -115,13 +117,13 @@ const SubNavItem = ({
   return (
     <Link
       href={href}
-      className={`flex items-center pl-11 pr-4 py-2 rounded-lg transition-all ${
+      className={`flex items-center pl-11 pr-4 py-2 rounded-lg transition-colors ${
         isActive
-          ? "bg-[#3a1e0a] text-white shadow-[0_0_10px_rgba(212,179,127,0.2)]"
-          : "hover:bg-[#3a1e0a]/40 text-[#e8d5a9]/60 hover:text-[#d4b37f]"
+          ? "bg-[#231f1c] text-[#e0d6cf]"
+          : "hover:bg-[#231f1c] text-[#c2b6ab] hover:text-[#e0d6cf]"
       }`}
     >
-      {icon && <span className="mr-2 text-[#d4b37f]">{icon}</span>}
+      {icon && <span className="mr-2 text-[#8a7a6d]">{icon}</span>}
       <span>{label}</span>
     </Link>
   );
@@ -137,10 +139,10 @@ const ChatHistoryItem = ({ title, date, href }: ChatHistoryItemProps) => {
   return (
     <Link
       href={href}
-      className="flex flex-col gap-1 pl-11 pr-4 py-2 rounded-lg hover:bg-[#3a1e0a]/40 transition-all"
+      className="flex flex-col gap-1 pl-11 pr-4 py-2 rounded-lg hover:bg-[#24201d] transition-all"
     >
-      <span className="text-sm text-[#e8d5a9] truncate">{title}</span>
-      <span className="text-xs text-[#e8d5a9]/50 flex items-center gap-1">
+      <span className="text-sm text-[#c2b6ab] truncate">{title}</span>
+      <span className="text-xs text-[#8a7a6d] flex items-center gap-1">
         <Clock size={12} />
         {date}
       </span>
@@ -240,156 +242,159 @@ export function SiteLeftbar() {
   }
 
   return (
-    <div className="h-full overflow-y-auto bg-gradient-to-b from-[#1a0f02] to-[#2c1809] border-r border-[#A0522D]/30 py-4">
-      <div className="flex items-center justify-center mb-8 mt-2">
-        <div className="relative p-2 bg-[#3a1e0a] rounded-full shadow-[0_0_20px_rgba(160,82,45,0.3)]">
-          <Coffee className="h-10 w-10 text-[#d4b37f]" />
-          <div className="absolute -top-1 -right-1 bg-[#8B4513] text-[#e8d5a9] rounded-full p-1">
-            <CircleDot className="h-3 w-3" />
-          </div>
+    <div className="h-full overflow-y-auto bg-[#151214] py-4">
+      <div className="flex items-center px-6 mb-12">
+        <div className="w-12 h-12 bg-[#c9804a] rounded-2xl flex items-center justify-center mr-3">
+          <Coffee className="h-6 w-6 text-[#151214]" />
         </div>
-        <div className="ml-3">
-          <h2 className="text-xl font-bold text-[#d4b37f]">CaffiFi</h2>
-          <p className="text-xs text-[#e8d5a9]/60">Brew Station</p>
+        <div>
+          <h2 className="text-2xl font-semibold text-white">Brew Station</h2>
         </div>
       </div>
 
-      <nav className="space-y-1 px-3 pb-20">
-        <div className="space-y-3">
+      <nav className="px-3 pb-20">
+        <div className="space-y-8">
           {/* Dashboard Section */}
-          <NavItem
-            icon={<LayoutDashboard size={20} />}
-            label="Brew Dashboard"
-            href="/dashboard"
-            hasSubItems={true}
-            isActive={activeSection === "dashboard"}
-            isExpanded={expandedSections.includes("dashboard")}
-            onToggle={() => toggleSection("dashboard")}
-          />
-
-          {expandedSections.includes("dashboard") && (
-            <div className="space-y-1 ml-2 pl-2 border-l-2 border-[#8B4513]/30">
-              <SubNavItem
-                label="My Portfolio"
-                href="/dashboard/portfolio"
-                isActive={pathname === "/dashboard/portfolio"}
-                icon={<Coins size={14} />}
-              />
-              <SubNavItem
-                label="Quick Swap"
-                href="/dashboard/quick-swap"
-                isActive={pathname === "/dashboard/quick-swap"}
-                icon={<Zap size={14} />}
-              />
-              <SubNavItem
-                label="My Bets"
-                href="/dashboard/my-bets"
-                isActive={pathname === "/dashboard/my-bets"}
-                icon={<Dices size={14} />}
-              />
-              <SubNavItem
-                label="My Tokens"
-                href="/dashboard/my-tokens"
-                isActive={pathname === "/dashboard/my-tokens"}
-                icon={<TrendingUp size={14} />}
-              />
-              {/* <SubNavItem
-                label="Shill Manager"
-                href="/dashboard/shill-manager"
-                isActive={pathname === "/dashboard/shill-manager"}
-                icon={<Share2 size={14} />}
-              /> */}
+          <div className="space-y-3">
+            <div className="px-3">
+              <h3 className="text-xs font-medium text-[#8a7a6d] uppercase tracking-wider">
+                Dashboard
+              </h3>
             </div>
-          )}
-
-          {/* Chat Bot Section */}
-          <NavItem
-            icon={<Bot size={20} />}
-            label="Barista Bot"
-            href="/chatbot"
-            hasSubItems={true}
-            isActive={activeSection === "hedge-bot"}
-            isExpanded={expandedSections.includes("hedge-bot")}
-            onToggle={() => toggleSection("hedge-bot")}
-          />
-
-          {expandedSections.includes("hedge-bot") && (
-            <div className="space-y-3 ml-2 pl-2 border-l-2 border-[#8B4513]/30">
-              {/* Search Bar */}
-              <div className="px-4 py-2">
-                <div className="relative">
-                  <Search
-                    className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#d4b37f]"
-                    size={16}
-                  />
-                  <input
-                    type="text"
-                    placeholder="Search conversations..."
-                    className="w-full bg-[#3a1e0a]/40 border border-[#8B4513]/40 rounded-lg py-2 pl-9 pr-3 text-sm text-[#e8d5a9] placeholder-[#d4b37f]/40 focus:outline-none focus:ring-1 focus:ring-[#d4b37f] focus:border-[#8B4513]"
-                  />
-                </div>
+            <NavItem
+              icon={<LayoutDashboard size={20} />}
+              label="Brew Dashboard"
+              href="/dashboard"
+              hasSubItems={true}
+              isActive={activeSection === "dashboard"}
+              isExpanded={expandedSections.includes("dashboard")}
+              onToggle={() => toggleSection("dashboard")}
+            />
+            {expandedSections.includes("dashboard") && (
+              <div className="space-y-1 ml-2 pl-2 border-l-2 border-[#2a2422]">
+                <SubNavItem
+                  label="My Portfolio"
+                  href="/dashboard/portfolio"
+                  isActive={pathname === "/dashboard/portfolio"}
+                  icon={<Coins size={14} />}
+                />
+                <SubNavItem
+                  label="Quick Swap"
+                  href="/dashboard/quick-swap"
+                  isActive={pathname === "/dashboard/quick-swap"}
+                  icon={<Zap size={14} />}
+                />
+                <SubNavItem
+                  label="My Bets"
+                  href="/dashboard/my-bets"
+                  isActive={pathname === "/dashboard/my-bets"}
+                  icon={<Dices size={14} />}
+                />
+                <SubNavItem
+                  label="My Tokens"
+                  href="/dashboard/my-tokens"
+                  isActive={pathname === "/dashboard/my-tokens"}
+                  icon={<TrendingUp size={14} />}
+                />
               </div>
+            )}
+          </div>
 
-              {/* New Chat Button */}
-              <div className="px-4 py-2">
-                <Link href={`/chatbot?new=true&t=${Date.now()}`}>
-                  <Button
-                    className="w-full bg-[#8B4513] hover:bg-[#A0522D] text-[#e8d5a9] border-none hover:shadow-[0_0_10px_rgba(212,179,127,0.3)] transition-all flex items-center justify-center gap-2"
-                    size="sm"
-                  >
-                    <Plus size={16} />
-                    <span>New Chat</span>
-                  </Button>
-                </Link>
-              </div>
-
-              {/* Chat History */}
-              <div className="mt-2">
-                <div className="flex items-center justify-between px-4 py-2">
-                  <span className="text-xs font-medium text-[#d4b37f] uppercase flex items-center gap-1">
-                    <Clock size={12} />
-                    Recent Chats
-                  </span>
-                </div>
-                <div className="space-y-1">
-                  {chatHistory.slice(0, 5).map((chat, index) => (
-                    <ChatHistoryItem
-                      key={index}
-                      title={chat.title}
-                      date={chat.date}
-                      href={chat.href}
+          {/* Trading Section */}
+          <div className="space-y-3">
+            <div className="px-3">
+              <h3 className="text-xs font-medium text-[#8a7a6d] uppercase tracking-wider">
+                INSIGHTS
+              </h3>
+            </div>
+            <NavItem
+              icon={<Bot size={20} />}
+              label="Barista Bot"
+              href="/chatbot"
+              hasSubItems={true}
+              isActive={activeSection === "hedge-bot"}
+              isExpanded={expandedSections.includes("hedge-bot")}
+              onToggle={() => toggleSection("hedge-bot")}
+            />
+            {expandedSections.includes("hedge-bot") && (
+              <div className="space-y-3 ml-2 pl-2 border-l-2 border-[#2a2422]">
+                {/* Search Bar */}
+                <div className="px-4 py-2">
+                  <div className="relative">
+                    <Search
+                      className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#8a7a6d]"
+                      size={16}
                     />
-                  ))}
-                  {chatHistory.length > 5 && (
-                    <Link
-                      href="/chatbot/history"
-                      className="flex items-center justify-center py-2 text-sm text-[#d4b37f] hover:text-[#e8d5a9] transition-colors"
+                    <input
+                      type="text"
+                      placeholder="Search conversations..."
+                      className="w-full bg-[#231f1c] border border-[#2a2422] rounded-lg py-2 pl-9 pr-3 text-sm text-[#e0d6cf] placeholder-[#8a7a6d] focus:outline-none focus:border-[#c9804a]"
+                    />
+                  </div>
+                </div>
+
+                {/* New Chat Button */}
+                <div className="px-4 py-2">
+                  <Link href={`/chatbot?new=true&t=${Date.now()}`}>
+                    <Button
+                      className="w-full bg-[#c9804a] hover:bg-[#b77440] text-[#1c1917] border-none hover:shadow-[0_0_10px_rgba(201,128,74,0.3)] transition-all flex items-center justify-center gap-2"
+                      size="sm"
                     >
-                      View more
-                    </Link>
-                  )}
+                      <Plus size={16} />
+                      <span>New Chat</span>
+                    </Button>
+                  </Link>
+                </div>
+
+                {/* Chat History */}
+                <div className="mt-2">
+                  <div className="flex items-center justify-between px-4 py-2">
+                    <span className="text-xs font-medium text-[#8a7a6d] uppercase flex items-center gap-1">
+                      <Clock size={12} />
+                      Recent Chats
+                    </span>
+                  </div>
+                  <div className="space-y-1">
+                    {chatHistory.slice(0, 5).map((chat, index) => (
+                      <ChatHistoryItem
+                        key={index}
+                        title={chat.title}
+                        date={chat.date}
+                        href={chat.href}
+                      />
+                    ))}
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
 
-          {/* Settings */}
-          <NavItem
-            icon={<Settings size={20} />}
-            label="Brew Settings"
-            href="/settings"
-            isActive={activeSection === "settings"}
-            onToggle={() => setActiveSection("settings")}
-          />
+          {/* Tools Section */}
+          <div className="space-y-3">
+            <div className="px-3">
+              <h3 className="text-xs font-medium text-[#8a7a6d] uppercase tracking-wider">
+                Tools
+              </h3>
+            </div>
+            <NavItem
+              icon={<Settings size={20} />}
+              label="Brew Settings"
+              href="/settings"
+              isActive={activeSection === "settings"}
+              onToggle={() => setActiveSection("settings")}
+            />
+          </div>
         </div>
       </nav>
 
-      <div className="fixed bottom-0 left-0 w-[var(--sidebar-width,256px)] p-4 bg-gradient-to-t from-[#1a0f02] to-transparent">
-        <div className="bg-[#8B4513]/30 rounded-lg p-3 flex items-center gap-3">
-          <CupSoda className="text-[#d4b37f] h-8 w-8" />
+      <div className="fixed bottom-0 left-0 w-[var(--sidebar-width,256px)] p-4 bg-gradient-to-t from-[#151214] to-transparent">
+        <div className="flex items-center gap-3 px-3 py-2">
+          <div className="w-10 h-10 bg-[#c9804a] rounded-full flex items-center justify-center">
+            <span className="text-lg font-medium text-[#151214]">N</span>
+          </div>
           <div>
-            <p className="text-xs text-[#e8d5a9]/70">Brewing since</p>
-            <p className="text-sm font-medium text-[#d4b37f]">Mar 2025</p>
+            <p className="text-sm font-medium text-[#e0d6cf]">Brew Master</p>
+            <p className="text-xs text-[#8a7a6d]">Brewing since Mar 2025</p>
           </div>
         </div>
       </div>

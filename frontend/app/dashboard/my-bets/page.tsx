@@ -16,6 +16,9 @@ import {
   Award,
   BarChart,
   Loader2,
+  CupSoda,
+  Coffee,
+  CircleDot,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -204,12 +207,12 @@ export default function MyBetsPage() {
   if (!isMounted) {
     return (
       <AppLayout>
-        <div className="min-h-screen bg-gradient-to-b from-black to-gray-900">
+        <div className="min-h-screen bg-[#151214]">
           <div className="container py-8">
             <div className="flex items-center justify-center h-[60vh]">
               <div className="space-y-4 text-center">
-                <Loader2 className="h-12 w-12 animate-spin text-green-400 mx-auto" />
-                <p className="text-muted-foreground">Loading your bets...</p>
+                <Loader2 className="h-12 w-12 animate-spin text-[#c9804a] mx-auto" />
+                <p className="text-[#8a7a6d]">Loading your bets...</p>
               </div>
             </div>
           </div>
@@ -257,13 +260,13 @@ export default function MyBetsPage() {
   if (!isConnected) {
     return (
       <AppLayout>
-        <div className="min-h-screen bg-gradient-to-b from-black to-gray-900">
+        <div className="min-h-screen bg-[#151214]">
           <div className="container py-8">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
-              className="max-w-lg mx-auto mt-20 bg-yellow-500/10 border border-yellow-500/20 text-yellow-500 p-8 rounded-xl shadow-xl"
+              className="max-w-lg mx-auto mt-20 bg-[#c9804a]/10 border border-[#c9804a]/20 text-[#c9804a] p-8 rounded-xl shadow-xl"
             >
               <h2 className="text-2xl font-bold mb-4">
                 Authentication Required
@@ -281,29 +284,29 @@ export default function MyBetsPage() {
 
   return (
     <AppLayout>
-      <div className="min-h-screen bg-gradient-to-b from-black to-gray-900">
+      <div className="min-h-screen bg-[#151214]">
         <div className="container py-8">
           {/* Header section */}
-          <div className="relative mb-12 pb-6 border-b border-white/10">
+          <div className="relative mb-12 pb-6 border-b border-[#2a2422]">
             <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
               <div>
                 <h1 className="text-4xl font-bold mb-2">
                   My{" "}
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-blue-500">
-                    Bets
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#c9804a] to-[#8B4513]">
+                    Brews
                   </span>
                 </h1>
-                <p className="text-lg text-muted-foreground">
-                  Track and manage your prediction market portfolio
+                <p className="text-lg text-[#8a7a6d]">
+                  Track and manage your brewing portfolio
                 </p>
               </div>
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-[#8a7a6d]" />
                   <Input
                     type="search"
-                    placeholder="Search markets..."
-                    className="pl-10 w-full sm:w-[300px] bg-white/5 border-white/10 focus:border-green-500/50 transition-colors"
+                    placeholder="Search brews..."
+                    className="pl-10 w-full sm:w-[300px] bg-[#231f1c] border-[#2a2422] focus:border-[#c9804a] transition-colors text-[#e0d6cf] placeholder-[#8a7a6d]"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                   />
@@ -313,19 +316,19 @@ export default function MyBetsPage() {
                     variant="outline"
                     size="icon"
                     onClick={() => setShowFilters(!showFilters)}
-                    className={`border-white/10 hover:border-green-500/50 transition-colors ${
-                      showFilters ? "bg-green-500/10 border-green-500/50" : ""
+                    className={`border-[#2a2422] hover:border-[#c9804a] transition-colors ${
+                      showFilters ? "bg-[#c9804a]/10 border-[#c9804a]" : ""
                     }`}
                   >
-                    <Filter className="h-4 w-4" />
+                    <Filter className="h-4 w-4 text-[#8a7a6d]" />
                   </Button>
                   <Button
-                    className="bg-gradient-to-r from-blue-400 to-blue-500 hover:from-blue-500 hover:to-blue-600 transition-colors"
                     asChild
+                    className="bg-[#c9804a] hover:bg-[#b77440] text-[#151214] transition-colors"
                   >
                     <Link href="/bets/create">
-                      <Plus className="h-4 w-4 mr-2" />
-                      Create a Bet
+                      <CupSoda className="h-4 w-4 mr-2" />
+                      Start New Brew
                     </Link>
                   </Button>
                 </div>
@@ -341,46 +344,50 @@ export default function MyBetsPage() {
             className="mb-12"
           >
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {/* Total Bets Card */}
-              <Card className="bg-white/5 border-white/10 hover:border-green-500/50 transition-all hover:transform hover:scale-[1.02] cursor-pointer">
+              {/* Total Brews Card */}
+              <Card className="bg-[#231f1c] border-[#2a2422] hover:border-[#c9804a] transition-all hover:transform hover:scale-[1.02] cursor-pointer">
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                    <Dices className="h-4 w-4 text-green-400" />
-                    Total Markets
+                  <CardTitle className="text-sm font-medium text-[#8a7a6d] flex items-center gap-2">
+                    <CupSoda className="h-4 w-4 text-[#c9804a]" />
+                    Total Brews
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-1">
-                    <div className="text-3xl font-bold">{totalBets}</div>
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <span className="inline-flex items-center px-2 py-1 rounded-full bg-blue-500/10 text-blue-400">
-                        {pendingBets} active
+                    <div className="text-3xl font-bold text-[#e0d6cf]">
+                      {totalBets}
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-[#8a7a6d]">
+                      <span className="inline-flex items-center px-2 py-1 rounded-full bg-[#c9804a]/10 text-[#c9804a]">
+                        {pendingBets} brewing
                       </span>
-                      <span className="inline-flex items-center px-2 py-1 rounded-full bg-gray-500/10 text-gray-400">
-                        {pastBets.length} completed
+                      <span className="inline-flex items-center px-2 py-1 rounded-full bg-[#2a2422] text-[#8a7a6d]">
+                        {pastBets.length} served
                       </span>
                     </div>
                   </div>
                 </CardContent>
               </Card>
 
-              {/* Win Rate Card */}
-              <Card className="bg-white/5 border-white/10 hover:border-green-500/50 transition-all hover:transform hover:scale-[1.02] cursor-pointer">
+              {/* Success Rate Card */}
+              <Card className="bg-[#231f1c] border-[#2a2422] hover:border-[#c9804a] transition-all hover:transform hover:scale-[1.02] cursor-pointer">
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                    <Award className="h-4 w-4 text-green-400" />
-                    Success Rate
+                  <CardTitle className="text-sm font-medium text-[#8a7a6d] flex items-center gap-2">
+                    <Coffee className="h-4 w-4 text-[#c9804a]" />
+                    Brewing Success
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-1">
-                    <div className="text-3xl font-bold">{winRate}%</div>
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <span className="inline-flex items-center px-2 py-1 rounded-full bg-green-500/10 text-green-400">
-                        {wonBets} won
+                    <div className="text-3xl font-bold text-[#e0d6cf]">
+                      {winRate}%
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-[#8a7a6d]">
+                      <span className="inline-flex items-center px-2 py-1 rounded-full bg-[#c9804a]/10 text-[#c9804a]">
+                        {wonBets} perfect
                       </span>
-                      <span className="inline-flex items-center px-2 py-1 rounded-full bg-red-500/10 text-red-400">
-                        {lostBets} lost
+                      <span className="inline-flex items-center px-2 py-1 rounded-full bg-[#2a2422] text-[#8a7a6d]">
+                        {lostBets} spilled
                       </span>
                     </div>
                   </div>
@@ -388,28 +395,28 @@ export default function MyBetsPage() {
               </Card>
 
               {/* Total Profit Card */}
-              <Card className="bg-white/5 border-white/10 hover:border-green-500/50 transition-all hover:transform hover:scale-[1.02] cursor-pointer">
+              <Card className="bg-[#231f1c] border-[#2a2422] hover:border-[#c9804a] transition-all hover:transform hover:scale-[1.02] cursor-pointer">
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                  <CardTitle className="text-sm font-medium text-[#8a7a6d] flex items-center gap-2">
                     {totalProfit >= 0 ? (
-                      <TrendingUp className="h-4 w-4 text-green-400" />
+                      <TrendingUp className="h-4 w-4 text-[#c9804a]" />
                     ) : (
                       <TrendingDown className="h-4 w-4 text-red-400" />
                     )}
-                    Total Profit
+                    Total Earnings
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-1">
                     <div
                       className={`text-3xl font-bold ${
-                        totalProfit >= 0 ? "text-green-400" : "text-red-400"
+                        totalProfit >= 0 ? "text-[#c9804a]" : "text-red-400"
                       }`}
                     >
                       {totalProfit > 0 ? "+" : ""}
                       {totalProfit.toFixed(4)} ETH
                     </div>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-[#8a7a6d]">
                       Lifetime profit/loss
                     </p>
                   </div>
@@ -417,16 +424,16 @@ export default function MyBetsPage() {
               </Card>
 
               {/* Active Pool Size Card */}
-              <Card className="bg-white/5 border-white/10 hover:border-green-500/50 transition-all hover:transform hover:scale-[1.02] cursor-pointer">
+              <Card className="bg-[#231f1c] border-[#2a2422] hover:border-[#c9804a] transition-all hover:transform hover:scale-[1.02] cursor-pointer">
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                    <BarChart className="h-4 w-4 text-green-400" />
-                    Active Pool Size
+                  <CardTitle className="text-sm font-medium text-[#8a7a6d] flex items-center gap-2">
+                    <CircleDot className="h-4 w-4 text-[#c9804a]" />
+                    Active Brew Size
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-1">
-                    <div className="text-3xl font-bold">
+                    <div className="text-3xl font-bold text-[#e0d6cf]">
                       {ethers.formatEther(
                         activeBets.reduce(
                           (acc, bet) =>
@@ -436,8 +443,8 @@ export default function MyBetsPage() {
                       )}{" "}
                       ETH
                     </div>
-                    <p className="text-sm text-muted-foreground">
-                      Total active pool size
+                    <p className="text-sm text-[#8a7a6d]">
+                      Total active brew value
                     </p>
                   </div>
                 </CardContent>
@@ -453,7 +460,7 @@ export default function MyBetsPage() {
               exit={{ opacity: 0, height: 0 }}
               className="mb-8"
             >
-              <Card className="bg-white/5 border-white/10">
+              <Card className="bg-[#231f1c] border-[#2a2422]">
                 <CardContent className="pt-6">
                   <BetFilters
                     activeFilter={activeFilter}
@@ -467,33 +474,33 @@ export default function MyBetsPage() {
           )}
 
           {/* Tabs */}
-          <div className="bg-white/5 rounded-xl p-6">
+          <div className="bg-[#231f1c] rounded-xl p-6">
             <Tabs defaultValue="active" className="mb-8">
-              <TabsList className="bg-white/5 p-1">
+              <TabsList className="bg-[#151214] p-1">
                 <TabsTrigger
                   value="active"
-                  className="data-[state=active]:bg-blue-500"
+                  className="data-[state=active]:bg-[#c9804a] data-[state=active]:text-[#151214]"
                 >
-                  Active Markets
+                  Brewing Now
                 </TabsTrigger>
                 <TabsTrigger
                   value="past"
-                  className="data-[state=active]:bg-red-500"
+                  className="data-[state=active]:bg-[#8B4513] data-[state=active]:text-[#e0d6cf]"
                 >
-                  Past Markets
+                  Past Brews
                 </TabsTrigger>
                 <TabsTrigger
                   value="created"
-                  className="data-[state=active]:bg-green-500"
+                  className="data-[state=active]:bg-[#c9804a] data-[state=active]:text-[#151214]"
                 >
-                  Created by Me
+                  My Recipes
                 </TabsTrigger>
               </TabsList>
 
               <TabsContent value="active" className="mt-6">
                 {isLoading ? (
                   <div className="flex items-center justify-center py-12">
-                    <Loader2 className="h-8 w-8 animate-spin text-green-400" />
+                    <Loader2 className="h-8 w-8 animate-spin text-[#c9804a]" />
                   </div>
                 ) : filteredActiveBets.length > 0 ? (
                   <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
@@ -503,16 +510,19 @@ export default function MyBetsPage() {
                   </div>
                 ) : (
                   <div className="text-center py-12">
-                    <Dices className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-xl font-medium mb-2">
-                      No active markets found
+                    <CupSoda className="h-16 w-16 text-[#8a7a6d] mx-auto mb-4" />
+                    <h3 className="text-xl font-medium mb-2 text-[#e0d6cf]">
+                      No active brews found
                     </h3>
-                    <p className="text-muted-foreground max-w-md mx-auto mb-6">
-                      You don't have any active markets matching your search
+                    <p className="text-[#8a7a6d] max-w-md mx-auto mb-6">
+                      You don't have any active brews matching your search
                       criteria.
                     </p>
-                    <Button asChild>
-                      <Link href="/bets">Browse Markets</Link>
+                    <Button
+                      asChild
+                      className="bg-[#c9804a] hover:bg-[#b77440] text-[#151214]"
+                    >
+                      <Link href="/bets">Browse Brews</Link>
                     </Button>
                   </div>
                 )}
@@ -521,7 +531,7 @@ export default function MyBetsPage() {
               <TabsContent value="past" className="mt-6">
                 {isLoading ? (
                   <div className="flex items-center justify-center py-12">
-                    <Loader2 className="h-8 w-8 animate-spin text-green-400" />
+                    <Loader2 className="h-8 w-8 animate-spin text-[#c9804a]" />
                   </div>
                 ) : filteredPastBets.length > 0 ? (
                   <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
@@ -531,16 +541,19 @@ export default function MyBetsPage() {
                   </div>
                 ) : (
                   <div className="text-center py-12">
-                    <Dices className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-xl font-medium mb-2">
-                      No past markets found
+                    <CupSoda className="h-16 w-16 text-[#8a7a6d] mx-auto mb-4" />
+                    <h3 className="text-xl font-medium mb-2 text-[#e0d6cf]">
+                      No past brews found
                     </h3>
-                    <p className="text-muted-foreground max-w-md mx-auto mb-6">
-                      You don't have any past markets matching your search
+                    <p className="text-[#8a7a6d] max-w-md mx-auto mb-6">
+                      You don't have any past brews matching your search
                       criteria.
                     </p>
-                    <Button asChild>
-                      <Link href="/bets">Browse Markets</Link>
+                    <Button
+                      asChild
+                      className="bg-[#c9804a] hover:bg-[#b77440] text-[#151214]"
+                    >
+                      <Link href="/bets">Browse Brews</Link>
                     </Button>
                   </div>
                 )}
@@ -549,7 +562,7 @@ export default function MyBetsPage() {
               <TabsContent value="created" className="mt-6">
                 {isLoading ? (
                   <div className="flex items-center justify-center py-12">
-                    <Loader2 className="h-8 w-8 animate-spin text-green-400" />
+                    <Loader2 className="h-8 w-8 animate-spin text-[#c9804a]" />
                   </div>
                 ) : myBets.filter(
                     (bet) =>
@@ -567,17 +580,20 @@ export default function MyBetsPage() {
                   </div>
                 ) : (
                   <div className="text-center py-12">
-                    <Dices className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-xl font-medium mb-2">
-                      No created markets yet
+                    <CupSoda className="h-16 w-16 text-[#8a7a6d] mx-auto mb-4" />
+                    <h3 className="text-xl font-medium mb-2 text-[#e0d6cf]">
+                      No recipes created yet
                     </h3>
-                    <p className="text-muted-foreground max-w-md mx-auto mb-6">
-                      You haven't created any bets yet.
+                    <p className="text-[#8a7a6d] max-w-md mx-auto mb-6">
+                      You haven't created any brews yet.
                     </p>
-                    <Button asChild>
+                    <Button
+                      asChild
+                      className="bg-[#c9804a] hover:bg-[#b77440] text-[#151214]"
+                    >
                       <Link href="/bets/create">
-                        <Plus className="h-4 w-4 mr-2" />
-                        Create a Bet
+                        <CupSoda className="h-4 w-4 mr-2" />
+                        Start New Brew
                       </Link>
                     </Button>
                   </div>
