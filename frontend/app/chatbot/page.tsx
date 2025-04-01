@@ -7,7 +7,7 @@ import { Loader2 } from "lucide-react";
 
 export default function ChatbotPage() {
   return (
-    <AppLayout showFooter={false}>
+    <AppLayout>
       <Suspense
         fallback={
           <div className="flex items-center justify-center min-h-[60vh]">

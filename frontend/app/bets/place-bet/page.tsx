@@ -194,7 +194,7 @@ function PlaceBetContent() {
     return (
       <AppLayout>
         <div className="container py-12 flex items-center justify-center min-h-[60vh]">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <Loader2 className="h-8 w-8 animate-spin text-amber-600" />
         </div>
       </AppLayout>
     );
@@ -204,7 +204,7 @@ function PlaceBetContent() {
     return (
       <AppLayout>
         <div className="container py-12 flex items-center justify-center min-h-[60vh]">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <Loader2 className="h-8 w-8 animate-spin text-amber-600" />
         </div>
       </AppLayout>
     );
@@ -221,7 +221,9 @@ function PlaceBetContent() {
               The bet you're looking for doesn't exist or is not available.
             </p>
             <Link href="/bets">
-              <Button className="mt-6">Back to Bets</Button>
+              <Button className="mt-6 bg-amber-700 hover:bg-amber-800">
+                Back to Bets
+              </Button>
             </Link>
           </div>
         </div>
@@ -231,7 +233,7 @@ function PlaceBetContent() {
 
   return (
     <AppLayout>
-      <div className="container py-8 relative z-10">
+      <div className="container py-8 relative z-10 bg-gradient-to-b from-amber-950/30 to-transparent">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -240,8 +242,12 @@ function PlaceBetContent() {
           {/* Back button */}
           <div className="mb-6">
             <Link href="/bets">
-              <Button variant="outline" size="sm">
-                ← Back to Bets
+              <Button
+                variant="outline"
+                size="sm"
+                className="border-amber-800/50 hover:bg-amber-800/20"
+              >
+                ← Back to Bean Bets
               </Button>
             </Link>
           </div>
@@ -250,18 +256,18 @@ function PlaceBetContent() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {/* Bet details */}
             <div className="md:col-span-2">
-              <Card className="border-white/10 bg-black/60 backdrop-blur-sm">
+              <Card className="border-amber-800/30 bg-amber-950/40 backdrop-blur-xl">
                 <CardHeader>
                   <CardTitle className="text-2xl">{bet.title}</CardTitle>
                   <div className="flex items-center gap-2 mt-2">
                     <Badge
                       variant="outline"
-                      className="bg-black/90 border-white/10"
+                      className="bg-amber-900/50 border-amber-700/50"
                     >
                       {bet.category}
                     </Badge>
                     <div className="text-sm text-muted-foreground">
-                      Ends {formatDate(bet.endDate)}
+                      Roasts {formatDate(bet.endDate)}
                     </div>
                   </div>
                 </CardHeader>
@@ -285,9 +291,9 @@ function PlaceBetContent() {
                         No {(bet.noProbability * 100).toFixed(0)}%
                       </span>
                     </div>
-                    <div className="relative h-2 overflow-hidden rounded-full bg-white/5">
+                    <div className="relative h-2 overflow-hidden rounded-full bg-amber-900/30">
                       <div
-                        className="absolute inset-y-0 left-0 bg-gradient-to-r from-sky-400 to-blue-500"
+                        className="absolute inset-y-0 left-0 bg-gradient-to-r from-amber-700 to-amber-500"
                         style={{ width: `${bet.yesProbability * 100}%` }}
                       />
                     </div>
@@ -295,44 +301,44 @@ function PlaceBetContent() {
 
                   {/* Pool Info */}
                   <div className="grid grid-cols-3 gap-4">
-                    <div className="bg-white/5 rounded-lg p-4">
+                    <div className="bg-amber-900/20 rounded-lg p-4">
                       <div className="text-sm text-muted-foreground mb-1">
-                        Total Pool
+                        Bean Pool
                       </div>
                       <div className="text-lg font-medium font-mono">
-                        ${bet.poolAmount} ETH
+                        {bet.poolAmount} ETH
                       </div>
                     </div>
-                    <div className="bg-white/5 rounded-lg p-4">
+                    <div className="bg-amber-900/20 rounded-lg p-4">
                       <div className="text-sm text-muted-foreground mb-1">
-                        Yes Pool
+                        Light Roast
                       </div>
                       <div className="text-lg font-medium font-mono text-green-400">
-                        ${bet.joinAmount} ETH
+                        {bet.joinAmount} ETH
                       </div>
                     </div>
-                    <div className="bg-white/5 rounded-lg p-4">
+                    <div className="bg-amber-900/20 rounded-lg p-4">
                       <div className="text-sm text-muted-foreground mb-1">
-                        No Pool
+                        Dark Roast
                       </div>
                       <div className="text-lg font-medium font-mono text-red-400">
-                        ${bet.poolAmount} ETH
+                        {bet.poolAmount} ETH
                       </div>
                     </div>
                   </div>
 
-                  <div className="mt-6 p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+                  <div className="mt-6 p-4 bg-amber-800/10 border border-amber-700/20 rounded-lg">
                     <div className="flex items-start gap-3">
-                      <Info className="h-5 w-5 text-blue-400 mt-0.5" />
+                      <Info className="h-5 w-5 text-amber-400 mt-0.5" />
                       <div>
-                        <h4 className="font-medium text-blue-400">
-                          How it works
+                        <h4 className="font-medium text-amber-400">
+                          How it brews
                         </h4>
                         <p className="text-sm text-muted-foreground mt-1">
-                          Place your bet on whether this prediction will come
-                          true. If you're right, you'll win a share of the pool
-                          proportional to your bet amount. The smaller the
-                          probability of your chosen outcome, the higher your
+                          Place your beans on whether this prediction will come
+                          true. If you're right, you'll win a share of the bean
+                          pool proportional to your bet amount. The smaller the
+                          probability of your chosen brew, the higher your
                           potential reward.
                         </p>
                       </div>
@@ -344,11 +350,11 @@ function PlaceBetContent() {
 
             {/* Betting form */}
             <div className="md:col-span-1">
-              <Card className="border-white/10 bg-black/60 backdrop-blur-sm">
+              <Card className="border-amber-800/30 bg-amber-950/40 backdrop-blur-xl">
                 <CardHeader>
-                  <CardTitle>Place Your Bet</CardTitle>
+                  <CardTitle>Brew Your Bet</CardTitle>
                   <CardDescription>
-                    Choose your prediction and bet amount
+                    Choose your coffee blend and bean amount
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -356,7 +362,7 @@ function PlaceBetContent() {
                     {/* Bet Side Selection */}
                     <div className="space-y-2">
                       <label className="text-sm font-medium">
-                        Your Prediction
+                        Your Brew Style
                       </label>
                       <div className="grid grid-cols-2 gap-2">
                         <Button
@@ -364,34 +370,34 @@ function PlaceBetContent() {
                           variant={betSide === "yes" ? "default" : "outline"}
                           className={
                             betSide === "yes"
-                              ? "bg-green-500 hover:bg-green-600"
-                              : "border-white/10"
+                              ? "bg-amber-600 hover:bg-amber-700"
+                              : "border-amber-800/50 hover:bg-amber-800/20"
                           }
                           onClick={() => setBetSide("yes")}
                         >
                           <CheckCircle className="mr-2 h-4 w-4" />
-                          Yes
+                          Light
                         </Button>
                         <Button
                           type="button"
                           variant={betSide === "no" ? "default" : "outline"}
                           className={
                             betSide === "no"
-                              ? "bg-red-500 hover:bg-red-600"
-                              : "border-white/10"
+                              ? "bg-amber-900 hover:bg-amber-950"
+                              : "border-amber-800/50 hover:bg-amber-800/20"
                           }
                           onClick={() => setBetSide("no")}
                         >
                           <XCircle className="mr-2 h-4 w-4" />
-                          No
+                          Dark
                         </Button>
                       </div>
                     </div>
 
                     {/* Fixed Bet Amount */}
-                    <div className="p-4 bg-white/5 rounded-lg">
+                    <div className="p-4 bg-amber-900/20 rounded-lg">
                       <div className="text-sm text-muted-foreground mb-1">
-                        Bet Amount (ETH)
+                        Bean Amount (ETH)
                       </div>
                       <div className="text-lg font-medium font-mono">
                         {betAmount} ETH
@@ -401,7 +407,7 @@ function PlaceBetContent() {
                 </CardContent>
                 <CardFooter>
                   <Button
-                    className="w-full"
+                    className="w-full bg-gradient-to-r from-amber-700 to-amber-500 hover:from-amber-800 hover:to-amber-600"
                     disabled={isPlacingBet || !walletClient}
                     onClick={handlePlaceBet}
                   >
@@ -409,8 +415,8 @@ function PlaceBetContent() {
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     )}
                     {!walletClient
-                      ? "Connect Wallet to Bet"
-                      : `Place ${betSide.toUpperCase()} Bet`}
+                      ? "Connect Wallet to Brew"
+                      : `Brew ${betSide === "yes" ? "Light" : "Dark"}`}
                   </Button>
                 </CardFooter>
               </Card>
@@ -429,7 +435,7 @@ export default function PlaceBetPage() {
       fallback={
         <AppLayout>
           <div className="container py-12 flex items-center justify-center min-h-[60vh]">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <Loader2 className="h-8 w-8 animate-spin text-amber-600" />
           </div>
         </AppLayout>
       }

@@ -293,12 +293,12 @@ export function SiteLeftbar() {
                 isActive={pathname === "/dashboard/my-tokens"}
                 icon={<TrendingUp size={14} />}
               />
-              <SubNavItem
+              {/* <SubNavItem
                 label="Shill Manager"
                 href="/dashboard/shill-manager"
                 isActive={pathname === "/dashboard/shill-manager"}
                 icon={<Share2 size={14} />}
-              />
+              /> */}
             </div>
           )}
 

@@ -257,7 +257,7 @@ function CoinChatContent({ symbol }: { symbol: string }) {
                   <div
                     className={`p-3 rounded-xl text-sm max-w-[80%] ${
                       msg.user === "user"
-                        ? "bg-blue-600 text-white self-end"
+                        ? "bg-gradient-to-r from-[#d4b37f] to-[#8B4513] text-white self-end"
                         : "bg-[#2A2B2E] text-gray-200 self-start"
                     }`}
                   >

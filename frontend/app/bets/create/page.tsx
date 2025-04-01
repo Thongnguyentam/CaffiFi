@@ -246,7 +246,7 @@ export default function CreateBet() {
         toast({
           title: "Success!",
           description: "Your bet has been created successfully.",
-          className: "bg-blue-500 text-white",
+          className: "bg-amber-700 text-white",
         });
 
         // Redirect to bets page
@@ -304,7 +304,7 @@ export default function CreateBet() {
       toast({
         title: "Success!",
         description: "Image uploaded to IPFS successfully",
-        className: "bg-blue-500 text-white",
+        className: "bg-amber-700 text-white",
       });
     } catch (error) {
       console.error("Error uploading to IPFS:", error);
@@ -346,7 +346,7 @@ export default function CreateBet() {
       description: twitterInfo?.connected
         ? "Your Twitter handle has been updated."
         : "Your Twitter account has been connected.",
-      className: "bg-blue-500 text-white",
+      className: "bg-amber-700 text-white",
     });
   };
 
@@ -376,7 +376,7 @@ export default function CreateBet() {
   }
 
   return (
-    <AppLayout showFooter={false}>
+    <AppLayout>
       <div className="container max-w-full mx-auto px-12 pt-6 pb-16">
         <div className="mb-6">
           <Link href="/bets">
@@ -388,7 +388,7 @@ export default function CreateBet() {
         </div>
 
         <div className="max-w-4xl mx-auto text-center mb-8">
-          <h1 className="text-4xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-blue-500">
+          <h1 className="text-4xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-amber-700 to-yellow-600">
             Create a New Prediction
           </h1>
           <p className="text-muted-foreground">
@@ -569,7 +569,7 @@ export default function CreateBet() {
                                   !twitterHandleChanged && (
                                     <Badge
                                       variant="outline"
-                                      className="bg-blue-500/10 text-blue-500 border-blue-500/20"
+                                      className="bg-yellow-500/10 text-yellow-500 border-yellow-500/20"
                                     >
                                       Connected
                                     </Badge>
@@ -608,7 +608,7 @@ export default function CreateBet() {
                                     variant="outline"
                                     size="sm"
                                     onClick={handleTwitterConnect}
-                                    className="border-blue-500/20 text-blue-500 hover:bg-blue-500/10"
+                                    className="border-amber-700/20 text-amber-700 hover:bg-amber-700/10"
                                   >
                                     <Twitter className="mr-2 h-3 w-3" />
                                     Connect
@@ -683,7 +683,7 @@ export default function CreateBet() {
                                           {isUploadingImage && (
                                             <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
                                               <div className="text-center">
-                                                <Loader2 className="h-8 w-8 animate-spin mx-auto mb-2 text-blue-400" />
+                                                <Loader2 className="h-8 w-8 animate-spin mx-auto mb-2 text-amber-600" />
                                                 <p className="text-sm text-white">
                                                   Uploading to IPFS...
                                                 </p>
@@ -694,7 +694,7 @@ export default function CreateBet() {
                                             "https://"
                                           ) && (
                                             <div className="absolute top-2 right-2">
-                                              <Badge className="bg-blue-500 text-white">
+                                              <Badge className="bg-amber-700 text-white">
                                                 Stored on IPFS
                                               </Badge>
                                             </div>
@@ -717,7 +717,7 @@ export default function CreateBet() {
                                         <>
                                           {isUploadingImage ? (
                                             <div className="py-8 text-center">
-                                              <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-blue-400" />
+                                              <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-amber-600" />
                                               <span className="text-sm text-muted-foreground">
                                                 Uploading image to IPFS...
                                               </span>
@@ -771,7 +771,7 @@ export default function CreateBet() {
                       <Button
                         type="submit"
                         disabled={isSubmitting || isUploadingImage}
-                        className="bg-gradient-to-r from-sky-400 to-blue-500 hover:from-sky-400/90 hover:to-blue-500/90"
+                        className="bg-gradient-to-r from-amber-700 to-yellow-600 hover:from-amber-700/90 hover:to-yellow-600/90"
                       >
                         {isSubmitting ? (
                           <>
