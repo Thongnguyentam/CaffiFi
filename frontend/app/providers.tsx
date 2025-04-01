@@ -32,36 +32,35 @@ const espressoOrbit = {
   testnet: true,
 };
 
-
-// Configure custom Hardhat testnet
-const hardhatTestnet = {
-  id: 31337,
-  name: "Hardhat",
-  network: "hardhat",
+const latteOrbit = {
+  id: 10000099,
+  name: "Latte Orbit Devnet",
+  network: "latteOrbit",
   nativeCurrency: {
     decimals: 18,
     name: "Ethereum",
     symbol: "ETH",
   },
   rpcUrls: {
-    public: { http: ["http://127.0.0.1:8545"] },
-    default: { http: ["http://127.0.0.1:8545"] },
+    public: { http: ["http://127.0.0.1:8647"] },
+    default: { http: ["http://127.0.0.1:8647"] },
   },
   blockExplorers: {
     default: {
-      name: "Block Explorer",
-      url: "http://localhost:8545", // Local explorer if you have one
+      name: "Local Explorer",
+      url: "", // Leave empty if no block explorer
     },
   },
   testnet: true,
 };
 
+
 // Create wagmi config
 const config = createConfig({
-  chains: [espressoOrbit, hardhatTestnet],
+  chains: [espressoOrbit, latteOrbit],
   transports: {
     [espressoOrbit.id]: http(),
-    [hardhatTestnet.id]: http(),
+    [latteOrbit.id]: http()
   },
 });
 
