@@ -282,7 +282,7 @@ export function DrawingCanvas({
       if (!blob) return;
 
       // Generate a style description based on the selected style and token name
-      const stylePrompt = `${tokenName} logo in ${selectedStyle} art style. High quality, professional token logo.`;
+      const stylePrompt = `${tokenName} logo in ${selectedStyle} art style. High quality meme image.`;
 
       // Call the stylization function
       await stylizeWithAI(blob, stylePrompt);

@@ -37,11 +37,11 @@ export async function POST(req: Request) {
       const fileArrayBuffer = await imageFile.arrayBuffer();
 
       // Create a professional enhancement prompt that includes the style preference
-      const enhancementPrompt = `Create a professional cryptocurrency token logo based on this ${prompt} style. 
-      Make it polished, vibrant, and suitable as a token logo on an exchange. 
+      const enhancementPrompt = `Create a vibrant meme image based on this ${prompt} style. 
+      Make it polished, vibrant, and suitable as a meme token. 
       It should be centered, with clean lines, and work well at different sizes. 
       Include some subtle depth and dimension, but keep it clear and recognizable.
-      Make the image distinct and memorable, perfect for a cryptocurrency token.`;
+      Make the image distinct and memorable, perfect for a meme token.`;
 
       const generationResponse = await openai.images.generate({
         model: "dall-e-3",
