@@ -11,3 +11,11 @@ REPORT_GAS=true npx hardhat test
 npx hardhat node
 npx hardhat ignition deploy ./ignition/modules/Lock.js
 ```
+
+
+```
+npx hardhat ignition deploy ignition/modules/Factory.js --network espressoOrbit --reset
+npx hardhat ignition deploy ignition/modules/Factory.js --network latteOrbit --reset
+npx hardhat run scripts/setPeers.js --network espressoOrbit
+npx hardhat run scripts/setPeers.js --network latteOrbit
+```
