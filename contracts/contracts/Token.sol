@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
-import { OFT } from "@layerzerolabs/oft-evm/contracts/OFT.sol";
+import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import {ERC20Burnable} from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
 
-contract Token is OFT {
+contract Token is ERC20, ERC20Burnable {
     address payable public owner;
     address public creator;
 
@@ -18,24 +19,31 @@ contract Token is OFT {
         string memory _name,
         string memory _symbol,
         string memory _metadataURI,
-        uint256 _totalSupply,
-        address _lzEndpoint
-    ) OFT(_name, _symbol, _lzEndpoint) {
+        uint256 _totalSupply
+    ) ERC20(_name, _symbol) {
         owner = payable(msg.sender);
         creator = _creator;
         metadataURI = _metadataURI;
         _mint(msg.sender, _totalSupply);
     }
 
-    // function mint(address receiver, uint256 mintQty) external {
-    //     require(msg.sender == owner, "Mint can only be called by the owner");
-    //     _mint(receiver, mintQty);
-    // }
+    function mint(address receiver, uint256 mintQty) external {
+        require(msg.sender == owner, "Mint can only be called by the owner");
+        _mint(receiver, mintQty);
+    }
 
-    // function burn(uint burnQty, address from) external {
-    //     require(msg.sender == owner, "Burn can only be called by the owner");
-    //     _burn(from, burnQty);
-    // }
+    // Override burn from ERC20Burnable to add owner check
+    function burn(uint256 amount) public override {
+        // allows owner or token holder to burn their own tokens
+        require(msg.sender == owner || msg.sender == _msgSender(), "Not authorized to burn"); 
+        super.burn(amount);
+    }
+
+    // Override burnFrom from ERC20Burnable to add owner check
+    function burnFrom(address account, uint256 amount) public override {
+        require(msg.sender == owner || msg.sender == account, "Not authorized to burn");
+        super.burnFrom(account, amount);
+    }
 
     // function _update(address from, address to, uint256 amount) internal virtual override{
     //     super._update(from, to, amount);

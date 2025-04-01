@@ -3,55 +3,71 @@ pragma solidity ^0.8.28;
 
 import {Token} from "./Token.sol";
 import "./NativeLiquidityPool.sol";
-import { OApp, Origin, MessagingFee } from "@layerzerolabs/oapp-evm/contracts/oapp/OApp.sol";
+import "./CrossChainMessenger.sol";
 
-contract Factory is OApp {
+contract Factory {
     uint256 public constant TARGET = 3 ether;
     uint256 public constant TOKEN_LIMIT = 500_000 ether;
     
     uint constant BASE_REWARD_PERCENTAGE = 3; // 3% reward
     uint256 public immutable fee;
     address public owner;
-    address public immutable lzEndpoint;
+    uint32 public immutable chainId; // Chain identifier
 
     uint256 public totalTokens;
     address[] public tokens;
-    //mapping(string => address) public tokenBySymbol;
+    mapping(string => address) public tokenBySymbol; // Maps token symbol to token address
     mapping(address => TokenSale) public tokenToSale;
     mapping(address => mapping(address => uint256)) public userTokenContributions;
     mapping(address => mapping(address => uint256)) public userEthContributions;
     mapping(address => mapping(address => bool)) public hasClaimedReward;
     mapping(address => address[]) public tokenContributors;
+    mapping(bytes32 => bool) public processedMessages; // Track processed cross-chain messages
 
     struct TokenSale {
         address token;
         string name;
+        string symbol;
         string metadataURI;
         address creator;
         uint256 sold;
         uint256 raised;
         bool isOpen;
         bool isLiquidityCreated;
+        bool isOriginChain; // Whether this chain originated the token
     }
 
     NativeLiquidityPool public nativeLiquidityPool;
+    CrossChainMessenger public crossChainMessenger;
     
-    event Created(address indexed token);
+    event Created(address indexed token, string symbol, bool isOriginChain);
     event RewardClaimed(address indexed user, address indexed token, uint256 amount);
+    event TokenCreatedOnOtherChain(address indexed token, string symbol, uint32 indexed chainId);
+    event TokensBridged(address indexed token, string symbol, address indexed user, uint256 amount, uint32 targetChainId);
+    event TokensReceived(address indexed token, string symbol, address indexed user, uint256 amount, uint32 sourceChainId);
 
     modifier onlyOwner() {
         require(msg.sender == owner, "Only owner can call this function");
         _;
     }
 
-    constructor(uint256 _fee, address _lzEndpoint) OApp(_lzEndpoint, msg.sender){
+    modifier onlyCrossChainMessenger() {
+        require(msg.sender == address(crossChainMessenger), "Only CrossChainMessenger can call");
+        _;
+    }
+
+    constructor(uint256 _fee, uint32 _chainId) {
         fee = _fee;
         owner = msg.sender;
-        lzEndpoint = _lzEndpoint;
+        chainId = _chainId;
     }
 
     function setLiquidityPool(address _liquidityPool) external onlyOwner {
         nativeLiquidityPool = NativeLiquidityPool(_liquidityPool);
+    }
+
+    function setCrossChainMessenger(address _messenger) external onlyOwner {
+        crossChainMessenger = CrossChainMessenger(_messenger);
     }
 
     function create(
@@ -61,26 +77,141 @@ contract Factory is OApp {
         address _creator
     ) external payable {
         require(msg.value >= fee, "Creator fee not met");
-        //require(tokenBySymbol[_symbol] == address(0), "Token with this symbol already exists");
-        // Default to msg.sender if _creator is zero address
+        require(tokenBySymbol[_symbol] == address(0), "already exists");
         if (_creator == address(0)) {
             _creator = msg.sender;
         }
 
-        Token token = new Token(_creator, _name, _symbol, _metadataURI, 1_000_000 ether, lzEndpoint);
+        // Create token on this chain with full supply since we're the origin
+        Token token = new Token(
+            _creator,
+            _name,
+            _symbol,
+            _metadataURI,
+            TOKEN_LIMIT // Mint full supply since we're the origin chain
+        );
+
+        // Add token to list and mappings
         tokens.push(address(token));
         totalTokens++;
+        tokenBySymbol[_symbol] = address(token);
 
-        TokenSale memory sale = TokenSale(address(token), _name, _metadataURI, _creator, 0, 0, true, false);
+        TokenSale memory sale = TokenSale(
+            address(token),
+            _name,
+            _symbol,
+            _metadataURI,
+            _creator,
+            0,
+            0,
+            true,
+            false,
+            true // This is the origin chain for this token
+        );
         tokenToSale[address(token)] = sale;
 
-        emit Created(address(token));
+        // Send message to other chain to create token
+        crossChainMessenger.sendCreateTokenToOtherChain{value: msg.value}(
+            _name,
+            _symbol,
+            _metadataURI,
+            _creator
+        );
+
+        emit Created(address(token), _symbol, true);
     }
 
+    function handleTokenCreatedOnOtherChain(
+        string memory _name,
+        string memory _symbol,
+        string memory _metadataURI,
+        address _creator,
+        uint32 _sourceChainId,
+        bytes32 _messageId
+    ) external onlyCrossChainMessenger {
+        require(!processedMessages[_messageId], "Message already processed");
+        processedMessages[_messageId] = true;
+        
+        Token token = new Token(
+            _creator,
+            _name,
+            _symbol,
+            _metadataURI,
+            0 // No initial supply since we're not the origin chain
+        );
 
-    function buy(address _token, uint256 _amount) external payable{
+        // Add token to list and mappings
+        tokens.push(address(token));
+        totalTokens++;
+        tokenBySymbol[_symbol] = address(token);
+
+        TokenSale memory sale = TokenSale(
+            address(token),
+            _name,
+            _symbol,
+            _metadataURI,
+            _creator,
+            0,
+            0,
+            false, // Not open for sale on non-origin chain
+            false,
+            false // This is not the origin chain for this token
+        );
+        tokenToSale[address(token)] = sale;
+
+        emit TokenCreatedOnOtherChain(address(token), _symbol, _sourceChainId);
+    }
+
+    function bridgeTokens(
+        string memory _symbol,
+        uint256 _amount,
+        uint32 _targetChainId
+    ) external {
+        require(_targetChainId != chainId, "Cannot bridge to same chain");
+        require(_amount > 0, "Amount must be greater than 0");
+        
+        address tokenAddress = tokenBySymbol[_symbol];
+        require(tokenAddress != address(0), "Token does not exist");
+        
+        Token token = Token(tokenAddress);
+        require(token.balanceOf(msg.sender) >= _amount, "Insufficient balance");
+        
+        // Burn tokens on this chain
+        token.burnFrom(msg.sender, _amount);
+        
+        // Send message to other chain to mint tokens
+        crossChainMessenger.sendBridgeTokensToOtherChain(
+            _symbol,
+            msg.sender,
+            _amount,
+            _targetChainId
+        );
+
+        emit TokensBridged(tokenAddress, _symbol, msg.sender, _amount, _targetChainId);
+    }
+
+    function handleBridgeTokensReceived(
+        string memory _symbol,
+        address _recipient,
+        uint256 _amount,
+        uint32 _sourceChainId,
+        bytes32 _messageId
+    ) external onlyCrossChainMessenger {
+        require(!processedMessages[_messageId], "Message already processed");
+        processedMessages[_messageId] = true;
+
+        address tokenAddress = tokenBySymbol[_symbol];
+        require(tokenAddress != address(0), "Token does not exist");
+
+        // Mint tokens on this chain
+        Token(tokenAddress).mint(_recipient, _amount);
+
+        emit TokensReceived(tokenAddress, _symbol, _recipient, _amount, _sourceChainId);
+    }
+
+    function buy(address _token, uint256 _amount) external payable {
         TokenSale storage sale = tokenToSale[_token];
-
+        require(sale.isOriginChain, "Can only buy on origin chain");
         require(sale.token != address(0) && sale.isOpen, "!available");
         require(_amount >= 1 ether && _amount <= 10000 ether, "!amount");
         
@@ -190,47 +321,5 @@ contract Factory is OApp {
     // function getTokenBySymbol(string memory _symbol) public view returns (address) {
     //     return tokenBySymbol[_symbol];
     // }
-
-    function sendLaunchToRemoteChain(
-        uint32 dstEid,
-        string memory _name,
-        string memory _symbol,
-        string memory _metadataURI,
-        address _creator,
-        bytes memory options
-    ) external payable {
-        bytes memory payload = abi.encode(_name, _symbol, _metadataURI, _creator);
-        _lzSend(dstEid, payload, options, MessagingFee(msg.value, 0), payable(msg.sender));
-    }
-
-    function _lzReceive(
-        Origin calldata, // not needed for now
-        bytes32,         // guid
-        bytes calldata payload,
-        address,         // executor
-        bytes calldata   // extra data
-    ) internal override {
-        (
-            string memory _name, 
-            string memory _symbol, 
-            string memory _metadataURI, 
-            address _creator
-        ) = abi.decode(payload, (string, string, string, address));
-        
-        _createCrossChainToken(_name, _symbol, _metadataURI, _creator);
-    }
-
-    function _createCrossChainToken(
-        string memory _name,
-        string memory _symbol,
-        string memory _metadataURI,
-        address _creator
-    ) internal {
-        Token token = new Token(_creator, _name, _symbol, _metadataURI, 1_000_000 ether, lzEndpoint);
-        tokens.push(address(token));
-        totalTokens++;
-        tokenToSale[address(token)] = TokenSale(address(token), _name, _metadataURI, _creator, 0, 0, true, false);
-        emit Created(address(token));
-    }
 
 } 
