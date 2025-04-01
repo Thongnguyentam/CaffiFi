@@ -52,6 +52,7 @@ contract CrossChainMessenger {
     // Message types for different operations
     uint8 constant MSG_TYPE_CREATE_TOKEN = 1;
     uint8 constant MSG_TYPE_BRIDGE_TOKENS = 2;
+    uint8 constant MSG_TYPE_LIQUIDITY_CREATED = 3;
     
     event MessageSentToChain(
         uint256 indexed messageNum,
@@ -188,6 +189,50 @@ contract CrossChainMessenger {
     }
     
     /**
+     * @notice Sends a message to notify other chains that liquidity has been created
+     * @param _symbol Token symbol
+     */
+    function sendLiquidityCreatedToOtherChain(
+        string memory _symbol
+    ) external {
+        require(msg.sender == address(factory), "Only factory can call");
+        
+        bytes32 messageId = keccak256(abi.encodePacked(
+            block.timestamp,
+            msg.sender,
+            _symbol,
+            "LIQUIDITY_CREATED"
+        ));
+
+        // Encode the message data
+        bytes memory data = abi.encode(MSG_TYPE_LIQUIDITY_CREATED,
+            messageId,
+            _symbol
+        );
+        
+        // Calculate submission cost with current block's base fee
+        uint256 baseFee = block.basefee;
+        uint256 submissionCost = inbox.calculateRetryableSubmissionFee(
+            data.length,
+            baseFee
+        );
+        
+        // Send message to other chain
+        uint256 messageNum = inbox.createRetryableTicket{value: submissionCost}(
+            targetFactory,
+            0,
+            submissionCost,
+            msg.sender,
+            msg.sender,
+            3000000,
+            baseFee * 2,
+            data
+        );
+        
+        emit MessageSentToChain(messageNum, msg.sender, targetChainId, data);
+    }
+    
+    /**
      * @notice Processes messages received from the other chain
      * @param sender The sender's address on the other chain
      * @param data The message data
@@ -231,6 +276,18 @@ contract CrossChainMessenger {
                 symbol,
                 recipient,
                 amount,
+                targetChainId,
+                messageId
+            );
+        } else if (msgType == MSG_TYPE_LIQUIDITY_CREATED) {
+            (
+                ,
+                bytes32 messageId,
+                string memory symbol
+            ) = abi.decode(data, (uint8, bytes32, string));
+            
+            factory.handleLiquidityCreatedOnOtherChain(
+                symbol,
                 targetChainId,
                 messageId
             );

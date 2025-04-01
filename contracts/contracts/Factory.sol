@@ -45,6 +45,7 @@ contract Factory {
     event TokenCreatedOnOtherChain(address indexed token, string symbol, uint32 indexed chainId);
     event TokensBridged(address indexed token, string symbol, address indexed user, uint256 amount, uint32 targetChainId);
     event TokensReceived(address indexed token, string symbol, address indexed user, uint256 amount, uint32 sourceChainId);
+    event LiquidityCreatedNotified(string symbol, uint32 sourceChainId);
 
     modifier onlyOwner() {
         require(msg.sender == owner, "Only owner can call this function");
@@ -252,6 +253,11 @@ contract Factory {
 
         memeTokenCt.approve(address(nativeLiquidityPool), tokenBalance);
         nativeLiquidityPool.addLiquidity{value: sale.raised}(_token, tokenBalance, contributors, contributorAmounts);
+
+        // After liquidity is created, notify other chains
+        if (sale.isOriginChain) {
+            crossChainMessenger.sendLiquidityCreatedToOtherChain(sale.symbol);
+        }
     }
 
     function calculateReward(address _token, address user) internal view returns (uint256) {
@@ -316,6 +322,31 @@ contract Factory {
         require(sale.isOpen, "!available");
 
         return getCost(sale.sold) * (_amount / 10 ** 18);
+    }
+
+    /**
+     * @notice Handle notification that liquidity was created on another chain
+     * @param _symbol Token symbol
+     * @param _sourceChainId Source chain ID
+     * @param _messageId Message ID for deduplication
+     */
+    function handleLiquidityCreatedOnOtherChain(
+        string memory _symbol,
+        uint32 _sourceChainId,
+        bytes32 _messageId
+    ) external onlyCrossChainMessenger {
+        require(!processedMessages[_messageId], "Message already processed");
+        processedMessages[_messageId] = true;
+
+        address tokenAddress = tokenBySymbol[_symbol];
+        require(tokenAddress != address(0), "Token does not exist");
+
+        TokenSale storage sale = tokenToSale[tokenAddress];
+        require(!sale.isOriginChain, "Must not be origin chain");
+        
+        sale.isLiquidityCreated = true;
+        
+        emit LiquidityCreatedNotified(_symbol, _sourceChainId);
     }
 
     // function getTokenBySymbol(string memory _symbol) public view returns (address) {
