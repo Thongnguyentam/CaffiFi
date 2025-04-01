@@ -36,6 +36,7 @@ contract Factory {
     
     event Created(address indexed token);
     event RewardClaimed(address indexed user, address indexed token, uint256 amount);
+    event Burned(address indexed user, address indexed token, uint256 amount);
 
     modifier onlyOwner() {
         require(msg.sender == owner, "Only owner can call this function");
@@ -132,6 +133,7 @@ contract Factory {
         return (sale.raised * BASE_REWARD_PERCENTAGE * userTokens) / (sale.sold * 100);
     }
  
+    
     function claimReward(address _token) public {
         require(tokenToSale[_token].isLiquidityCreated, "Liquidity not created yet");
         require(!hasClaimedReward[_token][msg.sender], "Reward already claimed");
@@ -182,6 +184,19 @@ contract Factory {
         require(sale.isOpen, "!available");
 
         return getCost(sale.sold) * (_amount / 10 ** 18);
+    }
+
+    function swap(address _token, uint256 _amount) external {
+        require(_amount > 0, "Amount must be greater than 0");
+        require(Token(_token).balanceOf(msg.sender) >= _amount, "Insufficient token balance");
+        
+        // Transfer tokens from user to this contract
+        require(Token(_token).transferFrom(msg.sender, address(this), _amount), "Transfer failed");
+        
+        // Burn the tokens
+        Token(_token).burn(_amount, address(this));
+        
+        emit Burned(msg.sender, _token, _amount);
     }
 
     // function getTokenBySymbol(string memory _symbol) public view returns (address) {
