@@ -18,6 +18,7 @@ import {
   AlertCircle,
   CupSoda,
   Loader2,
+  CheckCircle,
 } from "lucide-react";
 import {
   Pagination,
@@ -230,6 +231,7 @@ const mockTokens: MemeToken[] = [
 interface ExtendedMemeToken extends MemeToken {
   id?: string;
   token?: string;
+  image?: string;
   volume24h?: string;
   holders?: string;
   launchDate?: string;
@@ -244,182 +246,62 @@ const TokenCard = ({
   token: ExtendedMemeToken;
   index: number;
 }) => {
-  const needsMarquee = token.name.length > 15;
-  const [imageError, setImageError] = useState(false);
-
-  // Determine the token identifier to use in the URL
-  // Prefer token address if available, otherwise use symbol
-  const tokenIdentifier = token.token || token.symbol;
-
-  console.log(
-    `TokenCard ${index} - Name: ${token.name}, Symbol: ${token.symbol}, Token ID: ${tokenIdentifier}`
-  );
-
   return (
-    <div className="w-full group">
-      <div className="relative overflow-hidden border rounded-2xl border-[#8B4513]/40 bg-[#1a0f02]/90 backdrop-blur-xl shadow-md hover:shadow-[0_4px_12px_rgba(139,69,19,0.3)] transition-all">
-        {/* Image Container */}
-        <Link href={`/token/${tokenIdentifier}`} className="block">
-          <div className="relative flex items-center justify-center overflow-hidden bg-[#3a1e0a] aspect-square">
-            {/* Background placeholder */}
-            <div
-              className="absolute inset-0 w-full h-full"
-              style={{
-                backgroundImage: `url(${DEFAULT_TOKEN_IMAGE})`,
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-                opacity: imageError ? 1 : 0.5,
-              }}
-            />
-
-            {/* Next.js Image with error handling */}
-            {!imageError && (
-              <Image
-                src={
-                  token.imageUrl && token.imageUrl.startsWith("http")
-                    ? token.imageUrl
-                    : token.imageUrl || DEFAULT_TOKEN_IMAGE
-                }
-                alt={token.name}
-                width={400}
-                height={400}
-                className="absolute inset-0 object-cover w-full h-full"
-                priority={index < 4}
-                onError={() => setImageError(true)}
-                unoptimized={
-                  !!(token.imageUrl && token.imageUrl.startsWith("http"))
-                }
-                style={{ maxWidth: "100%" }}
-              />
-            )}
-
-            {/* Price Change Badge */}
-            <div className="absolute z-20 top-4 right-4">
-              <div className="bg-[#1a0f02]/90 rounded-lg px-2.5 py-1 border border-[#8B4513]/40">
-                <div className="flex items-center gap-1">
-                  {token.priceChange > 0 ? (
-                    <ArrowUpRight className="h-3.5 w-3.5 text-[#d4b37f]" />
-                  ) : (
-                    <ArrowDownRight className="h-3.5 w-3.5 text-red-400" />
-                  )}
-                  <span
-                    className={`text-[11px] font-medium ${
-                      token.priceChange > 0 ? "text-[#d4b37f]" : "text-red-400"
-                    }`}
-                  >
-                    {Math.abs(token.priceChange).toFixed(2)}%
-                  </span>
-                </div>
-              </div>
+    <div className="bg-[#1c1917] rounded-2xl overflow-hidden border border-[#2a2422] transition-all hover:translate-y-[-4px] hover:shadow-[0_12px_24px_rgba(0,0,0,0.2)] hover:border-[#c9804a]">
+      <img
+        src={token.imageUrl || "/placeholder.png"}
+        alt={token.name}
+        className="w-full h-[350px] object-cover object-center"
+      />
+      <div className="p-5">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center">
+            <div className="text-xs font-semibold px-2 py-1 bg-[#231f1c] rounded text-[#e0d6cf] mr-2">
+              ${token.symbol}
+            </div>
+            <div className="text-base font-semibold text-[#e0d6cf]">
+              {token.name}
             </div>
           </div>
-        </Link>
-
-        {/* Content */}
-        <div className="p-4">
-          <div className="flex items-start justify-between gap-2">
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <div className="flex items-center gap-1.5">
-                  <Link href={`/token/${tokenIdentifier}`}>
-                    <h3 className="text-sm font-medium text-[#e8d5a9] transition-colors hover:text-[#d4b37f]">
-                      {needsMarquee ? (
-                        <div className="w-[120px] overflow-hidden">
-                          <Marquee gradient={false} speed={20}>
-                            <span>{token.name}</span>
-                            <span className="mx-2">•</span>
-                          </Marquee>
-                        </div>
-                      ) : (
-                        token.name
-                      )}
-                    </h3>
-                  </Link>
-                  <Badge
-                    variant="secondary"
-                    className="h-5 px-1.5 text-[10px] font-mono bg-[#8B4513]/40 text-[#d4b37f]"
-                  >
-                    ${token.symbol}
-                  </Badge>
-                </div>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <Badge
-                  variant="outline"
-                  className="h-5 px-1.5 text-[10px] font-mono bg-[#3a1e0a]/40 border-[#8B4513]/40 text-[#d4b37f]"
-                >
-                  Rank #{index + 1}
-                </Badge>
-                {index < 3 && (
-                  <Badge className="h-5 px-1.5 text-[10px] bg-[#A0522D]/20 text-[#e8d5a9] border-[#8B4513]/40">
-                    Trending
-                  </Badge>
-                )}
-              </div>
-            </div>
-            <div className="text-right">
-              <div className="font-mono text-sm font-medium text-[#e8d5a9]">
-                ${token.price}
-              </div>
-              <div className="text-[10px] text-[#d4b37f]/70">
-                MC: ${token.marketCap}
-              </div>
-            </div>
+          <div className="text-xs font-medium px-2 py-1 bg-[#231f1c] rounded text-[#e0d6cf]">
+            Rank #{index + 1}
           </div>
+        </div>
 
-          <p className="mt-3 text-[13px] text-[#e8d5a9]/70 line-clamp-2">
-            {token.description}
-          </p>
+        <div className="text-xl font-bold text-[#e0d6cf] mb-1">
+          ${token.price}{" "}
+          <span
+            className={`text-sm font-normal ${
+              token.priceChange >= 0 ? "text-[#34d399]" : "text-[#f87171]"
+            }`}
+          >
+            {token.priceChange >= 0 ? "+" : ""}
+            {token.priceChange}%
+          </span>
+        </div>
 
-          {/* Token Metrics */}
-          <div className="grid grid-cols-2 gap-4 py-3 mt-3 border-y border-[#8B4513]/40">
-            <div>
-              <div className="text-[10px] text-[#d4b37f]/70 mb-0.5">
-                Volume 24h
-              </div>
-              <div className="font-mono text-sm font-medium text-[#d4b37f]">
-                {token.volume24h}
-              </div>
-            </div>
-            <div>
-              <div className="text-[10px] text-[#d4b37f]/70 mb-0.5">
-                Holders
-              </div>
-              <div className="font-mono text-sm font-medium text-[#8B4513]">
-                {token.holders}
-              </div>
-            </div>
+        <div className="text-xs text-[#a08d80] mb-4">
+          MC: ${token.marketCap}
+        </div>
+
+        <div className="flex gap-2 mb-4">
+          <div className="text-xs px-2 py-1 bg-[#231f1c] rounded flex items-center text-[#f59e0b]">
+            <TrendingUp className="w-3 h-3 mr-1" />
+            Trending
           </div>
-
-          <div className="flex items-center justify-between mt-3">
-            <div className="flex items-center gap-2">
-              <button className="p-1.5 hover:bg-[#8B4513]/20 rounded-full transition-colors">
-                <Globe className="h-3.5 w-3.5 text-[#d4b37f]/70 hover:text-[#e8d5a9]" />
-              </button>
-              <button className="p-1.5 hover:bg-[#8B4513]/20 rounded-full transition-colors">
-                <Twitter className="h-3.5 w-3.5 text-[#d4b37f]/70 hover:text-[#e8d5a9]" />
-              </button>
-              <button className="p-1.5 hover:bg-[#8B4513]/20 rounded-full transition-colors">
-                <Telegram className="h-3.5 w-3.5 text-[#d4b37f]/70 hover:text-[#e8d5a9]" />
-              </button>
-            </div>
-            <div className="flex items-center gap-1">
-              <Shield className="h-3.5 w-3.5 text-[#d4b37f]" />
-              <span className="text-[10px] text-[#e8d5a9]/70">Verified</span>
-            </div>
+          <div className="text-xs px-2 py-1 bg-[#231f1c] rounded flex items-center text-[#34d399]">
+            <CheckCircle className="w-3 h-3 mr-1" />
+            Verified
           </div>
+        </div>
 
-          {/* Buy Button */}
-          <div className="mt-4">
-            <Link href={`/token/${tokenIdentifier}`}>
-              <Button
-                className="w-full bg-[#8B4513] hover:bg-[#A0522D] text-[#e8d5a9] border border-[#8B4513]/60"
-                size="sm"
-              >
-                Buy {token.symbol}
-              </Button>
-            </Link>
-          </div>
+        <div className="flex gap-3">
+          <button className="flex-1 py-2.5 px-4 bg-[#c9804a] text-[#1c1917] rounded-lg font-medium hover:bg-[#b77440] transition-colors">
+            Buy {token.symbol}
+          </button>
+          <button className="flex-1 py-2.5 px-4 bg-[#231f1c] text-[#e0d6cf] rounded-lg font-medium border border-[#2a2422] hover:bg-[#2a2422] transition-colors">
+            Details
+          </button>
         </div>
       </div>
     </div>
@@ -530,6 +412,8 @@ export default function MarketplacePage() {
         return;
       }
 
+      console.log("Blockchain tokens found:", blockchainTokens);
+
       // Process tokens and get prices
       const formattedTokensPromises = blockchainTokens.map(async (token) => {
         let tokenPrice = "0";
@@ -539,22 +423,27 @@ export default function MarketplacePage() {
               token: token.token,
               name: token.name,
               creator: token.creator,
-              sold: token.sold,
-              raised: token.raised,
+              sold: token.sold || BigInt(0),
+              raised: token.raised || BigInt(0),
               isOpen: token.isOpen,
               metadataURI: token.image || "",
             };
 
-            const price = await testTokenService.testGetPriceForTokens(
-              tokenSaleData,
-              BigInt(1)
-            );
-            tokenPrice = ethers.formatEther(price);
+            try {
+              const price = await testTokenService.testGetPriceForTokens(
+                tokenSaleData,
+                BigInt(1)
+              );
+              tokenPrice = ethers.formatEther(price);
+            } catch (priceError) {
+              console.error(
+                `Error fetching price for token ${token.name}:`,
+                priceError
+              );
+              tokenPrice = "0";
+            }
           } catch (error) {
-            console.error(
-              `Error fetching price for token ${token.name}:`,
-              error
-            );
+            console.error(`Error processing token ${token.name}:`, error);
             tokenPrice = "0";
           }
         }
@@ -567,9 +456,11 @@ export default function MarketplacePage() {
           description: token.description || "No description available",
           imageUrl: token.image || DEFAULT_TOKEN_IMAGE,
           price: tokenPrice,
-          marketCap: (Number(token.raised) / 1e18).toFixed(2) + "k",
+          marketCap:
+            (parseFloat(token.raised?.toString() || "0") / 1e18).toFixed(2) +
+            "k",
           priceChange: Math.random() * 20 - 10, // Random for now
-          fundingRaised: token.raised.toString(),
+          fundingRaised: token.raised?.toString() || "0",
           chain: "ethereum",
           volume24h: "$" + (Math.random() * 100000).toFixed(2),
           holders: (Math.random() * 1000).toFixed(0),
@@ -584,15 +475,23 @@ export default function MarketplacePage() {
         Boolean
       ) as ExtendedMemeToken[];
 
+      console.log("Formatted tokens:", validTokens);
+
       if (validTokens.length > 0) {
         setRealTokens(validTokens);
         setHasRealTokens(true);
         // Update the tokens state with real tokens
         setTokens(validTokens);
+      } else {
+        // If no valid tokens after processing, show mock tokens
+        setHasRealTokens(false);
+        // We can either show mockTokens or empty array here
+        setTokens([]);
       }
     } catch (error) {
       console.error("Error fetching blockchain tokens:", error);
       setHasRealTokens(false);
+      setTokens([]);
     } finally {
       setIsLoading(false);
     }
