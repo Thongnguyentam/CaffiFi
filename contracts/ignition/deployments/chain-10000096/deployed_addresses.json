@@ -1,5 +1,6 @@
 {
-  "FactoryModule#Factory": "0xCb6DF4886d95aAeF54dfAd0887ec69af5899f885",
-  "FactoryModule#LaunchpadAgent": "0x20db875112FF5083267A3C19C3812de5eb3C4C8C",
-  "FactoryModule#NativeLiquidityPool": "0x7784f99F10b318D41Ea040d4EaAd8f385Ad1f511"
+  "FactoryModule#Factory": "0xCF13A928a0027DF4B3AF85f8D930c0A2ee892cD2",
+  "FactoryModule#CrossChainMessenger": "0x2b74fE73983c8c786B1836F3c13c35C9b0Fc6843",
+  "FactoryModule#LaunchpadAgent": "0xB8aB193ec3F4F3Cd99cDD804E5D4588328418134",
+  "FactoryModule#NativeLiquidityPool": "0xEd0A66CAb6503A3FC13747ff78147735c3d90598"
 }

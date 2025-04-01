@@ -46,6 +46,8 @@ contract Factory {
     event TokensBridged(address indexed token, string symbol, address indexed user, uint256 amount, uint32 targetChainId);
     event TokensReceived(address indexed token, string symbol, address indexed user, uint256 amount, uint32 sourceChainId);
     event LiquidityCreatedNotified(string symbol, uint32 sourceChainId);
+    event PeerFactorySet(uint32 indexed chainId, address indexed factory);
+    event PeerFactoryRemoved(uint32 indexed chainId);
 
     modifier onlyOwner() {
         require(msg.sender == owner, "Only owner can call this function");
@@ -69,6 +71,36 @@ contract Factory {
 
     function setCrossChainMessenger(address _messenger) external onlyOwner {
         crossChainMessenger = CrossChainMessenger(_messenger);
+    }
+
+    /**
+     * @notice Add or update a peer factory on another chain
+     * @param targetChainId The chain ID of the peer
+     * @param peerFactory The address of the factory on that chain
+     */
+    function setPeerFactory(uint32 targetChainId, address peerFactory) external onlyOwner {
+        require(targetChainId != chainId, "Cannot set peer for current chain");
+        require(peerFactory != address(0), "Invalid peer factory address");
+        
+        crossChainMessenger.setPeerFactory(targetChainId, peerFactory);
+        emit PeerFactorySet(targetChainId, peerFactory);
+    }
+
+    /**
+     * @notice Remove a peer factory
+     * @param targetChainId The chain ID of the peer to remove
+     */
+    function removePeerFactory(uint32 targetChainId) external onlyOwner {
+        crossChainMessenger.removePeerFactory(targetChainId);
+        emit PeerFactoryRemoved(targetChainId);
+    }
+
+    /**
+     * @notice Get all peer chain IDs
+     * @return Array of chain IDs
+     */
+    function getPeerChainIds() external view returns (uint32[] memory) {
+        return crossChainMessenger.getPeerChainIds();
     }
 
     function create(
@@ -111,13 +143,19 @@ contract Factory {
         );
         tokenToSale[address(token)] = sale;
 
-        // Send message to other chain to create token
-        crossChainMessenger.sendCreateTokenToOtherChain{value: msg.value}(
-            _name,
-            _symbol,
-            _metadataURI,
-            _creator
-        );
+        // Send message to all peer chains to create token
+        uint32[] memory peers = crossChainMessenger.getPeerChainIds();
+        uint256 msgValuePerChain = msg.value / peers.length;
+        
+        for (uint i = 0; i < peers.length; i++) {
+            crossChainMessenger.sendCreateTokenToOtherChain{value: msgValuePerChain}(
+                peers[i],
+                _name,
+                _symbol,
+                _metadataURI,
+                _creator
+            );
+        }
 
         emit Created(address(token), _symbol, true);
     }
@@ -166,9 +204,8 @@ contract Factory {
     function bridgeTokens(
         string memory _symbol,
         uint256 _amount,
-        uint32 _targetChainId
+        uint32 targetChainId
     ) external {
-        require(_targetChainId != chainId, "Cannot bridge to same chain");
         require(_amount > 0, "Amount must be greater than 0");
         
         address tokenAddress = tokenBySymbol[_symbol];
@@ -180,15 +217,15 @@ contract Factory {
         // Burn tokens on this chain
         token.burnFrom(msg.sender, _amount);
         
-        // Send message to other chain to mint tokens
+        // Send message to target chain to mint tokens
         crossChainMessenger.sendBridgeTokensToOtherChain(
+            targetChainId,
             _symbol,
             msg.sender,
-            _amount,
-            _targetChainId
+            _amount
         );
 
-        emit TokensBridged(tokenAddress, _symbol, msg.sender, _amount, _targetChainId);
+        emit TokensBridged(tokenAddress, _symbol, msg.sender, _amount, targetChainId);
     }
 
     function handleBridgeTokensReceived(
@@ -254,9 +291,15 @@ contract Factory {
         memeTokenCt.approve(address(nativeLiquidityPool), tokenBalance);
         nativeLiquidityPool.addLiquidity{value: sale.raised}(_token, tokenBalance, contributors, contributorAmounts);
 
-        // After liquidity is created, notify other chains
+        // After liquidity is created, notify all peer chains
         if (sale.isOriginChain) {
-            crossChainMessenger.sendLiquidityCreatedToOtherChain(sale.symbol);
+            uint32[] memory peers = crossChainMessenger.getPeerChainIds();
+            for (uint i = 0; i < peers.length; i++) {
+                crossChainMessenger.sendLiquidityCreatedToOtherChain(
+                    peers[i],
+                    sale.symbol
+                );
+            }
         }
     }
 

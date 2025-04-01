@@ -18,9 +18,10 @@ espressoTEEVerifier	0x8354db765810dF8F24f1477B06e91E5b17a408bF
 ```
 
 Contract addresses on Devnet Mocha:
-- **Factory**: 
-- **Launchpad Agent**: 
-- **Native Liquidity Pool**: 
+- **Factory**: 0xCF13A928a0027DF4B3AF85f8D930c0A2ee892cD2
+- **Messenger**: 0x2b74fE73983c8c786B1836F3c13c35C9b0Fc6843
+- **Launchpad Agent**: 0xB8aB193ec3F4F3Cd99cDD804E5D4588328418134
+- **Native Liquidity Pool**: 0xEd0A66CAb6503A3FC13747ff78147735c3d90598
 - **Bookie Bet**: 
 
 ### Devnet Latte (chainId: 10000099):
@@ -53,7 +54,7 @@ Contract addresses on Devnet Latte:
 ```
 cast call \
 --rpc-url https://arbitrum-sepolia-rpc.publicnode.com \
-0xa9dDe469178A115f0c862f3AEf64053E347AA40b \
+0xce8Ab94607b01BAEa7032C9055335800438adF03 \
 "latestConfirmed()(uint256)"
 ```
 
@@ -62,7 +63,7 @@ cast send --rpc-url https://arbitrum-sepolia-rpc.publicnode.com 0x6353d578392261
 ```
 
 ```
-cast send --rpc-url https://arbitrum-sepolia-rpc.publicnode.com 0x6353d578392261dE652b02D13d8079147C729cae 'depositEth() external payable returns (uint256)' --private-key bdf23c7f17c40c6a5cd3f193daea787bc27e0d64b75fc2618449182819357d24  --value 1000 -vvvv
+cast send --rpc-url https://arbitrum-sepolia-rpc.publicnode.com 0x6353d578392261dE652b02D13d8079147C729cae 'depositEth() external payable returns (uint256)' --private-key bdf23c7f17c40c6a5cd3f193daea787bc27e0d64b75fc2618449182819357d24  --value 100000000000000000 -vvvv
 ```
 
 Check recipient balance: 
@@ -79,5 +80,5 @@ npx hardhat ignition deploy ignition/modules/Factory.js --network espressoOrbit 
 
 Call the Factory:
 ```
-cast call   0x7cEbB1BAe1E148c1f1A0f30B306E898DA05f12dc   "fee()(uint256)"   --rpc-url http://127.0.0.1:8547
+cast call   0xCF13A928a0027DF4B3AF85f8D930c0A2ee892cD2   "fee()(uint256)"   --rpc-url http://127.0.0.1:8547
 ```

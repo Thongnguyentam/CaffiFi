@@ -13,7 +13,15 @@ module.exports = {
       },
   },
   ignition: {
-    requiredConfirmations: 1
+    // Ignition specific settings
+    moduleCompilationOpts: {
+      optimizer: {
+        enabled: true,
+        runs: 100,
+      },
+    },
+    // Set low confirmations for faster testing
+    requiredConfirmations: 1,
   },
   
   gasReporter: {
@@ -39,19 +47,9 @@ module.exports = {
     latteOrbit: {
       url: "http://127.0.0.1:8647",
       chainId: 10000099,
-      accounts: ["0c6aaedebed8f32db344a74f5fda724c42a1b7053450ebfecd29ba0e0922dd6b"],
+      accounts: ["bdf23c7f17c40c6a5cd3f193daea787bc27e0d64b75fc2618449182819357d24"],
       gas: 8000000, // <- manually set gas limit
       gasPrice: 1000000000 // optional: set fixed gas price
-    },
-    sonic_blaze_testnet: {
-      url: "https://rpc.blaze.soniclabs.com",
-      chainId: 57054, // Replace with the correct chain ID
-      accounts: ["0c6aaedebed8f32db344a74f5fda724c42a1b7053450ebfecd29ba0e0922dd6b"] 
-    },
-    arbitrum_sepolia: {
-      url: "https://arbitrum-sepolia.drpc.org",
-      chainId: 421614,
-      accounts: ["0c6aaedebed8f32db344a74f5fda724c42a1b7053450ebfecd29ba0e0922dd6b"] 
     }
-}
+  }
 };

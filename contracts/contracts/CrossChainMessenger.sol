@@ -45,9 +45,10 @@ contract CrossChainMessenger {
     IOutbox public immutable outbox;
     Factory public immutable factory;
     
-    // Target factory on the other chain
-    address public immutable targetFactory;
-    uint32 public immutable targetChainId;
+    // Mapping of chain ID to peer factory address
+    mapping(uint32 => address) public peerFactories;
+    // Array to keep track of all peer chain IDs
+    uint32[] public peerChainIds;
     
     // Message types for different operations
     uint8 constant MSG_TYPE_CREATE_TOKEN = 1;
@@ -66,37 +67,90 @@ contract CrossChainMessenger {
         uint32 indexed sourceChainId,
         bytes data
     );
+
+    event PeerFactoryAdded(uint32 indexed chainId, address indexed factory);
+    event PeerFactoryRemoved(uint32 indexed chainId);
     
     constructor(
         address _inbox,
         address _bridge,
         address _outbox,
-        address _factory,
-        address _targetFactory,
-        uint32 _targetChainId
+        address _factory
     ) {
         inbox = IInbox(_inbox);
         bridge = IBridge(_bridge);
         outbox = IOutbox(_outbox);
         factory = Factory(_factory);
-        targetFactory = _targetFactory;
-        targetChainId = _targetChainId;
+    }
+
+    modifier onlyFactory() {
+        require(msg.sender == address(factory), "Only factory can call");
+        _;
+    }
+
+    /**
+     * @notice Add or update a peer factory for a specific chain
+     * @param chainId The chain ID of the peer
+     * @param peerFactory The address of the factory on that chain
+     */
+    function setPeerFactory(uint32 chainId, address peerFactory) external onlyFactory {
+        require(peerFactory != address(0), "Invalid peer factory address");
+        require(chainId != block.chainid, "Cannot add peer for current chain");
+        
+        if (peerFactories[chainId] == address(0)) {
+            peerChainIds.push(chainId);
+        }
+        peerFactories[chainId] = peerFactory;
+        
+        emit PeerFactoryAdded(chainId, peerFactory);
+    }
+
+    /**
+     * @notice Remove a peer factory
+     * @param chainId The chain ID of the peer to remove
+     */
+    function removePeerFactory(uint32 chainId) external onlyFactory {
+        require(peerFactories[chainId] != address(0), "Peer factory doesn't exist");
+        
+        delete peerFactories[chainId];
+        
+        // Remove chain ID from array
+        for (uint i = 0; i < peerChainIds.length; i++) {
+            if (peerChainIds[i] == chainId) {
+                peerChainIds[i] = peerChainIds[peerChainIds.length - 1];
+                peerChainIds.pop();
+                break;
+            }
+        }
+        
+        emit PeerFactoryRemoved(chainId);
+    }
+
+    /**
+     * @notice Get all peer chain IDs
+     * @return Array of chain IDs
+     */
+    function getPeerChainIds() external view returns (uint32[] memory) {
+        return peerChainIds;
     }
     
     /**
-     * @notice Sends a message to create a token on the other chain
+     * @notice Sends a message to create a token on another chain
+     * @param targetChainId The target chain ID
      * @param _name Token name
      * @param _symbol Token symbol
      * @param _metadataURI Token metadata URI
      * @param _creator Token creator address
      */
     function sendCreateTokenToOtherChain(
+        uint32 targetChainId,
         string memory _name,
         string memory _symbol,
         string memory _metadataURI,
         address _creator
-    ) external payable {
-        require(msg.sender == address(factory), "Only factory can call");
+    ) external payable onlyFactory {
+        address targetFactory = peerFactories[targetChainId];
+        require(targetFactory != address(0), "Target chain not configured");
         
         bytes32 messageId = keccak256(abi.encodePacked(
             block.timestamp,
@@ -141,20 +195,20 @@ contract CrossChainMessenger {
     }
 
     /**
-     * @notice Sends a message to bridge tokens to the other chain
+     * @notice Sends a message to bridge tokens to another chain
+     * @param targetChainId The target chain ID
      * @param _symbol Token symbol
      * @param _recipient Recipient address
      * @param _amount Amount of tokens
-     * @param _targetChainId Target chain ID
      */
     function sendBridgeTokensToOtherChain(
+        uint32 targetChainId,
         string memory _symbol,
         address _recipient,
-        uint256 _amount,
-        uint32 _targetChainId
-    ) external {
-        require(msg.sender == address(factory), "Only factory can call");
-        require(_targetChainId == targetChainId, "Invalid target chain");
+        uint256 _amount
+    ) external onlyFactory {
+        address targetFactory = peerFactories[targetChainId];
+        require(targetFactory != address(0), "Target chain not configured");
 
         bytes32 messageId = keccak256(abi.encodePacked(
             block.timestamp,
@@ -164,7 +218,6 @@ contract CrossChainMessenger {
             _amount
         ));
 
-        // Encode the message data
         bytes memory data = abi.encode(
             MSG_TYPE_BRIDGE_TOKENS,
             messageId,
@@ -173,7 +226,6 @@ contract CrossChainMessenger {
             _amount
         );
         
-        // Send message to other chain
         uint256 messageNum = inbox.createRetryableTicket{value: 0}(
             targetFactory,
             0,
@@ -190,12 +242,15 @@ contract CrossChainMessenger {
     
     /**
      * @notice Sends a message to notify other chains that liquidity has been created
+     * @param targetChainId The target chain ID
      * @param _symbol Token symbol
      */
     function sendLiquidityCreatedToOtherChain(
+        uint32 targetChainId,
         string memory _symbol
-    ) external {
-        require(msg.sender == address(factory), "Only factory can call");
+    ) external onlyFactory {
+        address targetFactory = peerFactories[targetChainId];
+        require(targetFactory != address(0), "Target chain not configured");
         
         bytes32 messageId = keccak256(abi.encodePacked(
             block.timestamp,
@@ -204,20 +259,18 @@ contract CrossChainMessenger {
             "LIQUIDITY_CREATED"
         ));
 
-        // Encode the message data
-        bytes memory data = abi.encode(MSG_TYPE_LIQUIDITY_CREATED,
+        bytes memory data = abi.encode(
+            MSG_TYPE_LIQUIDITY_CREATED,
             messageId,
             _symbol
         );
         
-        // Calculate submission cost with current block's base fee
         uint256 baseFee = block.basefee;
         uint256 submissionCost = inbox.calculateRetryableSubmissionFee(
             data.length,
             baseFee
         );
         
-        // Send message to other chain
         uint256 messageNum = inbox.createRetryableTicket{value: submissionCost}(
             targetFactory,
             0,
@@ -233,7 +286,7 @@ contract CrossChainMessenger {
     }
     
     /**
-     * @notice Processes messages received from the other chain
+     * @notice Processes messages received from other chains
      * @param sender The sender's address on the other chain
      * @param data The message data
      */
@@ -260,7 +313,7 @@ contract CrossChainMessenger {
                 symbol,
                 metadataURI,
                 creator,
-                targetChainId,
+                uint32(block.chainid),
                 messageId
             );
         } else if (msgType == MSG_TYPE_BRIDGE_TOKENS) {
@@ -276,7 +329,7 @@ contract CrossChainMessenger {
                 symbol,
                 recipient,
                 amount,
-                targetChainId,
+                uint32(block.chainid),
                 messageId
             );
         } else if (msgType == MSG_TYPE_LIQUIDITY_CREATED) {
@@ -288,13 +341,13 @@ contract CrossChainMessenger {
             
             factory.handleLiquidityCreatedOnOtherChain(
                 symbol,
-                targetChainId,
+                uint32(block.chainid),
                 messageId
             );
         } else {
             revert("Invalid message type");
         }
         
-        emit MessageReceivedFromChain(sender, targetChainId, data);
+        emit MessageReceivedFromChain(sender, uint32(block.chainid), data);
     }
 } 

@@ -52,9 +52,7 @@ describe("Cross-Chain Token Creation", function () {
             await mockInbox.getAddress(),
             await mockBridge.getAddress(),
             await mockOutbox.getAddress(),
-            await factoryA.getAddress(),
-            await factoryB.getAddress(),
-            CHAIN_B_ID
+            await factoryA.getAddress()
         )
 
         // Deploy CrossChainMessenger for Chain B
@@ -62,14 +60,20 @@ describe("Cross-Chain Token Creation", function () {
             await mockInbox.getAddress(),
             await mockBridge.getAddress(),
             await mockOutbox.getAddress(),
-            await factoryB.getAddress(),
-            await factoryA.getAddress(),
-            CHAIN_A_ID
+            await factoryB.getAddress()
         )
 
         // Set the CrossChainMessenger in both Factories
         await factoryA.setCrossChainMessenger(await messengerA.getAddress())
         await factoryB.setCrossChainMessenger(await messengerB.getAddress())
+
+        // Set up peer relationships
+        await factoryA.setPeerFactory(CHAIN_B_ID, await factoryB.getAddress())
+        await factoryB.setPeerFactory(CHAIN_A_ID, await factoryA.getAddress())
+
+        // Verify peer setup
+        expect(await messengerA.peerFactories(CHAIN_B_ID)).to.equal(await factoryB.getAddress())
+        expect(await messengerB.peerFactories(CHAIN_A_ID)).to.equal(await factoryA.getAddress())
 
         return { 
             factoryA, 
@@ -86,6 +90,28 @@ describe("Cross-Chain Token Creation", function () {
             buyer 
         }
     }
+
+    describe("Peer Management", function () {
+        it("Should correctly manage peer factories", async function () {
+            const { factoryA, factoryB, messengerA } = await loadFixture(deployContractsFixture)
+
+            // Get peer chain IDs
+            const peerChainIds = await factoryA.getPeerChainIds()
+            expect(peerChainIds).to.have.lengthOf(1)
+            expect(peerChainIds[0]).to.equal(CHAIN_B_ID)
+
+            // Remove peer
+            await factoryA.removePeerFactory(CHAIN_B_ID)
+            const peersAfterRemoval = await factoryA.getPeerChainIds()
+            expect(peersAfterRemoval).to.have.lengthOf(0)
+
+            // Add peer back
+            await factoryA.setPeerFactory(CHAIN_B_ID, await factoryB.getAddress())
+            const peersAfterAdd = await factoryA.getPeerChainIds()
+            expect(peersAfterAdd).to.have.lengthOf(1)
+            expect(peersAfterAdd[0]).to.equal(CHAIN_B_ID)
+        })
+    })
 
     describe("Token Creation", function () {
         it("Should create token on origin chain and mirror on target chain", async function () {
