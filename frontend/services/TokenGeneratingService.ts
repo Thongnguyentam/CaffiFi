@@ -13,7 +13,7 @@ interface TokenAIGeneratedDetails {
 // Initialize OpenAI client
 const openai = new OpenAI({
   apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY,
-  dangerouslyAllowBrowser: true // Required for client-side usage
+  dangerouslyAllowBrowser: true, // Required for client-side usage
 });
 
 export const useTokenGeneratingService = () => {
@@ -23,7 +23,7 @@ export const useTokenGeneratingService = () => {
     if (!prompt.trim()) {
       throw new Error("Prompt is required");
     }
-    
+
     try {
       const response = await openai.images.generate({
         model: "dall-e-3",
@@ -31,7 +31,7 @@ export const useTokenGeneratingService = () => {
         n: 1,
         size: "1024x1024",
         quality: "standard",
-        response_format: "b64_json"
+        response_format: "b64_json",
       });
 
       if (!response.data?.[0]?.b64_json) {
@@ -75,7 +75,7 @@ export const useTokenGeneratingService = () => {
   ): Promise<TokenAIGeneratedDetails> => {
     try {
       const response = await generateTokenConcept(input);
-      
+
       if (!response.image_description) {
         throw new Error("No image description generated");
       }

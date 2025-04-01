@@ -248,11 +248,23 @@ const TokenCard = ({
 }) => {
   return (
     <div className="bg-[#1c1917] rounded-2xl overflow-hidden border border-[#2a2422] transition-all hover:translate-y-[-4px] hover:shadow-[0_12px_24px_rgba(0,0,0,0.2)] hover:border-[#c9804a]">
-      <img
-        src={token.imageUrl || "/placeholder.png"}
-        alt={token.name}
-        className="w-full h-[350px] object-cover object-center"
-      />
+      <div className="relative">
+        <img
+          src={token.imageUrl || "/placeholder.png"}
+          alt={token.name}
+          className="w-full h-[350px] object-cover object-center"
+        />
+        <div
+          className={`absolute top-4 right-4 px-3 py-1.5 rounded-full text-sm font-semibold ${
+            token.priceChange >= 0
+              ? "bg-[#34d399]/90 text-[#151214]"
+              : "bg-[#f87171]/90 text-[#151214]"
+          }`}
+        >
+          {token.priceChange >= 0 ? "+" : ""}
+          {token.priceChange}%
+        </div>
+      </div>
       <div className="p-5">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center">
@@ -269,15 +281,7 @@ const TokenCard = ({
         </div>
 
         <div className="text-xl font-bold text-[#e0d6cf] mb-1">
-          ${token.price}{" "}
-          <span
-            className={`text-sm font-normal ${
-              token.priceChange >= 0 ? "text-[#34d399]" : "text-[#f87171]"
-            }`}
-          >
-            {token.priceChange >= 0 ? "+" : ""}
-            {token.priceChange}%
-          </span>
+          ${token.price}
         </div>
 
         <div className="text-xs text-[#a08d80] mb-4">

@@ -8,6 +8,7 @@ import {
   Zap,
   Rocket,
   Info,
+  Pencil,
 } from "lucide-react";
 import { TokenForm } from "../components/TokenForm";
 import { ImageUpload } from "./image-upload";
@@ -16,7 +17,6 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Separator } from "@/components/ui/separator";
-import { motion } from "framer-motion";
 import {
   Select,
   SelectContent,
@@ -31,6 +31,9 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useTestTokenService } from "@/services/TestTokenService";
+import { DrawingCanvas } from "./drawing-canvas";
+import { useState } from "react";
+import { useTokenGeneratingService } from "@/services/TokenGeneratingService";
 
 const tokenInfoFields = [
   {
@@ -109,6 +112,84 @@ export function TokenFormSection({
   onConfigChange,
 }: TokenFormSectionProps) {
   const testTokenService = useTestTokenService();
+  const [isDrawingMode, setIsDrawingMode] = useState(false);
+  const [isStylizingDrawing, setIsStylizingDrawing] = useState(false);
+
+  const handleDrawingCreated = (imageBlob: Blob) => {
+    const file = new File([imageBlob], "drawing.png", { type: "image/png" });
+    onImageSelect(file);
+    setIsDrawingMode(false);
+  };
+
+  const stylizeDrawingWithAI = async (imageBlob: Blob, stylePrompt: string) => {
+    try {
+      setIsStylizingDrawing(true);
+
+      // Create a copy of the original drawing first
+      const file = new File([imageBlob], "drawing.png", { type: "image/png" });
+      // Save the original drawing
+      onImageSelect(file);
+
+      // Create form data for the API
+      const formData = new FormData();
+      formData.append("image", file);
+      formData.append("prompt", stylePrompt);
+
+      console.log(
+        "Sending drawing to API for DALL-E 3 enhancement with style:",
+        stylePrompt
+      );
+
+      // Then pass to the AI for enhancement
+      const response = await fetch("/api/enhance-drawing", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`API error: ${response.status} - ${errorText}`);
+      }
+
+      const result = await response.json();
+
+      if (!result.success || !result.imageBase64) {
+        throw new Error(result.error || "No image data received from API");
+      }
+
+      console.log("Successfully received enhanced image from API");
+
+      // Convert base64 to binary
+      const byteCharacters = atob(result.imageBase64);
+      const byteNumbers = new Array(byteCharacters.length);
+
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+
+      // Create a Blob from the binary data
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: "image/png" });
+
+      // Create File object from blob
+      const enhancedFile = new File([blob], "ai-enhanced.png", {
+        type: "image/png",
+      });
+
+      // Update the UI with the enhanced image
+      onImageSelect(enhancedFile);
+    } catch (error) {
+      console.error("Error stylizing drawing:", error);
+      alert(
+        `Failed to enhance the drawing: ${
+          (error as Error).message || "Unknown error"
+        }`
+      );
+    } finally {
+      setIsStylizingDrawing(false);
+      setIsDrawingMode(false);
+    }
+  };
 
   const renderLaunchConfiguration = () => (
     <div>
@@ -316,19 +397,36 @@ export function TokenFormSection({
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-    >
+    <div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div className="lg:sticky lg:top-24">
           <h3 className="text-lg font-semibold mb-4">Token Preview</h3>
-          <ImageUpload
-            onImageSelect={onImageSelect}
-            previewUrl={previewUrl || aiImageUrl}
-            onClear={onClearImage}
-          />
+          {isDrawingMode ? (
+            <DrawingCanvas
+              onImageCreated={handleDrawingCreated}
+              onCancel={() => setIsDrawingMode(false)}
+              stylizeWithAI={stylizeDrawingWithAI}
+              tokenName={generatedDetails?.name || ""}
+              isProcessing={isStylizingDrawing}
+            />
+          ) : (
+            <>
+              <ImageUpload
+                onImageSelect={onImageSelect}
+                previewUrl={previewUrl || aiImageUrl}
+                onClear={onClearImage}
+              />
+              <div className="mt-4 flex justify-center">
+                <Button
+                  onClick={() => setIsDrawingMode(true)}
+                  className="bg-[#c9804a] text-[#1c1917] hover:bg-[#b77440]"
+                >
+                  <Pencil className="h-4 w-4 mr-2" />
+                  Draw Token Logo
+                </Button>
+              </div>
+            </>
+          )}
         </div>
 
         <div className="space-y-8">
@@ -414,51 +512,6 @@ export function TokenFormSection({
           )}
         </Button>
       </div>
-      <Separator className="my-8" />
-      {/* Security Features section remains the same */}
-      <div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {[
-            {
-              icon: Shield,
-              title: "Anti-bot Protection",
-              description:
-                "Advanced protection against malicious bots and snipers",
-            },
-            {
-              icon: Lock,
-              title: "Ownership Renounced",
-              description: "Contract ownership will be renounced after launch",
-            },
-            {
-              icon: Rocket,
-              title: "Liquidity Locked",
-              description: "Liquidity will be locked for 6 months minimum",
-            },
-            {
-              icon: Zap,
-              title: "Verified Contract",
-              description: "Smart contract will be verified on launch",
-            },
-          ].map((feature, index) => (
-            <Card key={index} className="bg-primary/5 border-primary/10">
-              <CardContent className="p-6">
-                <div className="flex flex-col items-start gap-4">
-                  <div className="rounded-full p-2.5 bg-primary/10">
-                    <feature.icon className="h-5 w-5 text-primary" />
-                  </div>
-                  <div className="space-y-1">
-                    <h4 className="font-medium">{feature.title}</h4>
-                    <p className="text-sm text-muted-foreground">
-                      {feature.description}
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
-    </motion.div>
+    </div>
   );
 }
