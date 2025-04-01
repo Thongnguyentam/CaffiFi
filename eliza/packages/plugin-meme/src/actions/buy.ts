@@ -174,34 +174,34 @@ export const buyAction: Action = {
     examples: [
         [
             {
-                user: "{{user1}}",
-                content: {
-                    text: "help me buy 1000 SONIC token with address: 0x1234567890123456789012345678901234567890",
-                    action: "BUY_TOKENS",
-                },
+                "user": "{{user1}}",
+                "content": {
+                    "text": "help me buy 1000 ESPRESSO token with address: 0x1234567890123456789012345678901234567890",
+                    "action": "BUY_TOKENS"
+                }
             },
             {
-                user: "Sage",
-                content: {
-                    text: "executing buy order for 1000 SONIC tokens at 0x1234567890123456789012345678901234567890. transaction confirmed. always verify contracts before trading and consider #Sonic #SonicLabs for optimal security.",
-                    action: "BUY_TOKENS",
-                },
-            },
+                "user": "Sage",
+                "content": {
+                    "text": "Executing buy order for 1000 ESPRESSO tokens at 0x1234567890123456789012345678901234567890. Transaction confirmed. Always verify contracts before trading and consider #Espresso #EspressoNetwork for optimal security.",
+                    "action": "BUY_TOKENS"
+                }
+            }
         ],
         [
             {
-                user: "{{user1}}",
-                content: {
-                    text: "execute buy 500 ETH with address: 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
-                },
+                "user": "{{user1}}",
+                "content": {
+                    "text": "Execute buy 500 ETH with address: 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
+                }
             },
             {
-                user: "Sage",
-                content: {
-                    text: "buying 500 ETH at 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2. transaction complete. remember to secure your assets and check out #Sonic #SonicLabs for advanced portfolio management.",
-                    action: "BUY_TOKENS",
-                },
-            },
+                "user": "Sage",
+                "content": {
+                    "text": "Buying 500 ETH at 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2. Transaction complete. Remember to secure your assets and check out #Espresso #EspressoNetwork for advanced portfolio management.",
+                    "action": "BUY_TOKENS"
+                }
+            }
         ],
         [
             {

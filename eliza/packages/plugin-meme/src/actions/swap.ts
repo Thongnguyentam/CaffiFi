@@ -21,21 +21,21 @@ First, review the recent messages from the conversation:
 </recent_messages>
 
 Your goal is to extract the following information about the requested token swap:
-1. Source token (either "sonic" or a contract address)
+1. Source token (either "eth" or a contract address)
 2. Source token amount
-3. Destination token (either "sonic" or a contract address)
+3. Destination token (either "eth" or a contract address)
 
 Before providing the final JSON output, show your reasoning process inside <analysis> tags. Follow these steps:
 
 1. Identify the relevant information from the user's message:
-   - Quote the part mentioning the source token (either "sonic" or contract address)
+   - Quote the part mentioning the source token (either "eth" or contract address)
    - Quote the part mentioning the source token amount
-   - Quote the part mentioning the destination token (either "sonic" or contract address)
+   - Quote the part mentioning the destination token (either "eth" or contract address)
 
 2. Validate each piece of information:
-   - Source Token: Check if it's either "sonic" or a valid contract address starting with "0x" or "sei1"
+   - Source Token: Check if it's either "eth" or a valid contract address starting with "0x" or "sei1"
    - Source Amount: Attempt to convert the amount to a number to verify it's valid
-   - Destination Token: Check if it's either "sonic" or a valid contract address starting with "0x" or "sei1"
+   - Destination Token: Check if it's either "eth" or a valid contract address starting with "0x" or "sei1"
    - If contract address is provided, verify it contains 42 characters
    - Chain: Verify the chain is either mainnet, testnet, or devnet
 
@@ -48,16 +48,16 @@ Before providing the final JSON output, show your reasoning process inside <anal
 After your analysis, provide the final output in a JSON markdown block. All fields are required. The JSON should have this structure:
 \`\`\`json
 {
-    "source_token": string,  // Either "sonic" or contract address
+    "source_token": string,  // Either "eth" or contract address
     "source_amount": string,
-    "destination_token": string  // Either "sonic" or contract address
+    "destination_token": string  // Either "eth" or contract address
 }
 \`\`\`
 
 Remember:
 - The amounts should be strings representing quantities without any currency symbols
-- If not "sonic", the token must be a valid contract address starting with "0x"
-- One side of the swap must always be "sonic"
+- If not "eth", the token must be a valid contract address starting with "0x"
+- One side of the swap must always be "eth"
 
 Now, process the user's request and provide your response.
 `;
@@ -66,7 +66,7 @@ export const swapAction: Action = {
     name: "SWAP_TOKENS",
     description:
         "Help users purchase tokens by processing their request to buy a specific amount of a given token contract address",
-    similes: ["SWAP_SONIC", "SWAP", "PURCHASE_SONIC"],
+    similes: ["SWAP_ETH", "SWAP", "PURCHASE_ETH"],
     validate: async (_runtime: IAgentRuntime) => {
         const backendUrl = process.env.BACKEND_URL;
         if (!backendUrl) {
@@ -124,18 +124,18 @@ export const swapAction: Action = {
             swapDetail.destination_token
         ) {
             let body = {};
-            if (swapDetail.destination_token === "sonic") {
+            if (swapDetail.destination_token === "eth") {
                 body = {
                     amount: swapDetail.source_amount,
                     tokenAddress: swapDetail.source_token,
-                    swapType: "TOKEN_TO_SONIC",
+                    swapType: "TOKEN_TO_ETH",
                 };
             }
-            if (swapDetail.source_token === "sonic") {
+            if (swapDetail.source_token === "eth") {
                 body = {
                     amount: swapDetail.source_amount,
                     tokenAddress: swapDetail.destination_token,
-                    swapType: "SONIC_TO_TOKEN",
+                    swapType: "ETH_TO_TOKEN",
                 };
             }
             elizaLogger.debug("Body:", body);
@@ -207,14 +207,14 @@ export const swapAction: Action = {
             {
                 user: "{{user1}}",
                 content: {
-                    text: "Swap 1 sonic for XYZ Token at address 0x1234567890123456789012345678901234567890",
+                    text: "Swap 1 eth for XYZ Token at address 0x1234567890123456789012345678901234567890",
                     action: "SWAP_TOKENS",
                 },
             },
             {
                 user: "Sage",
                 content: {
-                    text: "Swap 1000 XYZ Token at address 0x1234567890123456789012345678901234567890 for sonic",
+                    text: "Swap 1000 XYZ Token at address 0x1234567890123456789012345678901234567890 for eth",
                     action: "SWAP_TOKENS",
                 },
             },
@@ -223,14 +223,14 @@ export const swapAction: Action = {
             {
                 user: "{{user1}}",
                 content: {
-                    text: "Swap 1 sonic for ETH at address 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+                    text: "Swap 1 eth for ETH at address 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
                     action: "SWAP_TOKENS",
                 },
             },
             {
                 user: "Sage",
                 content: {
-                    text: "Swap 500 ETH at address 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2 for sonic",
+                    text: "Swap 500 ETH at address 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2 for eth",
                     action: "SWAP_TOKENS",
                 },
             },
@@ -239,14 +239,14 @@ export const swapAction: Action = {
             {
                 user: "{{user1}}",
                 content: {
-                    text: "Swap 1 sonic for Token at address 0x1234567890123456789012345678901234567890",
+                    text: "Swap 1 eth for Token at address 0x1234567890123456789012345678901234567890",
                     action: "SWAP_TOKENS",
                 },
             },
             {
                 user: "{{user2}}",
                 content: {
-                    text: "Swap 10000 Token at address 0x1234567890123456789012345678901234567890 for sonic",
+                    text: "Swap 10000 Token at address 0x1234567890123456789012345678901234567890 for eth",
                     action: "SWAP_TOKENS",
                 },
             },
@@ -255,14 +255,14 @@ export const swapAction: Action = {
             {
                 user: "{{user1}}",
                 content: {
-                    text: "Swap 1 sonic for PEPE at address 0x6982508145454ce325ddbe47a25d4ec3d2311933",
+                    text: "Swap 1 eth for PEPE at address 0x6982508145454ce325ddbe47a25d4ec3d2311933",
                     action: "SWAP_TOKENS",
                 },
             },
             {
                 user: "{{user2}}",
                 content: {
-                    text: "Swap 5000 PEPE at address 0x6982508145454ce325ddbe47a25d4ec3d2311933 for sonic",
+                    text: "Swap 5000 PEPE at address 0x6982508145454ce325ddbe47a25d4ec3d2311933 for eth",
                     action: "SWAP_TOKENS",
                 },
             },
@@ -271,14 +271,14 @@ export const swapAction: Action = {
             {
                 user: "{{user1}}",
                 content: {
-                    text: "Swap 1 sonic for DOGE at address 0x3832d2F059E55934220881F831bE501D180671A7",
+                    text: "Swap 1 eth for DOGE at address 0x3832d2F059E55934220881F831bE501D180671A7",
                     action: "SWAP_TOKENS",
                 },
             },
             {
                 user: "{{user2}}",
                 content: {
-                    text: "Swap 1000 DOGE at address 0x3832d2F059E55934220881F831bE501D180671A7 for sonic",
+                    text: "Swap 1000 DOGE at address 0x3832d2F059E55934220881F831bE501D180671A7 for eth",
                     action: "SWAP_TOKENS",
                 },
             },
@@ -287,14 +287,14 @@ export const swapAction: Action = {
             {
                 user: "{{user1}}",
                 content: {
-                    text: "Swap 1 sonic for SHIB at address 0x95aD61b0a150d79219dCF64E1E6Cc01f0B64C4cE",
+                    text: "Swap 1 eth for SHIB at address 0x95aD61b0a150d79219dCF64E1E6Cc01f0B64C4cE",
                     action: "SWAP_TOKENS",
                 },
             },
             {
                 user: "{{user2}}",
                 content: {
-                    text: "Swap 2500 SHIB at address 0x95aD61b0a150d79219dCF64E1E6Cc01f0B64C4cE for sonic",
+                    text: "Swap 2500 SHIB at address 0x95aD61b0a150d79219dCF64E1E6Cc01f0B64C4cE for eth",
                     action: "SWAP_TOKENS",
                 },
             },
@@ -303,14 +303,14 @@ export const swapAction: Action = {
             {
                 user: "{{user1}}",
                 content: {
-                    text: "Swap 1 sonic for FLOKI at address 0x43f11c02439e2736800433b4594994Bd43Cd066D",
+                    text: "Swap 1 eth for FLOKI at address 0x43f11c02439e2736800433b4594994Bd43Cd066D",
                     action: "SWAP_TOKENS",
                 },
             },
             {
                 user: "{{user2}}",
                 content: {
-                    text: "Swap 750 FLOKI at address 0x43f11c02439e2736800433b4594994Bd43Cd066D for sonic",
+                    text: "Swap 750 FLOKI at address 0x43f11c02439e2736800433b4594994Bd43Cd066D for eth",
                     action: "SWAP_TOKENS",
                 },
             },
