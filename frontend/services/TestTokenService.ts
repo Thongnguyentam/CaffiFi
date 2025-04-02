@@ -3,10 +3,9 @@ import { useWalletClient } from "wagmi";
 import Factory from "../abi/Factory.json";
 import Token from "../abi/Token.json";
 import NativeLiquidityPool from "../abi/NativeLiquidityPool.json";
-import { config } from "../app/config/contract_addresses";
 import { pinFileToIPFS, pinJSONToIPFS, unPinFromIPFS } from "@/app/lib/pinata";
 import { useCallback } from "react";
-import { Contract, ContractInterface } from "ethers";
+import { Contract } from "ethers";
 
 interface TokenSale {
   token: string;
@@ -23,35 +22,39 @@ interface GetTokensOptions {
   isOpen?: boolean;
 }
 
-type ConfigType = {
-  [key: number]: {
-    factory: { address: string };
-    nativeLiquidityPool: { address: string };
-    LaunchpadAgent: { address: string };
-  };
-};
-
-const typedConfig = config as ConfigType;
+// Default contract addresses
+let factoryAddress = "0x913667EcaEd94C1BCA8Cba05956518ff511301f8";
+let nativeLiquidityPoolAddress = "0x913667EcaEd94C1BCA8Cba05956518ff511301f8";
+let launchpadAgentAddress = "0x913667EcaEd94C1BCA8Cba05956518ff511301f8";
 
 export const useTestTokenService = () => {
   const { data: walletClient, isError: walletError } = useWalletClient();
 
-  const getContractAddress = useCallback(async () => {
+  // Helper function to set contract addresses based on chain ID
+  const setContractAddressesByChainId = async () => {
     if (!walletClient) {
       throw new Error("Wallet client not found");
     }
+
     const chainId = await walletClient.getChainId();
-    const contractAddress =
-      config[chainId as keyof typeof config]?.factory?.address;
-    if (!contractAddress) {
-      throw new Error(
-        `Factory contract address not found for chain ID ${chainId}`
-      );
+    console.log("Chain ID:", chainId);
+
+    if (chainId === 10000096) {
+      factoryAddress = "0x0Df2c72e3692165eC9161529099fd60aA33A51Cb";
+      nativeLiquidityPoolAddress = "0x1f44071D43A546C3CeD0C94d8a7F09d16a05d2d3";
+      launchpadAgentAddress = "0xFF8e867b41769e9F45815E2039Cd5cdc7b149cdE";
+    } else if (chainId === 10000099) {
+      factoryAddress = "0xEd0A66CAb6503A3FC13747ff78147735c3d90598";
+      nativeLiquidityPoolAddress = "0x5987b4A1A377382dd565b080dc63039455Cf21F1";
+      launchpadAgentAddress = "0x937e6aE303f8c818b04539F1B08f688E694E21eE";
     }
-    console.log("contractAddress", contractAddress);
-    console.log("chainId", chainId);
-    return contractAddress;
-  }, []);
+
+    console.log("Using contract addresses:", {
+      factory: factoryAddress,
+      nativeLiquidityPool: nativeLiquidityPoolAddress,
+      launchpadAgent: launchpadAgentAddress,
+    });
+  };
 
   const initializeProvider = useCallback(async () => {
     if (!walletClient) {
@@ -76,8 +79,8 @@ export const useTestTokenService = () => {
     async (options: GetTokensOptions = {}) => {
       try {
         const { provider, signer } = await initializeProvider();
-        const contractAddress = await getContractAddress();
-        const factory = new ethers.Contract(contractAddress, Factory, signer);
+        await setContractAddressesByChainId();
+        const factory = new ethers.Contract(factoryAddress, Factory, signer);
 
         // Get total number of tokens
         const totalTokens = await factory.totalTokens();
@@ -122,6 +125,7 @@ export const useTestTokenService = () => {
                 image: metadata.imageURI || "",
                 description: metadata.description || "",
                 symbol: metadata.symbol || "",
+                metadataURI: sale.metadataURI,
               };
             } catch (error) {
               console.log(
@@ -137,6 +141,7 @@ export const useTestTokenService = () => {
                 isOpen: sale.isOpen,
                 image: "",
                 description: "",
+                metadataURI: sale.metadataURI,
               };
             }
           })
@@ -148,7 +153,7 @@ export const useTestTokenService = () => {
         return [];
       }
     },
-    [walletClient, getContractAddress, initializeProvider]
+    [walletClient, initializeProvider]
   );
 
   const testBuyToken = useCallback(
@@ -168,9 +173,9 @@ export const useTestTokenService = () => {
 
         const provider = new ethers.BrowserProvider(walletClient);
         const signer = await provider.getSigner();
-        const contractAddress = await getContractAddress();
+        await setContractAddressesByChainId();
 
-        const factory = new ethers.Contract(contractAddress, Factory, signer);
+        const factory = new ethers.Contract(factoryAddress, Factory, signer);
 
         // Get the cost for the tokens
         const cost = await factory.getCost(tokenSale.sold);
@@ -204,7 +209,7 @@ export const useTestTokenService = () => {
         };
       }
     },
-    [walletClient, getContractAddress]
+    [walletClient]
   );
 
   const testCreateToken = useCallback(
@@ -217,30 +222,61 @@ export const useTestTokenService = () => {
         return { success: false, error: "Wallet client not found" };
       }
 
+      let imageIpfsHash: string | null = null;
+      let metadataURI: string | null = null;
+
       try {
         console.log("Uploading File to IPFS", "info", 1000);
-        const imageIpfsHash = await pinFileToIPFS(image);
+        imageIpfsHash = await pinFileToIPFS(image);
 
         console.log("Uploading metadata to IPFS", "info", 1000);
-        const metadataURI = await pinJSONToIPFS({
+        metadataURI = await pinJSONToIPFS({
           ...metaData,
           imageURI: imageIpfsHash,
         });
 
         const provider = new ethers.BrowserProvider(walletClient);
         const signer = await provider.getSigner();
-        const contractAddress = await getContractAddress();
+        await setContractAddressesByChainId();
 
-        const factory = new ethers.Contract(contractAddress, Factory, signer);
+        // Validate contract address
+        const code = await provider.getCode(factoryAddress);
+        if (code === "0x") {
+          throw new Error(
+            "Factory contract not deployed at the specified address"
+          );
+        }
 
-        const fee = await factory.fee();
+        const factory = new ethers.Contract(factoryAddress, Factory, signer);
+
+        // Try to get the fee with error handling
+        let fee;
+        try {
+          fee = await factory.fee();
+        } catch (error: any) {
+          console.error("Error getting fee:", error);
+          // If fee() fails, try to get the fee from the contract's storage
+          // This is a fallback mechanism - adjust the slot number based on your contract
+          const feeSlot = 0; // Adjust this based on your contract's storage layout
+          const feeBytes = await provider.getStorage(factoryAddress, feeSlot);
+          fee = ethers.dataSlice(feeBytes, 0, 32);
+        }
+
+        if (!fee) {
+          throw new Error("Could not determine creation fee");
+        }
+
+        console.log("Creation fee:", fee.toString());
 
         const tx = await factory.create(
           metaData.name,
           metaData.ticker,
           metadataURI,
           ethers.ZeroAddress,
-          { value: fee }
+          {
+            value: fee,
+            gasLimit: 10000000,
+          }
         );
 
         const receipt = await tx.wait();
@@ -252,12 +288,45 @@ export const useTestTokenService = () => {
             await unPinFromIPFS(imageIpfsHash, metadataURI);
           return { success: false, error: "Transaction failed" };
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error("Error in testCreateToken:", error);
-        return { success: false, error };
+
+        // Clean up IPFS if needed
+        if (imageIpfsHash && metadataURI) {
+          try {
+            await unPinFromIPFS(imageIpfsHash, metadataURI);
+          } catch (cleanupError) {
+            console.error("Error cleaning up IPFS:", cleanupError);
+          }
+        }
+
+        // Return more specific error messages
+        if (error.code === "CALL_EXCEPTION") {
+          return {
+            success: false,
+            error:
+              "Contract call failed. Please check if you're on the correct network and have sufficient funds.",
+          };
+        } else if (error.code === "INSUFFICIENT_FUNDS") {
+          return {
+            success: false,
+            error:
+              "Insufficient funds to create token. Please ensure you have enough ETH for the creation fee.",
+          };
+        } else if (error.code === "NETWORK_ERROR") {
+          return {
+            success: false,
+            error: "Network error. Please check your connection and try again.",
+          };
+        }
+
+        return {
+          success: false,
+          error: error.message || "Unknown error occurred while creating token",
+        };
       }
     },
-    [walletClient, getContractAddress]
+    [walletClient]
   );
 
   const testGetPriceForTokens = useCallback(
@@ -273,9 +342,9 @@ export const useTestTokenService = () => {
 
         const provider = new ethers.BrowserProvider(walletClient);
         const signer = await provider.getSigner();
-        const contractAddress = await getContractAddress();
+        await setContractAddressesByChainId();
 
-        const factory = new ethers.Contract(contractAddress, Factory, signer);
+        const factory = new ethers.Contract(factoryAddress, Factory, signer);
 
         const cost = await factory.getCost(tokenSale.sold);
         const totalCost = cost * amount;
@@ -286,7 +355,7 @@ export const useTestTokenService = () => {
         throw error;
       }
     },
-    [walletClient, getContractAddress]
+    [walletClient]
   );
 
   const testGetPurchasedTokens = useCallback(async () => {
@@ -385,12 +454,10 @@ export const useTestTokenService = () => {
 
         const provider = new ethers.BrowserProvider(walletClient);
         const signer = await provider.getSigner();
-        const chainId = Number(process.env.NEXT_PUBLIC_CHAIN_ID) || 31337;
-        const liquidityPoolAddress =
-          config[chainId as keyof typeof config]?.nativeLiquidityPool?.address;
+        await setContractAddressesByChainId();
 
         const liquidityPool = new Contract(
-          liquidityPoolAddress,
+          nativeLiquidityPoolAddress,
           NativeLiquidityPool,
           signer
         );
@@ -424,12 +491,10 @@ export const useTestTokenService = () => {
 
         const provider = new ethers.BrowserProvider(walletClient);
         const signer = await provider.getSigner();
-        const chainId = Number(process.env.NEXT_PUBLIC_CHAIN_ID) || 31337;
-        const liquidityPoolAddress =
-          config[chainId as keyof typeof config]?.nativeLiquidityPool?.address;
+        await setContractAddressesByChainId();
 
         const liquidityPool = new Contract(
-          liquidityPoolAddress,
+          nativeLiquidityPoolAddress,
           NativeLiquidityPool,
           signer
         );
@@ -462,15 +527,10 @@ export const useTestTokenService = () => {
       try {
         const provider = new ethers.BrowserProvider(walletClient.transport);
         const signer = await provider.getSigner();
-        const network = await provider.getNetwork();
-        const chainId = Number(network.chainId);
-
-        if (!typedConfig[chainId]) {
-          throw new Error("Unsupported network");
-        }
+        await setContractAddressesByChainId();
 
         const liquidityPool = new Contract(
-          typedConfig[chainId].nativeLiquidityPool.address,
+          nativeLiquidityPoolAddress,
           NativeLiquidityPool,
           signer
         );
@@ -512,15 +572,10 @@ export const useTestTokenService = () => {
       try {
         const provider = new ethers.BrowserProvider(walletClient.transport);
         const signer = await provider.getSigner();
-        const network = await provider.getNetwork();
-        const chainId = Number(network.chainId);
-
-        if (!typedConfig[chainId]) {
-          throw new Error("Unsupported network");
-        }
+        await setContractAddressesByChainId();
 
         const liquidityPool = new Contract(
-          typedConfig[chainId].nativeLiquidityPool.address,
+          nativeLiquidityPoolAddress,
           NativeLiquidityPool,
           signer
         );
@@ -574,29 +629,17 @@ export const useTestTokenService = () => {
         const signer = await provider.getSigner();
         const currentChainId = await walletClient.getChainId();
 
-        if (!typedConfig[currentChainId]) {
-          throw new Error("Unsupported source network");
-        }
-
-        if (!typedConfig[targetChainId]) {
-          throw new Error("Unsupported target network");
-        }
+        // Set contract addresses for current chain
+        await setContractAddressesByChainId();
 
         // First, approve the factory contract to spend tokens
         const tokenContract = new Contract(tokenSale.token, Token, signer);
         const tokenAmountEthers = ethers.parseUnits(tokenAmount.toString(), 18);
 
-        await tokenContract.approve(
-          typedConfig[currentChainId].factory.address,
-          tokenAmountEthers
-        );
+        await tokenContract.approve(factoryAddress, tokenAmountEthers);
 
         // Call swap function on current chain
-        const factory = new Contract(
-          typedConfig[currentChainId].factory.address,
-          Factory,
-          signer
-        );
+        const factory = new Contract(factoryAddress, Factory, signer);
 
         const swapTx = await factory.swap(tokenSale.token, tokenAmountEthers);
         const swapReceipt = await swapTx.wait();
@@ -616,9 +659,22 @@ export const useTestTokenService = () => {
           targetProvider
         );
 
+        // Set contract addresses for target chain
+        if (targetChainId === 10000096) {
+          factoryAddress = "0x913667EcaEd94C1BCA8Cba05956518ff511301f8";
+          nativeLiquidityPoolAddress =
+            "0x913667EcaEd94C1BCA8Cba05956518ff511301f8";
+          launchpadAgentAddress = "0x913667EcaEd94C1BCA8Cba05956518ff511301f8";
+        } else if (targetChainId === 10000099) {
+          factoryAddress = "0x152283040d467292e34750d4EfD64F84D4BD2bCc";
+          nativeLiquidityPoolAddress =
+            "0x152283040d467292e34750d4EfD64F84D4BD2bCc";
+          launchpadAgentAddress = "0x152283040d467292e34750d4EfD64F84D4BD2bCc";
+        }
+
         // Create token on target chain using agent's wallet
         const targetFactory = new Contract(
-          typedConfig[targetChainId].factory.address,
+          factoryAddress,
           Factory,
           agentWallet
         );
