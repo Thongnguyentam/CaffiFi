@@ -103,22 +103,22 @@ CaffiFi transforms cross-chain token launches, meme coin research, trading, and 
 
 ## ☕ Getting Started
 
-### Prerequisites
+### 🌰 Prerequisites
 
 - Node.js 18+
 - Crypto wallet (compatible with RainbowKit)
 - pnpm package manager
 
-### Installation
+### 🌰 Installation
 
-## **1. Clone the Repository**
+#### **1. Clone the Repository**
 
 ```bash
 git clone https://github.com/Thongnguyentam/CaffiFi.git
 cd CaffiFi
 ```
 
-## **2. Set Up Environment Variables**
+#### **2. Set Up Environment Variables**
 
 ```bash
 # Copy sample environment files
@@ -128,7 +128,7 @@ cp eliza/.env.example eliza/.env
 # Configure your environment variables
 ```
 
-## **3. Frontend Setup**
+#### **3. Frontend Setup**
 
 ```bash
 # Navigate to frontend directory
@@ -155,7 +155,7 @@ bun dev
 
 This will start the frontend on [http://localhost:3000](http://localhost:3000).
 
-## **4. Running the Eliza Agent**
+#### **4. Running the Eliza Agent**
 
 In a new terminal window:
 
