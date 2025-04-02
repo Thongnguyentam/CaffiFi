@@ -36,8 +36,11 @@ const typedConfig = config as ConfigType;
 export const useTestTokenService = () => {
   const { data: walletClient, isError: walletError } = useWalletClient();
 
-  const getContractAddress = useCallback(() => {
-    const chainId = Number(process.env.NEXT_PUBLIC_CHAIN_ID) || 10000096;
+  const getContractAddress = useCallback(async () => {
+    if (!walletClient) {
+      throw new Error("Wallet client not found");
+    }
+    const chainId = await walletClient.getChainId();
     const contractAddress =
       config[chainId as keyof typeof config]?.factory?.address;
     if (!contractAddress) {
@@ -73,7 +76,7 @@ export const useTestTokenService = () => {
     async (options: GetTokensOptions = {}) => {
       try {
         const { provider, signer } = await initializeProvider();
-        const contractAddress = getContractAddress();
+        const contractAddress = await getContractAddress();
         const factory = new ethers.Contract(contractAddress, Factory, signer);
 
         // Get total number of tokens
@@ -165,7 +168,7 @@ export const useTestTokenService = () => {
 
         const provider = new ethers.BrowserProvider(walletClient);
         const signer = await provider.getSigner();
-        const contractAddress = getContractAddress();
+        const contractAddress = await getContractAddress();
 
         const factory = new ethers.Contract(contractAddress, Factory, signer);
 
@@ -226,7 +229,7 @@ export const useTestTokenService = () => {
 
         const provider = new ethers.BrowserProvider(walletClient);
         const signer = await provider.getSigner();
-        const contractAddress = getContractAddress();
+        const contractAddress = await getContractAddress();
 
         const factory = new ethers.Contract(contractAddress, Factory, signer);
 
@@ -270,7 +273,7 @@ export const useTestTokenService = () => {
 
         const provider = new ethers.BrowserProvider(walletClient);
         const signer = await provider.getSigner();
-        const contractAddress = getContractAddress();
+        const contractAddress = await getContractAddress();
 
         const factory = new ethers.Contract(contractAddress, Factory, signer);
 
@@ -558,7 +561,8 @@ export const useTestTokenService = () => {
     async (
       tokenSale: TokenSale,
       tokenAmount: Number,
-      targetChainId: number
+      targetChainId: number,
+      targetRpcUrl: string
     ): Promise<{ success: boolean; error?: string }> => {
       if (!walletClient) {
         console.error("Wallet client not found");
@@ -568,8 +572,7 @@ export const useTestTokenService = () => {
       try {
         const provider = new ethers.BrowserProvider(walletClient);
         const signer = await provider.getSigner();
-        const network = await provider.getNetwork();
-        const currentChainId = Number(network.chainId);
+        const currentChainId = await walletClient.getChainId();
 
         if (!typedConfig[currentChainId]) {
           throw new Error("Unsupported source network");
@@ -606,23 +609,34 @@ export const useTestTokenService = () => {
         const response = await fetch(tokenSale.metadataURI);
         const metadata = await response.json();
 
-        // Call backend API to create token on target chain
-        const createResponse = await fetch("/api/bridge/create-token", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            name: tokenSale.name,
-            symbol: metadata.symbol,
-            description: metadata.description,
-            imageURI: metadata.imageURI,
-            targetChainId: targetChainId,
-            amount: tokenAmount.toString(),
-          }),
-        });
+        // Create a new provider for the target chain
+        const targetProvider = new ethers.JsonRpcProvider(targetRpcUrl);
+        const agentWallet = new ethers.Wallet(
+          process.env.AGENT_PRIVATE_KEY!,
+          targetProvider
+        );
 
-        if (!createResponse.ok) {
+        // Create token on target chain using agent's wallet
+        const targetFactory = new Contract(
+          typedConfig[targetChainId].factory.address,
+          Factory,
+          agentWallet
+        );
+
+        const fee = await targetFactory.fee();
+
+        // Create the token on target chain
+        const createTx = await targetFactory.create(
+          tokenSale.name,
+          metadata.symbol,
+          tokenSale.metadataURI,
+          ethers.ZeroAddress,
+          { value: fee }
+        );
+
+        const createReceipt = await createTx.wait();
+
+        if (createReceipt.status !== 1) {
           throw new Error("Failed to create token on target chain");
         }
 
