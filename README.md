@@ -61,21 +61,13 @@ CaffiFi transforms cross-chain token launches, meme coin research, trading, and 
 - CROSS-CHAIN TRADING
 
 ### 5. ☕︎  [IN-PROGRESS] Multi-Agent AI Framework
-- News Agent: Real-time crypto news monitoring
-- Token Analysis Agent: Market trend analysis
-- Dex Flow Agent: Enables seamless token buys/swaps with Eth, requiring only the token address
-- Social Sentiment Agent: Cross-platform sentiment analysis
-- Search Agent: New token discovery
-- Swap Agent: Optimal liquidity pool routing
-  
+- News Agent, Dex Flow Agent, Sentiment Agent & more
+- Automates token discovery, research, and execution
+
 ### 6. ⛾ [IN-PROGRESS] AutoShill 
-- Automated viral tweet generation – Crafts engaging and high-impact tweets to maximize visibility.
-- Trending discussion engagement – Identifies and participates in relevant trending topics to boost reach.
-- Dynamic social media presence management – Maintains a consistent and interactive brand presence.
-- Smart reply system – Responds intelligently to discussions, ensuring organic engagement.
-- Anti-bot detection compliance – Ensures tweets comply with X’s detection systems to prevent flagging
-- Customizable shill strategies – Allows users to define parameters for targeted audience engagement.
-- Seamless API integration – Easily connects with existing platforms for automated execution.
+- Viral tweet generation and smart reply system
+- Anti-bot compliant social presence
+- Customizable strategies with API integrations
 
 ## ☕ Technology Stack
 
