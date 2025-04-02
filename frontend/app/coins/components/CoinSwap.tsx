@@ -272,6 +272,7 @@ const CoinSwap = ({
         description: token.description || "",
         metadataURI: token.metadataURI || token.image || "", // Use image as fallback for metadataURI
       }));
+      console.log("Formatted tokens:", formattedTokens);
       setUserOwnedTokens(formattedTokens);
     } catch (error) {
       console.error("Error fetching user owned tokens:", error);
