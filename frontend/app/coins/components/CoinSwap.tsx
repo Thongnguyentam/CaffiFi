@@ -53,6 +53,7 @@ interface Token {
   isOpen: boolean;
   image: string;
   description: string;
+  metadataURI: string;
 }
 
 // Define TokenSale interface to match what's needed for price estimation functions
@@ -244,6 +245,46 @@ const CoinSwap = ({
     "instant" | "limit" | "cross-chain"
   >("instant");
 
+  // Add state for chain IDs
+  const [currentChainId, setCurrentChainId] = useState<number>(10000096); // Default to Espresso Orbit
+  const [targetChainId, setTargetChainId] = useState<number>(10000099); // Default to Latte Orbit
+
+  // Remove duplicate marketplaceTokens state since it's already passed as a prop
+  const [userOwnedTokens, setUserOwnedTokens] = useState<Token[]>([]);
+
+  // Add function to fetch user's owned tokens
+  const fetchUserOwnedTokens = useCallback(async () => {
+    if (!isConnected || !walletClient) return;
+
+    try {
+      const ownedTokens = await testTokenService.testGetTokens({
+        isCreator: true,
+      });
+      // Ensure the tokens have the required metadataURI property
+      const formattedTokens = ownedTokens.map((token) => ({
+        token: token.token,
+        name: token.name,
+        creator: token.creator,
+        sold: token.sold,
+        raised: token.raised,
+        isOpen: token.isOpen,
+        image: token.image || "",
+        description: token.description || "",
+        metadataURI: token.metadataURI || token.image || "", // Use image as fallback for metadataURI
+      }));
+      setUserOwnedTokens(formattedTokens);
+    } catch (error) {
+      console.error("Error fetching user owned tokens:", error);
+    }
+  }, [isConnected, walletClient, testTokenService]);
+
+  // Update useEffect to fetch user's owned tokens when wallet connects
+  useEffect(() => {
+    if (isConnected && walletClient) {
+      fetchUserOwnedTokens();
+    }
+  }, [isConnected, walletClient, fetchUserOwnedTokens]);
+
   // Convert marketplace tokens to the format needed for the UI
   const marketplaceTokensFormatted: UIToken[] = marketplaceTokens.map(
     (token) => ({
@@ -257,9 +298,21 @@ const CoinSwap = ({
     })
   );
 
-  // Combine ETH with marketplace tokens
+  // Convert user owned tokens to UI format
+  const userOwnedTokensFormatted: UIToken[] = userOwnedTokens.map((token) => ({
+    symbol: token.name.substring(0, 4).toUpperCase(),
+    name: token.name,
+    balance: 0, // Will be updated with real balance
+    icon: "👑", // Special icon for user owned tokens
+    change24h: "+0.0%",
+    price: 0.01,
+    tokenData: token,
+  }));
+
+  // Combine ETH with marketplace tokens and user owned tokens
   const tokens: UIToken[] = [
     ...defaultTokens.filter((t) => t.symbol === "ETH"), // Only keep ETH from default tokens
+    ...userOwnedTokensFormatted, // Add user owned tokens first
     ...marketplaceTokensFormatted,
   ];
 
@@ -834,6 +887,65 @@ const CoinSwap = ({
     );
   };
 
+  // Update the token selection UI to show owned tokens
+  const renderTokenList = (
+    tokens: UIToken[],
+    searchQuery: string,
+    currentToken: UIToken
+  ) => {
+    const filteredTokens = tokens.filter(
+      (token) =>
+        token.symbol.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        token.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
+    return (
+      <div className="max-h-[200px] overflow-y-auto py-1">
+        {filteredTokens
+          .filter((token) =>
+            isTokenSwappable(token)
+              ? true
+              : token.symbol === currentToken.symbol
+          )
+          .map((token) => (
+            <button
+              key={token.symbol}
+              className={`flex items-center justify-between w-full p-2 rounded-lg hover:bg-[#8B4513]/20 ${
+                token.symbol === currentToken.symbol ? "bg-[#8B4513]/20" : ""
+              }`}
+              onClick={() => {
+                if (currentToken === fromToken) {
+                  setFromToken(token);
+                  setFromSearchQuery("");
+                } else {
+                  setToToken(token);
+                  setToSearchQuery("");
+                }
+              }}
+            >
+              <div className="flex items-center">
+                {renderTokenIcon(token)}
+                <div className="ml-2 text-left">
+                  <div className="font-medium text-[#e8d5a9]">
+                    {token.symbol}
+                  </div>
+                  <div className="text-xs text-[#e8d5a9]/70">{token.name}</div>
+                </div>
+              </div>
+              <div className="text-xs text-right text-[#d4b37f]">
+                <div>
+                  {token.symbol === "ETH"
+                    ? ethBalance
+                    : tokenBalances[token.tokenData?.token || ""] || "0"}
+                </div>
+                <div>${token.price}</div>
+              </div>
+            </button>
+          ))}
+      </div>
+    );
+  };
+
   return (
     <div className="flex flex-col gap-4 sticky top-24">
       <Card className="border-[#8B4513]/30 bg-[#1a0f02]/90 backdrop-blur-xl">
@@ -876,7 +988,368 @@ const CoinSwap = ({
           </div>
 
           {orderType === "cross-chain" ? (
-            <DeBridgeWidget />
+            <div className="space-y-4">
+              {/* From Chain Selection */}
+              <div className="relative">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-sm text-[#d4b37f]">From Chain</span>
+                </div>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex items-center justify-between space-x-1 w-full h-9 border-[#8B4513] bg-[#1a0f02]/60 text-[#e8d5a9] hover:bg-[#8B4513]/20"
+                    >
+                      <div className="flex items-center">
+                        <Globe className="h-4 w-4 mr-1.5 text-[#d4b37f]" />
+                        <span>
+                          {currentChainId === 10000096
+                            ? "Espresso Orbit"
+                            : "Latte Orbit"}
+                        </span>
+                      </div>
+                      <ChevronDown className="h-4 w-4 text-[#d4b37f]" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent
+                    className="w-[300px] bg-[#1a0f02] border-[#8B4513]/30 text-[#e8d5a9]"
+                    align="end"
+                  >
+                    <div className="space-y-2">
+                      <div className="max-h-[200px] overflow-y-auto py-1">
+                        <button
+                          className="flex items-center justify-between w-full p-2 rounded-lg hover:bg-[#8B4513]/20"
+                          onClick={() => {
+                            if (currentChainId !== 10000096) {
+                              setCurrentChainId(10000096);
+                            }
+                          }}
+                        >
+                          <div className="flex items-center">
+                            <Globe className="h-4 w-4 mr-2 text-[#d4b37f]" />
+                            <div className="text-left">
+                              <div className="font-medium text-[#e8d5a9]">
+                                Espresso Orbit
+                              </div>
+                              <div className="text-xs text-[#e8d5a9]/70">
+                                Devnet
+                              </div>
+                            </div>
+                          </div>
+                          {currentChainId === 10000096 && (
+                            <Check className="h-4 w-4 text-[#92da6c]" />
+                          )}
+                        </button>
+                        <button
+                          className="flex items-center justify-between w-full p-2 rounded-lg hover:bg-[#8B4513]/20"
+                          onClick={() => {
+                            if (currentChainId !== 10000099) {
+                              setCurrentChainId(10000099);
+                            }
+                          }}
+                        >
+                          <div className="flex items-center">
+                            <Globe className="h-4 w-4 mr-2 text-[#d4b37f]" />
+                            <div className="text-left">
+                              <div className="font-medium text-[#e8d5a9]">
+                                Latte Orbit
+                              </div>
+                              <div className="text-xs text-[#e8d5a9]/70">
+                                Devnet
+                              </div>
+                            </div>
+                          </div>
+                          {currentChainId === 10000099 && (
+                            <Check className="h-4 w-4 text-[#92da6c]" />
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  </PopoverContent>
+                </Popover>
+              </div>
+
+              {/* To Chain Selection */}
+              <div className="relative">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-sm text-[#d4b37f]">To Chain</span>
+                </div>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex items-center justify-between space-x-1 w-full h-9 border-[#8B4513] bg-[#1a0f02]/60 text-[#e8d5a9] hover:bg-[#8B4513]/20"
+                    >
+                      <div className="flex items-center">
+                        <Globe className="h-4 w-4 mr-1.5 text-[#d4b37f]" />
+                        <span>
+                          {targetChainId === 10000096
+                            ? "Espresso Orbit"
+                            : "Latte Orbit"}
+                        </span>
+                      </div>
+                      <ChevronDown className="h-4 w-4 text-[#d4b37f]" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent
+                    className="w-[300px] bg-[#1a0f02] border-[#8B4513]/30 text-[#e8d5a9]"
+                    align="end"
+                  >
+                    <div className="space-y-2">
+                      <div className="max-h-[200px] overflow-y-auto py-1">
+                        <button
+                          className="flex items-center justify-between w-full p-2 rounded-lg hover:bg-[#8B4513]/20"
+                          onClick={() => {
+                            if (targetChainId !== 10000096) {
+                              setTargetChainId(10000096);
+                            }
+                          }}
+                        >
+                          <div className="flex items-center">
+                            <Globe className="h-4 w-4 mr-2 text-[#d4b37f]" />
+                            <div className="text-left">
+                              <div className="font-medium text-[#e8d5a9]">
+                                Espresso Orbit
+                              </div>
+                              <div className="text-xs text-[#e8d5a9]/70">
+                                Devnet
+                              </div>
+                            </div>
+                          </div>
+                          {targetChainId === 10000096 && (
+                            <Check className="h-4 w-4 text-[#92da6c]" />
+                          )}
+                        </button>
+                        <button
+                          className="flex items-center justify-between w-full p-2 rounded-lg hover:bg-[#8B4513]/20"
+                          onClick={() => {
+                            if (targetChainId !== 10000099) {
+                              setTargetChainId(10000099);
+                            }
+                          }}
+                        >
+                          <div className="flex items-center">
+                            <Globe className="h-4 w-4 mr-2 text-[#d4b37f]" />
+                            <div className="text-left">
+                              <div className="font-medium text-[#e8d5a9]">
+                                Latte Orbit
+                              </div>
+                              <div className="text-xs text-[#e8d5a9]/70">
+                                Devnet
+                              </div>
+                            </div>
+                          </div>
+                          {targetChainId === 10000099 && (
+                            <Check className="h-4 w-4 text-[#92da6c]" />
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  </PopoverContent>
+                </Popover>
+              </div>
+
+              {/* Token Selection */}
+              <div className="relative">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-sm text-[#d4b37f]">Token</span>
+                  <span className="text-xs text-[#e8d5a9]/70">
+                    Balance:{" "}
+                    {fromToken.symbol === "ETH"
+                      ? ethBalance
+                      : tokenBalances[fromToken.tokenData?.token || ""] || "0"}
+                  </span>
+                </div>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex items-center justify-between space-x-1 w-full h-9 border-[#8B4513] bg-[#1a0f02]/60 text-[#e8d5a9] hover:bg-[#8B4513]/20"
+                    >
+                      <div className="flex items-center">
+                        {renderTokenIcon(fromToken)}
+                        <span className="ml-1.5">{fromToken.symbol}</span>
+                      </div>
+                      <ChevronDown className="h-4 w-4 text-[#d4b37f]" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent
+                    className="w-[300px] bg-[#1a0f02] border-[#8B4513]/30 text-[#e8d5a9]"
+                    align="end"
+                  >
+                    <div className="space-y-2">
+                      <div className="flex items-center border border-[#8B4513]/30 rounded-lg p-2">
+                        <Search className="h-4 w-4 mr-2 text-[#d4b37f]" />
+                        <Input
+                          placeholder="Search token"
+                          className="border-none bg-transparent text-[#e8d5a9] placeholder-[#e8d5a9]/40 focus-visible:ring-0"
+                          value={fromSearchQuery}
+                          onChange={(e) => setFromSearchQuery(e.target.value)}
+                        />
+                        {fromSearchQuery && (
+                          <X
+                            className="h-4 w-4 cursor-pointer text-[#d4b37f] hover:text-[#e8d5a9]"
+                            onClick={() => setFromSearchQuery("")}
+                          />
+                        )}
+                      </div>
+                      {renderTokenList(tokens, fromSearchQuery, fromToken)}
+                    </div>
+                  </PopoverContent>
+                </Popover>
+              </div>
+
+              {/* Amount Input */}
+              <div className="relative">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-sm text-[#d4b37f]">Amount</span>
+                  <span className="text-xs text-[#e8d5a9]/70">
+                    Balance:{" "}
+                    {fromToken.symbol === "ETH"
+                      ? ethBalance
+                      : tokenBalances[fromToken.tokenData?.token || ""] || "0"}
+                  </span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="flex-1">
+                    <Input
+                      type="number"
+                      placeholder="0.0"
+                      value={fromAmount}
+                      onChange={(e) => handleFromAmountChange(e.target.value)}
+                      className="text-lg font-medium border-none bg-transparent text-[#e8d5a9] placeholder-[#e8d5a9]/40 focus-visible:ring-0"
+                    />
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleMaxClick}
+                    className="h-8 text-xs border-[#8B4513] text-[#d4b37f] hover:bg-[#8B4513]/20 hover:text-[#e8d5a9]"
+                  >
+                    MAX
+                  </Button>
+                </div>
+              </div>
+
+              {/* Cross-Chain Details */}
+              <div className="mt-4 pt-4 border-t border-[#8B4513]/30">
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <div className="flex items-center text-[#e8d5a9]/70">
+                      Bridge Fee
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Info className="h-3 w-3 ml-1 text-[#d4b37f]" />
+                          </TooltipTrigger>
+                          <TooltipContent className="max-w-[250px] bg-[#1a0f02] border-[#8B4513]/30 text-[#e8d5a9]">
+                            <p>Fee charged for cross-chain transfer.</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
+                    <span className="text-[#e8d5a9]">0.1 ETH</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <div className="flex items-center text-[#e8d5a9]/70">
+                      Estimated Time
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Info className="h-3 w-3 ml-1 text-[#d4b37f]" />
+                          </TooltipTrigger>
+                          <TooltipContent className="max-w-[250px] bg-[#1a0f02] border-[#8B4513]/30 text-[#e8d5a9]">
+                            <p>Estimated time for cross-chain transfer.</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
+                    <span className="text-[#e8d5a9]">2-5 minutes</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Bridge Button */}
+              <Button
+                onClick={async () => {
+                  if (!fromToken.tokenData) {
+                    alert("Please select a token to bridge");
+                    return;
+                  }
+
+                  if (!fromAmount || parseFloat(fromAmount) <= 0) {
+                    alert("Please enter a valid amount");
+                    return;
+                  }
+
+                  const currentBalance = parseFloat(
+                    fromToken.symbol === "ETH"
+                      ? ethBalance
+                      : tokenBalances[fromToken.tokenData.token] || "0"
+                  );
+
+                  if (parseFloat(fromAmount) > currentBalance) {
+                    alert(
+                      `Insufficient balance. You have ${currentBalance} ${fromToken.symbol} but are trying to bridge ${fromAmount} ${fromToken.symbol}.`
+                    );
+                    return;
+                  }
+
+                  try {
+                    setIsCalculating(true);
+                    const targetRpcUrl =
+                      targetChainId === 10000096
+                        ? "http://127.0.0.1:8547"
+                        : "http://127.0.0.1:8647";
+
+                    const result = await testTokenService.swp(
+                      fromToken.tokenData,
+                      Number(fromAmount),
+                      targetChainId,
+                      targetRpcUrl
+                    );
+
+                    if (!result.success) {
+                      alert(result.error || "Bridge failed. Please try again.");
+                      return;
+                    }
+
+                    // Show success message
+                    alert("Bridge initiated successfully!");
+                    if (handleTradeAction) {
+                      handleTradeAction();
+                    }
+                  } catch (error) {
+                    console.error("Error during bridge:", error);
+                    alert(
+                      "An error occurred during the bridge. Please try again."
+                    );
+                  } finally {
+                    setIsCalculating(false);
+                  }
+                }}
+                disabled={!fromAmount || isCalculating || !fromToken.tokenData}
+                className={`w-full h-12 text-lg font-medium rounded-xl ${
+                  !fromAmount || isCalculating || !fromToken.tokenData
+                    ? "bg-[#8B4513]/30 text-[#e8d5a9]/50 cursor-not-allowed"
+                    : "bg-[#8B4513] hover:bg-[#A0522D] text-[#e8d5a9]"
+                }`}
+              >
+                {isCalculating ? (
+                  <div className="flex items-center space-x-2">
+                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-t-transparent border-[#e8d5a9]"></div>
+                    <span>Brewing...</span>
+                  </div>
+                ) : !fromAmount ? (
+                  "Enter an amount"
+                ) : (
+                  "Bridge Token"
+                )}
+              </Button>
+            </div>
           ) : (
             <>
               {/* From Token */}
@@ -946,50 +1419,7 @@ const CoinSwap = ({
                             />
                           )}
                         </div>
-                        <div className="max-h-[200px] overflow-y-auto py-1">
-                          {filteredFromTokens
-                            .filter((token) =>
-                              isTokenSwappable(token)
-                                ? true
-                                : token.symbol === fromToken.symbol
-                            )
-                            .map((token) => (
-                              <button
-                                key={token.symbol}
-                                className={`flex items-center justify-between w-full p-2 rounded-lg hover:bg-[#8B4513]/20 ${
-                                  token.symbol === fromToken.symbol
-                                    ? "bg-[#8B4513]/20"
-                                    : ""
-                                }`}
-                                onClick={() => {
-                                  setFromToken(token);
-                                  setFromSearchQuery("");
-                                }}
-                              >
-                                <div className="flex items-center">
-                                  {renderTokenIcon(token)}
-                                  <div className="ml-2 text-left">
-                                    <div className="font-medium text-[#e8d5a9]">
-                                      {token.symbol}
-                                    </div>
-                                    <div className="text-xs text-[#e8d5a9]/70">
-                                      {token.name}
-                                    </div>
-                                  </div>
-                                </div>
-                                <div className="text-xs text-right text-[#d4b37f]">
-                                  <div>
-                                    {token.symbol === "ETH"
-                                      ? ethBalance
-                                      : tokenBalances[
-                                          token.tokenData?.token || ""
-                                        ] || "0"}
-                                  </div>
-                                  <div>${token.price}</div>
-                                </div>
-                              </button>
-                            ))}
-                        </div>
+                        {renderTokenList(tokens, fromSearchQuery, fromToken)}
                       </div>
                     </PopoverContent>
                   </Popover>
@@ -1075,50 +1505,7 @@ const CoinSwap = ({
                             />
                           )}
                         </div>
-                        <div className="max-h-[200px] overflow-y-auto py-1">
-                          {filteredToTokens
-                            .filter((token) =>
-                              isTokenSwappable(token)
-                                ? true
-                                : token.symbol === toToken.symbol
-                            )
-                            .map((token) => (
-                              <button
-                                key={token.symbol}
-                                className={`flex items-center justify-between w-full p-2 rounded-lg hover:bg-[#8B4513]/20 ${
-                                  token.symbol === toToken.symbol
-                                    ? "bg-[#8B4513]/20"
-                                    : ""
-                                }`}
-                                onClick={() => {
-                                  setToToken(token);
-                                  setToSearchQuery("");
-                                }}
-                              >
-                                <div className="flex items-center">
-                                  {renderTokenIcon(token)}
-                                  <div className="ml-2 text-left">
-                                    <div className="font-medium text-[#e8d5a9]">
-                                      {token.symbol}
-                                    </div>
-                                    <div className="text-xs text-[#e8d5a9]/70">
-                                      {token.name}
-                                    </div>
-                                  </div>
-                                </div>
-                                <div className="text-xs text-right text-[#d4b37f]">
-                                  <div>
-                                    {token.symbol === "ETH"
-                                      ? ethBalance
-                                      : tokenBalances[
-                                          token.tokenData?.token || ""
-                                        ] || "0"}
-                                  </div>
-                                  <div>${token.price}</div>
-                                </div>
-                              </button>
-                            ))}
-                        </div>
+                        {renderTokenList(tokens, toSearchQuery, toToken)}
                       </div>
                     </PopoverContent>
                   </Popover>
