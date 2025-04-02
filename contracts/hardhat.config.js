@@ -1,9 +1,6 @@
 require("@nomicfoundation/hardhat-toolbox");
 require("dotenv").config();
 
-// Use the same account for both networks
-const PRIVATE_KEY = "0c6aaedebed8f32db344a74f5fda724c42a1b7053450ebfecd29ba0e0922dd6b";
-
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
   solidity: {
@@ -15,18 +12,7 @@ module.exports = {
           },
       },
   },
-  ignition: {
-    // Ignition specific settings
-    moduleCompilationOpts: {
-      optimizer: {
-        enabled: true,
-        runs: 100,
-      },
-    },
-    // Set low confirmations for faster testing
-    requiredConfirmations: 1,
-  },
-  
+
   gasReporter: {
       enabled: true,
   },
@@ -36,23 +22,15 @@ module.exports = {
       disambiguatePaths: false,
       runOnCompile: true,
       strict: false,
+      // only: [':ERC20$'],
   },
 
   // allowUnlimitedContractSize: true,
   networks: {
-    espressoOrbit: {
-      url: "http://127.0.0.1:8547",
-      chainId: 10000096,
-      accounts: [PRIVATE_KEY],
-      gas: 8000000,
-      gasPrice: 1000000000
-    },
-    latteOrbit: {
-      url: "http://127.0.0.1:8647",
-      chainId: 10000099,
-      accounts: [PRIVATE_KEY],
-      gas: 8000000,
-      gasPrice: 1000000000
+    sonic_blaze_testnet: {
+      url: "https://rpc.blaze.soniclabs.com",
+      chainId: 57054, // Replace with the correct chain ID
+      accounts: ["ac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"] // Use environment variables instead for security
     }
   }
 };

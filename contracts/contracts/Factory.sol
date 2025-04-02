@@ -3,7 +3,6 @@ pragma solidity ^0.8.28;
 
 import {Token} from "./Token.sol";
 import "./NativeLiquidityPool.sol";
-import "./CrossChainMessenger.sol";
 
 contract Factory {
     uint256 public constant TARGET = 3 ether;
@@ -12,95 +11,45 @@ contract Factory {
     uint constant BASE_REWARD_PERCENTAGE = 3; // 3% reward
     uint256 public immutable fee;
     address public owner;
-    uint32 public immutable chainId; // Chain identifier
 
     uint256 public totalTokens;
     address[] public tokens;
-    mapping(string => address) public tokenBySymbol; // Maps token symbol to token address
+    //mapping(string => address) public tokenBySymbol;
     mapping(address => TokenSale) public tokenToSale;
     mapping(address => mapping(address => uint256)) public userTokenContributions;
     mapping(address => mapping(address => uint256)) public userEthContributions;
     mapping(address => mapping(address => bool)) public hasClaimedReward;
     mapping(address => address[]) public tokenContributors;
-    mapping(bytes32 => bool) public processedMessages; // Track processed cross-chain messages
 
     struct TokenSale {
         address token;
         string name;
-        string symbol;
         string metadataURI;
         address creator;
         uint256 sold;
         uint256 raised;
         bool isOpen;
         bool isLiquidityCreated;
-        bool isOriginChain; // Whether this chain originated the token
     }
 
     NativeLiquidityPool public nativeLiquidityPool;
-    CrossChainMessenger public crossChainMessenger;
     
-    event Created(address indexed token, string symbol, bool isOriginChain);
+    event Created(address indexed token);
     event RewardClaimed(address indexed user, address indexed token, uint256 amount);
-    event TokenCreatedOnOtherChain(address indexed token, string symbol, uint32 indexed chainId);
-    event TokensBridged(address indexed token, string symbol, address indexed user, uint256 amount, uint32 targetChainId);
-    event TokensReceived(address indexed token, string symbol, address indexed user, uint256 amount, uint32 sourceChainId);
-    event LiquidityCreatedNotified(string symbol, uint32 sourceChainId);
-    event PeerFactorySet(uint32 indexed chainId, address indexed factory);
-    event PeerFactoryRemoved(uint32 indexed chainId);
+    event Burned(address indexed user, address indexed token, uint256 amount);
 
     modifier onlyOwner() {
         require(msg.sender == owner, "Only owner can call this function");
         _;
     }
 
-    modifier onlyCrossChainMessenger() {
-        require(msg.sender == address(crossChainMessenger), "Only CrossChainMessenger can call");
-        _;
-    }
-
-    constructor(uint256 _fee, uint32 _chainId) {
+    constructor(uint256 _fee) {
         fee = _fee;
         owner = msg.sender;
-        chainId = _chainId;
     }
 
     function setLiquidityPool(address _liquidityPool) external onlyOwner {
         nativeLiquidityPool = NativeLiquidityPool(_liquidityPool);
-    }
-
-    function setCrossChainMessenger(address _messenger) external onlyOwner {
-        crossChainMessenger = CrossChainMessenger(_messenger);
-    }
-
-    /**
-     * @notice Add or update a peer factory on another chain
-     * @param targetChainId The chain ID of the peer
-     * @param peerFactory The address of the factory on that chain
-     */
-    function setPeerFactory(uint32 targetChainId, address peerFactory) external onlyOwner {
-        require(targetChainId != chainId, "Cannot set peer for current chain");
-        require(peerFactory != address(0), "Invalid peer factory address");
-        
-        crossChainMessenger.setPeerFactory(targetChainId, peerFactory);
-        emit PeerFactorySet(targetChainId, peerFactory);
-    }
-
-    /**
-     * @notice Remove a peer factory
-     * @param targetChainId The chain ID of the peer to remove
-     */
-    function removePeerFactory(uint32 targetChainId) external onlyOwner {
-        crossChainMessenger.removePeerFactory(targetChainId);
-        emit PeerFactoryRemoved(targetChainId);
-    }
-
-    /**
-     * @notice Get all peer chain IDs
-     * @return Array of chain IDs
-     */
-    function getPeerChainIds() external view returns (uint32[] memory) {
-        return crossChainMessenger.getPeerChainIds();
     }
 
     function create(
@@ -110,146 +59,26 @@ contract Factory {
         address _creator
     ) external payable {
         require(msg.value >= fee, "Creator fee not met");
-        require(tokenBySymbol[_symbol] == address(0), "already exists");
+        //require(tokenBySymbol[_symbol] == address(0), "Token with this symbol already exists");
+        // Default to msg.sender if _creator is zero address
         if (_creator == address(0)) {
             _creator = msg.sender;
         }
 
-        // Create token on this chain with full supply since we're the origin
-        Token token = new Token(
-            _creator,
-            _name,
-            _symbol,
-            _metadataURI,
-            TOKEN_LIMIT // Mint full supply since we're the origin chain
-        );
-
-        // Add token to list and mappings
+        Token token = new Token(_creator, _name, _symbol, _metadataURI, 1_000_000 ether);
         tokens.push(address(token));
         totalTokens++;
-        tokenBySymbol[_symbol] = address(token);
 
-        TokenSale memory sale = TokenSale(
-            address(token),
-            _name,
-            _symbol,
-            _metadataURI,
-            _creator,
-            0,
-            0,
-            true,
-            false,
-            true // This is the origin chain for this token
-        );
+        TokenSale memory sale = TokenSale(address(token), _name, _metadataURI, _creator, 0, 0, true, false);
         tokenToSale[address(token)] = sale;
 
-        // Send message to all peer chains to create token
-        uint32[] memory peers = crossChainMessenger.getPeerChainIds();
-        uint256 msgValuePerChain = msg.value / peers.length;
-        
-        for (uint i = 0; i < peers.length; i++) {
-            crossChainMessenger.sendCreateTokenToOtherChain{value: msgValuePerChain}(
-                peers[i],
-                _name,
-                _symbol,
-                _metadataURI,
-                _creator
-            );
-        }
-
-        emit Created(address(token), _symbol, true);
+        emit Created(address(token));
     }
 
-    function handleTokenCreatedOnOtherChain(
-        string memory _name,
-        string memory _symbol,
-        string memory _metadataURI,
-        address _creator,
-        uint32 _sourceChainId,
-        bytes32 _messageId
-    ) external onlyCrossChainMessenger {
-        require(!processedMessages[_messageId], "Message already processed");
-        processedMessages[_messageId] = true;
-        
-        Token token = new Token(
-            _creator,
-            _name,
-            _symbol,
-            _metadataURI,
-            0 // No initial supply since we're not the origin chain
-        );
 
-        // Add token to list and mappings
-        tokens.push(address(token));
-        totalTokens++;
-        tokenBySymbol[_symbol] = address(token);
-
-        TokenSale memory sale = TokenSale(
-            address(token),
-            _name,
-            _symbol,
-            _metadataURI,
-            _creator,
-            0,
-            0,
-            false, // Not open for sale on non-origin chain
-            false,
-            false // This is not the origin chain for this token
-        );
-        tokenToSale[address(token)] = sale;
-
-        emit TokenCreatedOnOtherChain(address(token), _symbol, _sourceChainId);
-    }
-
-    function bridgeTokens(
-        string memory _symbol,
-        uint256 _amount,
-        uint32 targetChainId
-    ) external {
-        require(_amount > 0, "Amount must be greater than 0");
-        
-        address tokenAddress = tokenBySymbol[_symbol];
-        require(tokenAddress != address(0), "Token does not exist");
-        
-        Token token = Token(tokenAddress);
-        require(token.balanceOf(msg.sender) >= _amount, "Insufficient balance");
-        
-        // Burn tokens on this chain
-        token.burnFrom(msg.sender, _amount);
-        
-        // Send message to target chain to mint tokens
-        crossChainMessenger.sendBridgeTokensToOtherChain(
-            targetChainId,
-            _symbol,
-            msg.sender,
-            _amount
-        );
-
-        emit TokensBridged(tokenAddress, _symbol, msg.sender, _amount, targetChainId);
-    }
-
-    function handleBridgeTokensReceived(
-        string memory _symbol,
-        address _recipient,
-        uint256 _amount,
-        uint32 _sourceChainId,
-        bytes32 _messageId
-    ) external onlyCrossChainMessenger {
-        require(!processedMessages[_messageId], "Message already processed");
-        processedMessages[_messageId] = true;
-
-        address tokenAddress = tokenBySymbol[_symbol];
-        require(tokenAddress != address(0), "Token does not exist");
-
-        // Mint tokens on this chain
-        Token(tokenAddress).mint(_recipient, _amount);
-
-        emit TokensReceived(tokenAddress, _symbol, _recipient, _amount, _sourceChainId);
-    }
-
-    function buy(address _token, uint256 _amount) external payable {
+    function buy(address _token, uint256 _amount) external payable{
         TokenSale storage sale = tokenToSale[_token];
-        require(sale.isOriginChain, "Can only buy on origin chain");
+
         require(sale.token != address(0) && sale.isOpen, "!available");
         require(_amount >= 1 ether && _amount <= 10000 ether, "!amount");
         
@@ -290,17 +119,6 @@ contract Factory {
 
         memeTokenCt.approve(address(nativeLiquidityPool), tokenBalance);
         nativeLiquidityPool.addLiquidity{value: sale.raised}(_token, tokenBalance, contributors, contributorAmounts);
-
-        // After liquidity is created, notify all peer chains
-        if (sale.isOriginChain) {
-            uint32[] memory peers = crossChainMessenger.getPeerChainIds();
-            for (uint i = 0; i < peers.length; i++) {
-                crossChainMessenger.sendLiquidityCreatedToOtherChain(
-                    peers[i],
-                    sale.symbol
-                );
-            }
-        }
     }
 
     function calculateReward(address _token, address user) internal view returns (uint256) {
@@ -315,6 +133,7 @@ contract Factory {
         return (sale.raised * BASE_REWARD_PERCENTAGE * userTokens) / (sale.sold * 100);
     }
  
+    
     function claimReward(address _token) public {
         require(tokenToSale[_token].isLiquidityCreated, "Liquidity not created yet");
         require(!hasClaimedReward[_token][msg.sender], "Reward already claimed");
@@ -367,33 +186,20 @@ contract Factory {
         return getCost(sale.sold) * (_amount / 10 ** 18);
     }
 
-    /**
-     * @notice Handle notification that liquidity was created on another chain
-     * @param _symbol Token symbol
-     * @param _sourceChainId Source chain ID
-     * @param _messageId Message ID for deduplication
-     */
-    function handleLiquidityCreatedOnOtherChain(
-        string memory _symbol,
-        uint32 _sourceChainId,
-        bytes32 _messageId
-    ) external onlyCrossChainMessenger {
-        require(!processedMessages[_messageId], "Message already processed");
-        processedMessages[_messageId] = true;
-
-        address tokenAddress = tokenBySymbol[_symbol];
-        require(tokenAddress != address(0), "Token does not exist");
-
-        TokenSale storage sale = tokenToSale[tokenAddress];
-        require(!sale.isOriginChain, "Must not be origin chain");
+    function swap(address _token, uint256 _amount) external {
+        require(_amount > 0, "Amount must be greater than 0");
+        require(Token(_token).balanceOf(msg.sender) >= _amount, "Insufficient token balance");
         
-        sale.isLiquidityCreated = true;
+        // Transfer tokens from user to this contract
+        require(Token(_token).transferFrom(msg.sender, address(this), _amount), "Transfer failed");
         
-        emit LiquidityCreatedNotified(_symbol, _sourceChainId);
+        // Burn the tokens
+        Token(_token).burn(_amount, address(this));
+        
+        emit Burned(msg.sender, _token, _amount);
     }
 
     // function getTokenBySymbol(string memory _symbol) public view returns (address) {
     //     return tokenBySymbol[_symbol];
     // }
-
 } 
