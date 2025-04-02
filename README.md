@@ -46,27 +46,29 @@ CaffiFi transforms cross-chain token launches, meme coin research, trading, and 
 - 10-day linear vesting schedule and 1 month of liquidity locking to prevent rug
 - Custom bonding curve for sustainable fundraising
 - Automated liquidity management, enforcing liquidity locks to prevent token creators from exiting early.
-- Easily launch tokens via web, chatbot, or Twitter—just submit a joke or meme idea!
+- Easily launch tokens via web/chatbot—just submit a joke or meme idea!
 - Buy and swap tokens effortlessly through chat—just a few clicks to confirm transactions
 
 ### 3. ♨ Betting Marketplace
 - Place bets on meme coin trends, price movements, and crypto events
-- Web interface and Twitter integration (@HyperSonic46406)
 - Fully transparent, on-chain execution for trustless betting
 - Smart contract-secured fund management
 - Category-based filtering and easy stake positioning
-  
-### 4. ☕︎  Multi-Agent AI Framework
 
+## FUTURE DEVELOPMENT
+### 4. ☕︎  [IN-PROGRESS] CROSS-CHAIN TRADING
+- BONDING CURVE
+- CROSS-CHAIN TRADING
+
+### 5. ☕︎  [IN-PROGRESS] Multi-Agent AI Framework
 - News Agent: Real-time crypto news monitoring
 - Token Analysis Agent: Market trend analysis
 - Dex Flow Agent: Enables seamless token buys/swaps with Eth, requiring only the token address
 - Social Sentiment Agent: Cross-platform sentiment analysis
 - Search Agent: New token discovery
 - Swap Agent: Optimal liquidity pool routing
-- Twitter Agent: AI-driven social engagement on X, posting and interacting on meme coin trends in real time
-
-### 5. ⛾ AutoShill 
+  
+### 6. ⛾ [IN-PROGRESS] AutoShill 
 - Automated viral tweet generation – Crafts engaging and high-impact tweets to maximize visibility.
 - Trending discussion engagement – Identifies and participates in relevant trending topics to boost reach.
 - Dynamic social media presence management – Maintains a consistent and interactive brand presence.
