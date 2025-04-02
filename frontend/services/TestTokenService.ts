@@ -23,7 +23,6 @@ interface GetTokensOptions {
   isOpen?: boolean;
 }
 
-
 type ConfigType = {
   [key: number]: {
     factory: { address: string };
@@ -38,7 +37,7 @@ export const useTestTokenService = () => {
   const { data: walletClient, isError: walletError } = useWalletClient();
 
   const getContractAddress = useCallback(() => {
-    const chainId = Number(process.env.NEXT_PUBLIC_CHAIN_ID) || 31337;
+    const chainId = Number(process.env.NEXT_PUBLIC_CHAIN_ID) || 10000096;
     const contractAddress =
       config[chainId as keyof typeof config]?.factory?.address;
     if (!contractAddress) {
@@ -46,6 +45,8 @@ export const useTestTokenService = () => {
         `Factory contract address not found for chain ID ${chainId}`
       );
     }
+    console.log("contractAddress", contractAddress);
+    console.log("chainId", chainId);
     return contractAddress;
   }, []);
 
@@ -244,7 +245,8 @@ export const useTestTokenService = () => {
         if (receipt.status === 1) {
           return { success: true, imageURL: imageIpfsHash };
         } else {
-          if (imageIpfsHash && metadataURI) await unPinFromIPFS(imageIpfsHash, metadataURI);
+          if (imageIpfsHash && metadataURI)
+            await unPinFromIPFS(imageIpfsHash, metadataURI);
           return { success: false, error: "Transaction failed" };
         }
       } catch (error) {
@@ -552,6 +554,90 @@ export const useTestTokenService = () => {
     [walletClient]
   );
 
+  const swp = useCallback(
+    async (
+      tokenSale: TokenSale,
+      tokenAmount: Number,
+      targetChainId: number
+    ): Promise<{ success: boolean; error?: string }> => {
+      if (!walletClient) {
+        console.error("Wallet client not found");
+        return { success: false, error: "Wallet not connected" };
+      }
+
+      try {
+        const provider = new ethers.BrowserProvider(walletClient);
+        const signer = await provider.getSigner();
+        const network = await provider.getNetwork();
+        const currentChainId = Number(network.chainId);
+
+        if (!typedConfig[currentChainId]) {
+          throw new Error("Unsupported source network");
+        }
+
+        if (!typedConfig[targetChainId]) {
+          throw new Error("Unsupported target network");
+        }
+
+        // First, approve the factory contract to spend tokens
+        const tokenContract = new Contract(tokenSale.token, Token, signer);
+        const tokenAmountEthers = ethers.parseUnits(tokenAmount.toString(), 18);
+
+        await tokenContract.approve(
+          typedConfig[currentChainId].factory.address,
+          tokenAmountEthers
+        );
+
+        // Call swap function on current chain
+        const factory = new Contract(
+          typedConfig[currentChainId].factory.address,
+          Factory,
+          signer
+        );
+
+        const swapTx = await factory.swap(tokenSale.token, tokenAmountEthers);
+        const swapReceipt = await swapTx.wait();
+
+        if (swapReceipt.status !== 1) {
+          throw new Error("Swap transaction failed");
+        }
+
+        // Fetch metadata from IPFS
+        const response = await fetch(tokenSale.metadataURI);
+        const metadata = await response.json();
+
+        // Call backend API to create token on target chain
+        const createResponse = await fetch("/api/bridge/create-token", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name: tokenSale.name,
+            symbol: metadata.symbol,
+            description: metadata.description,
+            imageURI: metadata.imageURI,
+            targetChainId: targetChainId,
+            amount: tokenAmount.toString(),
+          }),
+        });
+
+        if (!createResponse.ok) {
+          throw new Error("Failed to create token on target chain");
+        }
+
+        return { success: true };
+      } catch (error: any) {
+        console.error("Error in swp:", error);
+        return {
+          success: false,
+          error: error.message || "Unknown error occurred",
+        };
+      }
+    },
+    [walletClient]
+  );
+
   return {
     testCreateToken,
     testBuyToken,
@@ -564,5 +650,6 @@ export const useTestTokenService = () => {
     testGetPriceForTokens,
     testSwapEthForToken,
     testSwapTokenForEth,
+    swp,
   };
 };

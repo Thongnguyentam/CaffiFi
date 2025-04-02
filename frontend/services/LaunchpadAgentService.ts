@@ -5,13 +5,16 @@ import { config } from "@/app/config/contract_addresses";
 
 export const useLaunchpadAgentService = () => {
   const { data: walletClient } = useWalletClient();
-  
+
   // Get contract address based on the current chain
   const getContractAddress = () => {
-    const chainId = Number(process.env.NEXT_PUBLIC_CHAIN_ID) || 31337;
-    const contractAddress = config[chainId as keyof typeof config]?.LaunchpadAgent?.address;
+    const chainId = Number(process.env.NEXT_PUBLIC_CHAIN_ID) || 10000096;
+    const contractAddress =
+      config[chainId as keyof typeof config]?.LaunchpadAgent?.address;
     if (!contractAddress) {
-      throw new Error(`LaunchpadAgent contract address not found for chain ID ${chainId}`);
+      throw new Error(
+        `LaunchpadAgent contract address not found for chain ID ${chainId}`
+      );
     }
     return contractAddress;
   };
@@ -87,14 +90,16 @@ export const useLaunchpadAgentService = () => {
       LaunchpadAgentABI,
       provider
     );
-    const userTokenCredits = await launchpadAgent.getUserTokenCredits(userAddress);
+    const userTokenCredits = await launchpadAgent.getUserTokenCredits(
+      userAddress
+    );
     return userTokenCredits;
   };
 
   const getUserAddressTwitterHandle = async (twitterHandle: string) => {
     if (!walletClient) {
-        throw new Error("Wallet client not found");
-      }
+      throw new Error("Wallet client not found");
+    }
     console.log("Getting address for Twitter handle:", twitterHandle);
 
     const provider = new ethers.BrowserProvider(walletClient);
@@ -145,20 +150,20 @@ export const useLaunchpadAgentService = () => {
           LaunchpadAgentABI,
           provider
         );
-        
+
         // Get all TwitterHandleRegistered events for this address
         const filter = launchpadAgent.filters.TwitterHandleRegistered();
         const events = await launchpadAgent.queryFilter(filter);
-        
+
         // Find the most recent event where the registered address matches our target
-        const matchingEvent = events
-          .reverse()
-          .find(event => {
-            const eventLog = event as ethers.EventLog;
-            return eventLog.args && 
-                   eventLog.args[1] && // userAddress is the second parameter
-                   eventLog.args[1].toLowerCase() === userAddress.toLowerCase();
-          });
+        const matchingEvent = events.reverse().find((event) => {
+          const eventLog = event as ethers.EventLog;
+          return (
+            eventLog.args &&
+            eventLog.args[1] && // userAddress is the second parameter
+            eventLog.args[1].toLowerCase() === userAddress.toLowerCase()
+          );
+        });
 
         if (matchingEvent) {
           const eventLog = matchingEvent as ethers.EventLog;
@@ -178,20 +183,20 @@ export const useLaunchpadAgentService = () => {
       LaunchpadAgentABI,
       provider
     );
-    
+
     // Get all TwitterHandleRegistered events
     const filter = launchpadAgent.filters.TwitterHandleRegistered();
     const events = await launchpadAgent.queryFilter(filter);
-    
+
     // Find the most recent event where the registered address matches our target
-    const matchingEvent = events
-      .reverse()
-      .find(event => {
-        const eventLog = event as ethers.EventLog;
-        return eventLog.args && 
-               eventLog.args[1] && // userAddress is the second parameter
-               eventLog.args[1].toLowerCase() === userAddress.toLowerCase();
-      });
+    const matchingEvent = events.reverse().find((event) => {
+      const eventLog = event as ethers.EventLog;
+      return (
+        eventLog.args &&
+        eventLog.args[1] && // userAddress is the second parameter
+        eventLog.args[1].toLowerCase() === userAddress.toLowerCase()
+      );
+    });
 
     if (matchingEvent) {
       const eventLog = matchingEvent as ethers.EventLog;
@@ -208,4 +213,4 @@ export const useLaunchpadAgentService = () => {
     withdrawCredits,
     getTwitterHandleByAddress,
   };
-}; 
+};
